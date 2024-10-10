@@ -1,6 +1,7 @@
 // src/context/AuthContext.tsx
 import React, { createContext, useContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import { loginProfile } from "@/api/user";
 
 interface AuthContextType {
   token: string;
@@ -19,6 +20,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // store user data for 1 hour
     Cookies.set("access_token", access_token, { expires: 1 / 24 });
     setToken(access_token);
+    loginProfile(access_token);
   };
 
   const logout = () => {
@@ -30,6 +32,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const access_token = Cookies.get("access_token");
     if (access_token) {
       setToken(access_token);
+      loginProfile(access_token);
     }
   }, []);
 

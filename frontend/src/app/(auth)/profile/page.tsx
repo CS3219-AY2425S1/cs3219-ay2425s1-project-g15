@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
-import { setGetProfile } from "@/api/user";
+import { getProfile, setProfile } from "@/api/user";
 import { useEffect, useState } from "react";
 import { User } from "@/types/user";
 import { z } from "zod";
@@ -39,7 +39,7 @@ const ProfilePage = () => {
   });
 
   useEffect(() => {
-    setGetProfile(token, {}).then((data) => {
+    getProfile(token).then((data) => {
       setUser(data);
       form.reset(data);
     }).catch((error) => {
@@ -53,7 +53,7 @@ const ProfilePage = () => {
   }, [token, form]);
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
-    setGetProfile(token, data).then((data) => {
+    setProfile(token, data).then((data) => {
       setUser(data);
       form.reset(data);
       Swal.fire({
