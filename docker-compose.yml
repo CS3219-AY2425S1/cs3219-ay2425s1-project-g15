@@ -1,0 +1,68 @@
+services:
+  collaboration:
+    build: ./backend/collaboration
+    container_name: collaboration-container
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend/collaboration:/app
+      - /app/node_modules
+    env_file:
+      - ./backend/collaboration/.env
+    networks:
+      - peer-prep-network
+
+  matching:
+    build: ./backend/matching
+    container_name: matching-container
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./backend/matching:/app
+      - /app/node_modules
+    env_file:
+      - ./backend/matching/.env
+    networks:
+      - peer-prep-network
+
+  question:
+    build: ./backend/question
+    container_name: question-container
+    ports:
+      - "3003:3003"
+    volumes:
+      - ./backend/question:/app
+      - /app/node_modules
+    env_file:
+      - ./backend/question/.env
+    networks:
+      - peer-prep-network
+
+  user:
+    build: ./backend/user
+    container_name: user-container
+    ports:
+      - "3004:3004"
+    volumes:
+      - ./backend/user:/app
+      - /app/node_modules
+    env_file:
+      - ./backend/user/.env
+    networks:
+      - peer-prep-network
+
+  mongo:
+    image: mongo
+    container_name: mongo-container
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - peer-prep-network
+
+volumes:
+  mongo-data:
+
+networks:
+  peer-prep-network:
