@@ -2,11 +2,10 @@
 
 import { User } from "@/types/user";
 
+// pings the backend that the user has logged in with Google
 export const loginProfile = async (
   access_token: string
 ): Promise<User> => {
-  // GET request
-  // url from environment variable
   const url = process.env.NEXT_PUBLIC_USER_SERVICE + "/login";
   const response = await fetch(url, {
     method: "GET",
@@ -19,11 +18,10 @@ export const loginProfile = async (
   return response.json();
 }
 
+// get basic user information
 export const getProfile = async (
   access_token: string
 ): Promise<User> => {
-  // GET request
-  // url from environment variable
   const url = process.env.NEXT_PUBLIC_USER_SERVICE + "/get";
   const response = await fetch(url, {
     method: "GET",
@@ -36,6 +34,7 @@ export const getProfile = async (
   return response.json();
 };
 
+// update user profile
 export const setProfile = async (
   access_token: string,
   user: User
@@ -45,8 +44,6 @@ export const setProfile = async (
   const linkedin = user.linkedin;
   const github = user.github;
 
-  // POST request
-  // url from environment variable
   const url = process.env.NEXT_PUBLIC_USER_SERVICE + "/update";
   const response = await fetch(url, {
     method: "POST",

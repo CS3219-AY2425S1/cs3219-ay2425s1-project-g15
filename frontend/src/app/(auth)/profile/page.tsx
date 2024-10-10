@@ -12,6 +12,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Swal from "sweetalert2";
 
+// zod handles form validation
 const formSchema = z.object({
   username: z.string()
     .min(5, "Username must be at least 5 characters"),
@@ -38,11 +39,13 @@ const ProfilePage = () => {
     },
   });
 
+  // profile retrieval happens at the start
   useEffect(() => {
     getProfile(token).then((data) => {
       setUser(data);
       form.reset(data);
     }).catch((error) => {
+      // anything go wrong, just sweet alert
       console.error("Profile Fetch Failed:", error);
       Swal.fire({
         icon: "error",
@@ -52,6 +55,7 @@ const ProfilePage = () => {
     });
   }, [token, form]);
 
+  // profile update
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     setProfile(token, data).then((data) => {
       setUser(data);
