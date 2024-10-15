@@ -2,37 +2,62 @@
 
 import { User } from "@/types/user";
 
-export const setGetProfile = async (
+// pings the backend that the user has logged in with Google
+export const loginProfile = async (
+  access_token: string
+): Promise<User> => {
+  const url = process.env.NEXT_PUBLIC_USER_SERVICE + "/login";
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      access_token: `${access_token}`,
+    },
+  });
+
+  return response.json();
+}
+
+// get basic user information
+export const getProfile = async (
+  access_token: string
+): Promise<User> => {
+  const url = process.env.NEXT_PUBLIC_USER_SERVICE + "/get";
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      access_token: `${access_token}`,
+    },
+  });
+
+  return response.json();
+};
+
+// update user profile
+export const setProfile = async (
   access_token: string,
   user: User
 ): Promise<User> => {
-  // const username = user.username;
-  // const bio = user.bio;
-  // const linkedin = user.linkedin;
-  // const github = user.github;
+  const username = user.username;
+  const bio = user.bio;
+  const linkedin = user.linkedin;
+  const github = user.github;
 
-  // POST request
-  // url from environment variable
-  // const url = process.env.REACT_APP_USER_URL + "/";
-  // const response = await fetch(url, {
-  //   method: "POST",
-  //   headers: {
-  //     "Content-Type": "application/json",
-  //     Authorization: `Bearer ${access_token}`,
-  //   },
-  //   body: JSON.stringify({
-  //     username,
-  //     bio,
-  //     linkedin,
-  //     github,
-  //   }),
-  // });
+  const url = process.env.NEXT_PUBLIC_USER_SERVICE + "/update";
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      access_token: `${access_token}`,
+    },
+    body: JSON.stringify({
+      username,
+      bio,
+      linkedin,
+      github,
+    }),
+  });
 
-  // return response.json();
-  return {
-    username: "Hong Shan",
-    bio: "I live in Redhill",
-    linkedin: "www.linkedin.com/in/hongshan",
-    github: "www.github.com/hongshan",
-  };
+  return response.json();
 };
