@@ -1,13 +1,13 @@
-FROM node
+FROM eclipse-temurin:17-jdk-jammy
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY .mvn/ .mvn/
+COPY mvnw pom.xml ./
+RUN ./mvnw dependency:go-offline
 
-RUN npm install
-
-COPY . .
+COPY src/ ./src/
 
 EXPOSE 3002
 
-CMD ["npm", "start"]
+CMD ["./mvnw", "spring-boot:run"]
