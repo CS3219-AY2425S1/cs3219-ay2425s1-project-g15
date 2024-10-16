@@ -1,0 +1,38 @@
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "question-deployment"
+  namespace: "default"
+  labels:
+    app: "question-deployment"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "question-deployment"
+  template:
+    metadata:
+      labels:
+        app: "question-deployment"
+    spec:
+      containers:
+      - name: "question-service-sha256-1"
+        image: "us-central1-docker.pkg.dev/peerprep-backend/cloud-run-source-deploy/cs3219-ay2425s1-project-g15/question-service@sha256:1683a34f11f2c138f06b6f6534fac869ca8ab4465dce12dfa81760219eb7c3e5"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        env:
+        - name: "MONGODB_URI"
+          valueFrom:
+            configMapKeyRef:
+              key: "MONGODB_URI"
+              name: "question-deployment-config-jhye"
+        - name: "NODE_ENV"
+          valueFrom:
+            configMapKeyRef:
+              key: "NODE_ENV"
+              name: "question-deployment-config-jhye"

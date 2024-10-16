@@ -1,0 +1,44 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: haproxy-ingress
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: "haproxy"
+    haproxy.org/check: "true"
+    haproxy.org/check-http: "/health"
+    haproxy.org/cors-allow-methods: "GET, POST, DELETE"
+    haproxy.org/pod-maxconn: "50"
+
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /collaboration
+        pathType: Prefix
+        backend:
+          service:
+            name: collaboration-service
+            port:
+              number: 3001
+      - path: /matching
+        pathType: Prefix
+        backend:
+          service:
+            name: matching-service
+            port:
+              number: 3002
+      - path: /question
+        pathType: Prefix
+        backend:
+          service:
+            name: question-service
+            port:
+              number: 3003
+      - path: /user
+        pathType: Prefix
+        backend:
+          service:
+            name: user-service
+            port:
+              number: 3004

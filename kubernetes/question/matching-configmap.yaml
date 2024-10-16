@@ -1,0 +1,10 @@
+apiVersion: "v1"
+kind: "ConfigMap"
+metadata:
+  name: "question-deployment-config-jhye"
+  namespace: "default"
+  labels:
+    app: "question-deployment"
+data:
+  MONGODB_URI: $(MONGODB_URI)
+  NODE_ENV: "DEV"

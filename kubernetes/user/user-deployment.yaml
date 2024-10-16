@@ -1,0 +1,44 @@
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "user-deployment"
+  namespace: "default"
+  labels:
+    app: "user-deployment"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "user-deployment"
+  template:
+    metadata:
+      labels:
+        app: "user-deployment"
+    spec:
+      containers:
+      - name: "user-service-sha256-1"
+        image: "us-central1-docker.pkg.dev/peerprep-backend/cloud-run-source-deploy/cs3219-ay2425s1-project-g15/user-service@sha256:458558d4bf12a864a022c2b57b13006eee555cab33a6c52577f80654d66ea983"
+        imagePullPolicy: "IfNotPresent"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        env:
+        - name: "PROD_MONGO_URL"
+          valueFrom:
+            configMapKeyRef:
+              key: "PROD_MONGO_URL"
+              name: "user-deployment-config-jhye"
+        - name: "NODE_ENV"
+          valueFrom:
+            configMapKeyRef:
+              key: "NODE_ENV"
+              name: "user-deployment-config-jhye"
+        - name: "DEV_MONGO_URL"
+          valueFrom:
+            configMapKeyRef:
+              key: "DEV_MONGO_URL"
+              name: "user-deployment-config-jhye"
