@@ -1,0 +1,33 @@
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "collaboration-deployment"
+  namespace: "default"
+  labels:
+    app: "collaboration-deployment"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "collaboration-deployment"
+  template:
+    metadata:
+      labels:
+        app: "collaboration-deployment"
+    spec:
+      containers:
+      - name: "collaboration-service-sha256-1"
+        image: # Add the missing image here
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        env:
+        - name: # Add the missing env variables here
+          valueFrom:
+            configMapKeyRef:
+              key: # Add the missing key here
+              name: "collaboration-deployment-config-jhye"

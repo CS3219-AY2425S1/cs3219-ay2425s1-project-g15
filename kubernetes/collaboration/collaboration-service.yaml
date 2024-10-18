@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: collaboration-service
+  namespace: default
+spec:
+  selector:
+    app: collaboration-deployment
+  ports:
+  - protocol: TCP
+    port: 3001
+    targetPort: 3001
+  type: ClusterIP

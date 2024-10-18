@@ -1,0 +1,11 @@
+apiVersion: "v1"
+kind: "ConfigMap"
+metadata:
+  name: "user-deployment-config-jhye"
+  namespace: "default"
+  labels:
+    app: "user-deployment"
+data:
+  PROD_MONGO_URL: $(PROD_MONGO_URL)
+  NODE_ENV: "PROD"
+  DEV_MONGO_URL: $(DEV_MONGO_URL)
