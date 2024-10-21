@@ -1,0 +1,53 @@
+@startuml Question Service
+
+entity Question {
+  + questionId : number
+  + title : string
+  + description : string
+  + complexity : string
+  + categories : Array<string>
+}
+
+entity EditQuestion {
+  + title : string
+  + description : string
+  + complexity : string
+  + categories : Array<string>
+}
+
+entity Pagination {
+  + pagination : number = 1
+  + pageSize : number = 10
+}
+
+interface IQuestionServiceAPI {
+  + GET /
+  + POST /create [createQuestion: EditQuestion]
+  + POST /all [pagination: Pagination, title: string, complexity: string[], category: string[]]
+  + GET /{id}
+  + POST /{id}/update [updateQuestion: EditQuestion]
+  + POST /{id}/delete
+  + POST /pick-question [complexity: string[], category: string[]]
+}
+
+note right of IQuestionServiceAPI
+  - GET /: Check service status
+  - POST /create: Create a new question
+  - POST /all: Retrieve all questions with pagination (Supports filtering by title, complexiy and category)
+  - GET /{id}: Retrieve a specific question by ID
+  - POST /{id}/update: Update a specific question by ID
+  - POST /{id}/delete: Delete a specific question by ID
+  - POST /pick-question: Pick a random question given a list of complexities and categories
+end note
+
+class QuestionService {
+}
+
+entity QuestionDatabase {
+  + questions: Array<Question>
+}
+
+QuestionService ..|> IQuestionServiceAPI : implements
+QuestionService --> QuestionDatabase : interacts with
+
+@enduml

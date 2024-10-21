@@ -1,0 +1,366 @@
+openapi: 3.0.0
+info:
+  title: Question Service API
+  description: API for managing questions, including CRUD operations.
+  version: 1.0.0
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/JEHOUSOH/Question/1.0.0
+  - url: http://localhost:3003
+    description: Local development server
+
+paths:
+  /:
+    get:
+      summary: Check service status
+      responses:
+        "200":
+          description: Service status message
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Hello from question service!
+
+  /create:
+    post:
+      summary: Create a new question
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuestionCreate"
+      responses:
+        "200":
+          description: Question created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Question created successfully
+                  question:
+                    $ref: "#/components/schemas/Question"
+        "400":
+          description: Bad Request (validation error)
+        "500":
+          description: Internal server error
+
+  /all:
+    post:
+      summary: Retrieve all questions with pagination
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pagination:
+                  type: integer
+                  default: 1
+                  description: Page number
+                  example: 1
+                page_size:
+                  type: integer
+                  default: 10
+                  description: Number of questions per page
+                  example: 10
+                title:
+                  type: string
+                  default: ""
+                  description: Filter by title
+                  example: "Two Sum"
+                complexity:
+                  type: array
+                  items:
+                    type: string
+                  default: []
+                  description: Filter by complexities
+                  example: ["Easy", "Medium", "Hard"]
+                category:
+                  type: array
+                  items:
+                    type: string
+                  default: []
+                  description: Filter by categories
+                  example:
+                    [
+                      "Hash Table",
+                      "Array",
+                      "Linked List",
+                      "Dynamic Programming",
+                      "Math",
+                      "String",
+                    ]
+      responses:
+        "200":
+          description: List of questions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuestionAll"
+        "500":
+          description: Internal server error
+
+  /{id}:
+    get:
+      summary: Get a specific question by ID
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of the question
+      responses:
+        "200":
+          description: A specific question
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Question"
+        "400":
+          description: Invalid ID format
+        "404":
+          description: Question not found
+        "500":
+          description: Internal server error
+
+  /{id}/update:
+    post:
+      summary: Update a specific question by ID
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of the question to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuestionUpdate"
+      responses:
+        "200":
+          description: Updated question
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuestionUpdate"
+        "400":
+          description: Validation or duplicate title error
+        "404":
+          description: Question not found
+        "500":
+          description: Internal server error
+
+  /{id}/delete:
+    post:
+      summary: Delete a specific question by ID
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: ID of the question to delete
+      responses:
+        "200":
+          description: Deleted question
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Question"
+        "404":
+          description: Question not found
+        "500":
+          description: Internal server error
+  /pick-question:
+    post:
+      summary: Pick a random question given a list of complexities and categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                complexity:
+                  type: array
+                  items:
+                    type: string
+                  default: []
+                  description: Filter by complexities
+                  example: ["Easy"]
+                category:
+                  type: array
+                  items:
+                    type: string
+                  default: []
+                  description: Filter by categories
+                  example: ["Hash Table"]
+
+      responses:
+        "200":
+          description: Question picked
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Question"
+        "400":
+          description: Bad Request (validation error)
+        "404":
+          description: No Question found
+        "500":
+          description: Internal server error
+
+components:
+  schemas:
+    Question:
+      type: object
+      properties:
+        questionid:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Two Sum"
+        description:
+          type: string
+          example: "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.You may assume that each input would have exactly one solution, and you may not use the same element twice.You can return the answer in any order."
+        category:
+          type: array
+          items:
+            type: string
+          example: ["Array", "Hash Table"]
+        complexity:
+          type: string
+          example: "Easy"
+
+    QuestionCreate:
+      type: object
+      required:
+        - title
+        - description
+        - category
+        - complexity
+      properties:
+        title:
+          type: string
+          example: "Two Sum"
+        description:
+          type: string
+          example: "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.You may assume that each input would have exactly one solution, and you may not use the same element twice.You can return the answer in any order."
+        category:
+          type: array
+          items:
+            type: string
+          example: ["Array", "Hash Table"]
+        complexity:
+          type: string
+          example: "Easy"
+
+    QuestionAll:
+      type: object
+      properties:
+        questions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Question"
+          example:
+            - _id: "66f925ddfdfb8e1665720acc"
+              questionid: 1
+              title: "Two Sum"
+              description: "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target. You may assume that each input would have exactly one solution, and you may not use the same element twice. You can return the answer in any order. "
+              category: ["Array", "Hash Table"]
+              complexity: "Easy"
+            - _id: "66f925ddfdfb8e1665720acd"
+              questionid: 2
+              title: "Add Two Numbers"
+              description: "You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order, and each of their nodes contains a single digit. Add the two numbers and return the sum as a linked list. You may assume the two numbers do not contain any leading zero, except the number 0 itself. "
+              category: ["Linked List", "Math", "Recursion"]
+              complexity: "Medium"
+            - _id: "66f925ddfdfb8e1665720ace"
+              questionid: 3
+              title: "Longest Substring Without Repeating Characters"
+              description: "Given a string s, find the length of the longest substring without repeating characters. "
+              category: ["Hash Table", "String", "Sliding Window"]
+              complexity: "Medium"
+            - _id: "66f925ddfdfb8e1665720acf"
+              questionid: 4
+              title: "Median of Two Sorted Arrays"
+              description: "Given two sorted arrays nums1 and nums2 of size m and n respectively, return the median of the two sorted arrays. The overall run time complexity should be O(log (m+n)). "
+              category: ["Array", "Binary Search", "Divide and Conquer"]
+              complexity: "Hard"
+            - _id: "66f925ddfdfb8e1665720ad0"
+              questionid: 5
+              title: "Longest Palindromic Substring"
+              description: "Given a string s, return the longest palindromic substring in s. "
+              category: ["String", "Dynamic Programming"]
+              complexity: "Medium"
+            - _id: "66f925ddfdfb8e1665720ad1"
+              questionid: 6
+              title: "Reverse Integer"
+              description: "Given a signed 32-bit integer x, return x with its digits reversed. If reversing x causes the value to go outside the signed 32-bit integer range [-231, 231 - 1], then return 0. Assume the environment does not allow you to store 64-bit integers (signed or unsigned). "
+              category: ["Math"]
+              complexity: "Medium"
+            - _id: "66f925ddfdfb8e1665720ad2"
+              questionid: 7
+              title: "Palindrome Number"
+              description: "Given an integer x, return true if x is palindrome integer. An integer is a palindrome when it reads the same backward as forward. "
+              category: ["Math"]
+              complexity: "Easy"
+            - _id: "66f925ddfdfb8e1665720ad3"
+              questionid: 8
+              title: "Container With Most Water"
+              description: "You are given an integer array height of length n. There are n vertical lines drawn such that the two endpoints of the ith line are (i, 0) and (i, height[i]). Find two lines that together with the x-axis form a container, such that the container contains the most water. Return the maximum amount of water a container can store. Notice that you may not slant the container. "
+              category: ["Array", "Two Pointers", "Greedy"]
+              complexity: "Medium"
+            - _id: "66f925ddfdfb8e1665720ad4"
+              questionid: 9
+              title: "Longest Common Prefix"
+              description: 'Write a function to find the longest common prefix string amongst an array of strings. If there is no common prefix, return an empty string "". '
+              category: ["String"]
+              complexity: "Easy"
+            - _id: "66f925ddfdfb8e1665720ad5"
+              questionid: 10
+              title: "3Sum"
+              description: "Given an integer array nums, return all the triplets [nums[i], nums[j], nums[k]] such that i != j, i != k, and j != k, and nums[i] + nums[j] + nums[k] == 0. Notice that the solution set must not contain duplicate triplets. "
+              category: ["Array", "Two Pointers", "Sorting"]
+              complexity: "Medium"
+
+        currentPage:
+          type: integer
+          example: 1
+        totalPages:
+          type: integer
+          example: 10
+        totalQuestions:
+          type: integer
+          example: 100
+
+    QuestionUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Two Sum Updated"
+        description:
+          type: string
+          example: "Updated question description"
+        category:
+          type: array
+          items:
+            type: string
+          example: ["Dynamic Programming", "Bit Manipulation"]
+        complexity:
+          type: string
+          example: "Hard"
