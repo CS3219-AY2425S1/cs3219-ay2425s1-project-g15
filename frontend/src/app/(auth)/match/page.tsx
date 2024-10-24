@@ -133,7 +133,11 @@ const FindPeer = () => {
                 "Match Found!",
                 `We found a match for you! You have been matched with ${matchedUserEmail}.`,
                 "success"
-              );
+              ).then(() => {
+                // Create a unique string for the room
+                const room = [CURRENT_USER, matchedUserEmail].sort().join("-");
+                window.location.href = `/collaboration/${room}`;
+              });
               client.deactivate();
             } catch (error) {
               console.error(

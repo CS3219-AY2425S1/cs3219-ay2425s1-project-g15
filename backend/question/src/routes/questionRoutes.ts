@@ -158,7 +158,7 @@ router.post(
             category: 1,
           },
         },
-      ]);
+      ]).exec();
 
       if (!randomQuestion.length) {
         return res.status(404).json({ message: "No questions found" });

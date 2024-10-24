@@ -11,6 +11,18 @@ services:
       - ./backend/collaboration/.env
     networks:
       - peer-prep-network
+  
+  signaling:
+    build: ./backend/signaling
+    container_name: signaling-container
+    ports:
+      - "4444:4444"
+    volumes:
+      - ./backend/signaling:/app
+      - /app/node_modules
+    networks:
+      - peer-prep-network
+
 
   matching:
     build: ./backend/matching
