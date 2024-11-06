@@ -11,7 +11,10 @@ import {
   findUserByUsernameOrId as _findUserByUsernameOrId,
   updateUserById as _updateUserById,
   updateUserPrivilegeById as _updateUserPrivilegeById,
+  findUserByVerificationCode as _findUserByVerificationCode,
+  verifyUserByVerificationCode as _verifyUserByVerificationCode,
 } from "../model/repository.js";
+import sendEmail from '../third-party/email.js';
 
 export async function createUser(req, res) {
   try {
@@ -24,7 +27,15 @@ export async function createUser(req, res) {
 
       const salt = bcrypt.genSaltSync(10);
       const hashedPassword = bcrypt.hashSync(password, salt);
-      const createdUser = await _createUser(username, email, hashedPassword);
+
+      // For email verification, you can generate a random verification code and save it in the database
+      const verificationCode = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+
+      const createdUser = await _createUser(username, email, hashedPassword, verificationCode);
+
+      // Send email to user
+      await sendEmail(email, username, verificationCode);
+
       return res.status(201).json({
         message: `Created new user ${username} successfully`,
         data: formatUserResponse(createdUser),
@@ -154,6 +165,31 @@ export async function deleteUser(req, res) {
   }
 }
 
+// send email to user
+export async function verifyUser(req, res) {
+  try {
+    const { code } = req.query;
+    const user = await _findUserByVerificationCode(code);
+    console.log(user);
+    if (!user) {
+      return res.status(404).json({ message: `User not found with verification code ${code}` });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ message: `User ${user.username} is already verified` });
+    }
+
+    const updatedUser = await _verifyUserByVerificationCode(code);
+    return res.status(200).json({
+      message: `Verified user ${user.username}`,
+      data: formatUserResponse(updatedUser),
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Unknown error when verifying user!" });
+  }
+}
+
 export function formatUserResponse(user) {
   return {
     id: user.id,
@@ -162,6 +198,7 @@ export function formatUserResponse(user) {
     bio: user.bio,
     linkedin: user.linkedin,
     github: user.github,
+    isVerified: user.isVerified,
     isAdmin: user.isAdmin,
     createdAt: user.createdAt,
   };

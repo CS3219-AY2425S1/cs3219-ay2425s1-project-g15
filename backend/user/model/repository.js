@@ -11,8 +11,8 @@ export async function connectToDB() {
   await connect(mongoDBUri);
 }
 
-export async function createUser(username, email, password) {
-  return new UserModel({ username, email, password }).save();
+export async function createUser(username, email, password, verificationCode) {
+  return new UserModel({ username, email, password, verificationCode }).save();
 }
 
 export async function findUserByEmail(email) {
@@ -79,4 +79,16 @@ export async function updateUserPrivilegeById(userId, isAdmin) {
 
 export async function deleteUserById(userId) {
   return UserModel.findByIdAndDelete(userId);
+}
+
+export async function findUserByVerificationCode(verificationCode) {
+  return UserModel.findOne({ verificationCode });
+}
+
+export async function verifyUserByVerificationCode(verificationCode) {
+  return UserModel.findOneAndUpdate(
+    { verificationCode },
+    { $set: { isVerified: true } }, // we keep verification code because we want to say "already verified" if the user decides to go again
+    { new: true },  // return the updated user
+  );
 }
