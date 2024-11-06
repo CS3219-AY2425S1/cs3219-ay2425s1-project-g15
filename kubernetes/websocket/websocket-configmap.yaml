@@ -6,7 +6,7 @@ metadata:
   labels:
     app: "websocket-deployment"
 data:
-  FRONTEND_CORS_ALLOWED_ORIGINS: "http://35.184.99.208/match"
+  FRONTEND_CORS_ALLOWED_ORIGINS: "http://35.202.162.147:80"
   ENV: "DEV"
   DEV_REDIS_HOST: "redis"
   DEV_REDIS_PORT: "6379"

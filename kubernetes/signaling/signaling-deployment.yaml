@@ -1,0 +1,28 @@
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "signaling-deployment"
+  namespace: "default"
+  labels:
+    app: "signaling-deployment"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "signaling-deployment"
+  template:
+    metadata:
+      labels:
+        app: "signaling-deployment"
+    spec:
+      containers:
+      - name: "signaling-server-sha256-1"
+        image: "gcr.io/peerprep-backend/signaling@sha256:f3b115d92bcaaeaf353f609bab3e4cbb3cdfe1b3d5979ba1732926c5ffdba5c5"
+        imagePullPolicy: "IfNotPresent"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"

@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: "websocket-service-sha256-1"
-        image: "gcr.io/peerprep-backend/websocket@sha256:4370a0166c1513e99060509b0c64efea790b7833a14b584a09446aa6a787bb1e"
+        image: "gcr.io/peerprep-backend/websocket@sha256:8e864c216ce95b81b2134ea036142515a03cc41e3ba7e0cb24ad8fa4f986c705"
         imagePullPolicy: "IfNotPresent"
         resources:
           requests:
