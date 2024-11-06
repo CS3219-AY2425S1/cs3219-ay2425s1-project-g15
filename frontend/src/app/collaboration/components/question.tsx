@@ -36,8 +36,8 @@ const Question = ({ collabid }: { collabid: string }) => {
   const stompClientRef = useRef<StompClient | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
-  const containerRef = useRef(null);
-  const [visibleCategories, setVisibleCategories] = useState([]);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [visibleCategories, setVisibleCategories] = useState<string[]>([]);
 
   const messageListRef = useRef<HTMLDivElement | null>(null);
 
@@ -173,7 +173,9 @@ const Question = ({ collabid }: { collabid: string }) => {
     };
 
     const observer = new ResizeObserver(calculateVisibleCategories);
-    observer.observe(containerRef.current);
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
 
     calculateVisibleCategories();
 
@@ -199,7 +201,8 @@ const Question = ({ collabid }: { collabid: string }) => {
             {question?.title}
           </h1>
           <span className="flex flex-wrap gap-1.5 my-1 pb-2">
-            {visibleCategories.map((category, index) => (
+            
+            {visibleCategories.map((category) => (
               <Pill key={category} text={category} />
             ))}
             {remainingCategories.length > 0 && (
