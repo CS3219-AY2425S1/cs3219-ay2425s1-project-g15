@@ -75,7 +75,7 @@ const closeLoadingSpinner = () => {
   Swal.close();
 };
 
-const SOCKET_URL = "http://localhost:3005/matching-websocket";
+const SOCKET_URL = "http://34.54.37.142/matching-websocket";
 
 const CURRENT_USER = getUsername(); // Username is unique
 
