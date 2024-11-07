@@ -37,10 +37,7 @@ export async function findUserByUsernameOrId(userId) {
 
 export async function findUserByUsernameOrEmail(username, email) {
   return UserModel.findOne({
-    $or: [
-      { username },
-      { email },
-    ],
+    $or: [{ username }, { email }],
   });
 }
 
@@ -48,7 +45,16 @@ export async function findAllUsers() {
   return UserModel.find();
 }
 
-export async function updateUserById(userId, username, email, password, bio, linkedin, github) {
+export async function updateUserById(
+  userId,
+  username,
+  email,
+  password,
+  bio,
+  linkedin,
+  github,
+  profilePictureUrl
+) {
   return UserModel.findByIdAndUpdate(
     userId,
     {
@@ -59,9 +65,10 @@ export async function updateUserById(userId, username, email, password, bio, lin
         bio,
         linkedin,
         github,
+        profilePictureUrl,
       },
     },
-    { new: true },  // return the updated user
+    { new: true } // return the updated user
   );
 }
 
@@ -73,7 +80,7 @@ export async function updateUserPrivilegeById(userId, isAdmin) {
         isAdmin,
       },
     },
-    { new: true },  // return the updated user
+    { new: true } // return the updated user
   );
 }
 

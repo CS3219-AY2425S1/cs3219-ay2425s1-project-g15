@@ -15,13 +15,15 @@ import {
 import multer from "multer";
 import { Storage } from "@google-cloud/storage";
 
+const privateKey = process.env.credentials_private_key.replace(/\\n/g, "\n");
+
 const storage = new Storage({
   projectId: process.env["credentials_project_id"],
   credentials: {
     type: process.env["credentials_type"],
     project_id: process.env["credentials_project_id"],
-    private_key_id: process.env["a087d3fe5241946fd7309c0f923b06e6522cc5b6"],
-    private_key: process.env["credentials_private_key"],
+    private_key_id: process.env["credentials_private_key_id"],
+    private_key: privateKey,
     client_email: process.env["credentials_client_email"],
     client_id: process.env["credentials_client_id"],
     auth_uri: process.env["credentials_auth_uri"],
@@ -30,6 +32,7 @@ const storage = new Storage({
     client_x509_cert_url: process.env["credentials_cert_url"],
   },
 });
+
 const profileBucketName = "peerprep-g15-profile-pictures";
 const profileBucket = storage.bucket(profileBucketName);
 const upload = multer({
@@ -105,7 +108,15 @@ export async function getAllUsers(req, res) {
 
 export async function updateUser(req, res) {
   try {
-    const { username, email, password, bio, linkedin, github } = req.body;
+    const {
+      username,
+      email,
+      password,
+      bio,
+      linkedin,
+      github,
+      profilePictureUrl,
+    } = req.body;
     if (username || email || password || bio || linkedin || github) {
       const userId = req.params.id;
       if (!isValidObjectId(userId)) {
@@ -131,6 +142,7 @@ export async function updateUser(req, res) {
         const salt = bcrypt.genSaltSync(10);
         hashedPassword = bcrypt.hashSync(password, salt);
       }
+
       const updatedUser = await _updateUserById(
         userId,
         username,
@@ -138,7 +150,8 @@ export async function updateUser(req, res) {
         hashedPassword,
         bio,
         linkedin,
-        github
+        github,
+        profilePictureUrl
       );
       return res.status(200).json({
         message: `Updated data for user ${userId}`,
@@ -216,6 +229,7 @@ export async function deleteUser(req, res) {
 }
 
 export function formatUserResponse(user) {
+  console.log(user);
   return {
     id: user.id,
     username: user.username,
@@ -225,6 +239,7 @@ export function formatUserResponse(user) {
     github: user.github,
     isAdmin: user.isAdmin,
     createdAt: user.createdAt,
+    profilePictureUrl: user.profilePictureUrl,
   };
 }
 
@@ -236,6 +251,8 @@ export function uploadProfilePicture(req, res) {
     }
 
     const userId = req.params.id;
+
+    // Validate user ID
     if (!isValidObjectId(userId)) {
       return res.status(404).json({ message: `User ${userId} not found` });
     }
@@ -255,7 +272,6 @@ export function uploadProfilePicture(req, res) {
       `profile-pictures/${userId}-${Date.now()}-${file.originalname}`
     );
     const blobStream = blob.createWriteStream({
-      resumable: false,
       metadata: {
         contentType: file.mimetype,
       },
@@ -269,17 +285,27 @@ export function uploadProfilePicture(req, res) {
     });
 
     blobStream.on("finish", async () => {
-      const publicUrl = `https://storage.googleapis.com/${bucketName}/${blob.name}`;
+      const publicUrl = `https://storage.googleapis.com/${profileBucketName}/${blob.name}`;
+
+      const { username, email, password, bio, linkedin, github } = user;
 
       // Update user's profile picture URL in the database
       try {
-        const updatedUser = await _updateUserById(userId, {
-          profilePictureUrl: publicUrl,
-        });
+        const updatedUser = await _updateUserById(
+          userId,
+          username,
+          email,
+          password,
+          bio,
+          linkedin,
+          github,
+          publicUrl
+        );
+        const formattedUser = formatUserResponse(updatedUser);
 
         return res.status(200).json({
           message: "Profile picture uploaded successfully",
-          data: formatUserResponse(updatedUser),
+          data: formattedUser,
         });
       } catch (dbError) {
         console.error("Database update error:", dbError);
