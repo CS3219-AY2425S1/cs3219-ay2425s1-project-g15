@@ -11,6 +11,7 @@ import { User } from "@/types/user";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Swal from "sweetalert2";
+import VerificationSymbol from "@/app/common/VerificationSymbol";
 
 const formSchema = z.object({
   username: z.string()
@@ -55,6 +56,7 @@ const ProfilePage = () => {
   useEffect(() => {
     getUser().then((res) => {
       setUser(res.data);
+      console.log(res.data);
       form.reset(res.data);
     });
   }, [form]);
@@ -76,8 +78,21 @@ const ProfilePage = () => {
   return !!token && (
     <div className="mx-auto max-w-xl my-10 p-4">
       <h1 className="text-white font-extrabold text-h1">Welcome, {user?.username}!</h1>
+      <p className="text-white text-lg">You may update your profile information below.</p>
+
+      <h2 className="text-lg text-yellow-500 mt-10">USER ID</h2>
+      <div className="flex my-2 gap-2">
+        <p className="text-white">{user?.id} </p>
+      </div>
+
+      <h2 className="text-lg text-yellow-500 mt-5">EMAIL</h2>
+      <div className="flex my-2 gap-2">
+        <p className="text-white">{user?.email} </p>
+        <VerificationSymbol isVerified={user?.isVerified || false}/>
+      </div>
+
       <Form {...form}>
-        <form className="my-10 grid gap-4" onSubmit={form.handleSubmit(onSubmit)}>
+        <form className="my-5 grid gap-4" onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
             control={form.control}
             name="username"
@@ -86,20 +101,6 @@ const ProfilePage = () => {
                 <FormLabel className="text-yellow-500 text-lg">USERNAME</FormLabel>
                 <FormControl>
                   <Input placeholder="username" {...field} className="focus:border-yellow-500 text-white"/>
-                </FormControl>
-                {/* <FormDescription>This is your public display name.</FormDescription> */}
-                <FormMessage/>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-yellow-500 text-lg">EMAIL</FormLabel>
-                <FormControl>
-                  <Input placeholder="email" {...field} className="focus:border-yellow-500 text-white"/>
                 </FormControl>
                 {/* <FormDescription>This is your public display name.</FormDescription> */}
                 <FormMessage/>
