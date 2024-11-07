@@ -5,7 +5,8 @@ import UndoIcon from "./icon/UndoIcon";
 import RedoIcon from "./icon/RedoIcon";
 import MoonLoader from "react-spinners/MoonLoader";
 import React from 'react';
-import Select from 'react-select';
+import Select, { OptionProps } from 'react-select';
+import { CSSObject } from '@emotion/react';
 
 type Props = {
   editor: editor.IStandaloneCodeEditor;
@@ -14,20 +15,25 @@ type Props = {
   setLanguage: (language: string) => void;
 };
 
+type LanguageOption = {
+  value: string;
+  label: string;
+};
+
 export function Toolbar({ editor, language, saving, setLanguage }: Props) {
-  const languages = [
+  const languages: LanguageOption[] = [
     { value: 'javascript', label: 'JavaScript' },
     { value: 'python', label: 'Python' },
   ];
 
-  const handleLanguageChange = (selectedOption: { value: string; label: string } | null) => {
+  const handleLanguageChange = (selectedOption: LanguageOption | null) => {
     if (selectedOption) {
       setLanguage(selectedOption.value);
     }
   };
 
   const customStyles = {
-    option: (provided: any, state: any) => ({
+    option: (provided: CSSObject, state: OptionProps<LanguageOption, false>): CSSObject => ({
       ...provided,
       backgroundColor: state.isSelected ? '#2F3B54' : 'white',
       '&:hover': {
