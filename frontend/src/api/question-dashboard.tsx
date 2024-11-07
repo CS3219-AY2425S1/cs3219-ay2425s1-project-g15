@@ -1,10 +1,6 @@
 import { QuestionAll, QuestionFull, NewQuestionData } from "@/types/find-match";
 
-<<<<<<< HEAD
-const QUESTION_SERVICE = "http://34.54.37.142:80/api/question";
-=======
 const QUESTION_SERVICE = "http://localhost:3002/api/question";
->>>>>>> 9b57c2270301874bff65093df82060d52b4426cd
 
 export const createSingleQuestion = async (
   data: NewQuestionData
