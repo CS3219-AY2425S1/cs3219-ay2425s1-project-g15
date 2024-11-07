@@ -17,7 +17,21 @@ spec:
     spec:
       containers:
       - name: "question-service-sha256-1"
-        image: "gcr.io/peerprep-backend/question@sha256:4a207b051224d543aa93362a8165a831918d8df4e083850bfb184a55dc1c4dd0"
+        image: "gcr.io/peerprep-backend/question@sha256:1bb52ccdbafb4336174a0ec987f805d1ddac9cdc7bc9438578bb1486a29caa4c"
+        ports:
+        - containerPort: 3003
+        livenessProbe:
+          httpGet:
+            path: /api/question
+            port: 3003
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/question
+            port: 3003
+          initialDelaySeconds: 5
+          periodSeconds: 5
         resources:
           requests:
             memory: "1Gi"

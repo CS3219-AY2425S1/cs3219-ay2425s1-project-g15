@@ -11,6 +11,7 @@ public class MatchingRestController {
 
     @GetMapping("")
     public String greeting() {
+        System.out.println("Sending Greetings!");
         return "Hello from matching service!";
     }
 

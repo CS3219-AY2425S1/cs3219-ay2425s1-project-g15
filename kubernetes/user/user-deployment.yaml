@@ -19,6 +19,20 @@ spec:
       - name: "user-service-sha256-1"
         image: "gcr.io/peerprep-backend/user@sha256:915140d6b0d36b8438b176145a4daf591e7dd13f32253b1b980ff0001f214113"
         imagePullPolicy: "IfNotPresent"
+        ports:
+        - containerPort: 3004
+        livenessProbe:
+          httpGet:
+            path: /api/iam
+            port: 3004
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/iam
+            port: 3004
+          initialDelaySeconds: 5
+          periodSeconds: 5
         resources:
           requests:
             memory: "1Gi"

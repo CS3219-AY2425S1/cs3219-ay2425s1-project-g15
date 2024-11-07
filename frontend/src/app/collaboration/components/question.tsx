@@ -37,7 +37,7 @@ const Question = ({ collabid, language, setLanguage }: { collabid: string, langu
   const stompClientRef = useRef<StompClient | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
-  const containerRef = useRef(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const [visibleCategories, setVisibleCategories] = useState([]);
   // To determine if a language change is initiated by the user, or received from the collaborator
   const isLanguageChangeActive = useRef(false); 
@@ -205,7 +205,9 @@ const Question = ({ collabid, language, setLanguage }: { collabid: string, langu
     };
 
     const observer = new ResizeObserver(calculateVisibleCategories);
-    observer.observe(containerRef.current);
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
 
     calculateVisibleCategories();
 
@@ -231,7 +233,8 @@ const Question = ({ collabid, language, setLanguage }: { collabid: string, langu
             {question?.title}
           </h1>
           <span className="flex flex-wrap gap-1.5 my-1 pb-2">
-            {visibleCategories.map((category, index) => (
+            
+            {visibleCategories.map((category) => (
               <Pill key={category} text={category} />
             ))}
             {remainingCategories.length > 0 && (

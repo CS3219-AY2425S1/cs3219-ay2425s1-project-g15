@@ -16,6 +16,7 @@ import {
 const router = express.Router();
 
 router.get("/", (req, res) => {
+  console.log("Sending Greetings!");
   res.send("Hello from question service!");
 });
 
