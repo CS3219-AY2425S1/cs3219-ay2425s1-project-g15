@@ -38,15 +38,15 @@ const sidebarItems: SidebarMenuItemProps[] = [
     authStatus: AuthStatus.ADMIN
   },
   {
-    menuLabel: "Account",
-    menuIcon: CgProfile,
-    linksTo: "/user/me",
-    authStatus: AuthStatus.AUTHENTICATED
-  },
-  {
     menuLabel: "Match",
     menuIcon: IoMdSearch,
     linksTo: "/match",
+    authStatus: AuthStatus.AUTHENTICATED
+  },
+  {
+    menuLabel: "Account",
+    menuIcon: CgProfile,
+    linksTo: "/user/me",
     authStatus: AuthStatus.AUTHENTICATED
   },
 ];
@@ -57,8 +57,6 @@ const loginSidebarItem: SidebarMenuItemProps = {
   linksTo: "/login",
   authStatus: AuthStatus.UNAUTHENTICATED
 }
-
-
 
 const Sidebar = () => {
   const [authStatus, setAuthStatus] = useState<AuthStatus | null>(null);
