@@ -10,16 +10,20 @@ client = MongoClient(os.getenv("MONGODB_URI"))
 db = client["questionbank"]
 collection = db["questions"]
 
+TARGET_FILE = "qn_full_with_soln.json"
 
-def populate_qns_with_examples():
-    with open("qn_full.json", "r") as f:
+
+def populate_qns_from_file():
+    with open(TARGET_FILE, "r") as f:
         data = json.load(f)
     for entry in data:
         questionid = entry.get("questionid")
         examples = entry.get("examples", [])
+        solution = entry.get("solution")
         if questionid is not None:
             result = collection.update_one(
-                {"questionid": questionid}, {"$set": {"examples": examples}}
+                {"questionid": questionid},
+                {"$set": {"examples": examples, "solution": solution}},
             )
             if result.matched_count > 0:
                 print(f"Updated document with questionid {questionid}")
@@ -30,4 +34,4 @@ def populate_qns_with_examples():
 
 
 if __name__ == "__main__":
-    populate_qns_with_examples()
+    populate_qns_from_file()
