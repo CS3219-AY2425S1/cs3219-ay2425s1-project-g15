@@ -13,8 +13,10 @@ import {
   updateUserPrivilegeById as _updateUserPrivilegeById,
   findUserByVerificationCode as _findUserByVerificationCode,
   verifyUserByVerificationCode as _verifyUserByVerificationCode,
+  findUserByPasswordResetCode as _findUserByPasswordResetCode,
+  addPasswordResetCodeToUser as _addPasswordResetCodeToUser,
 } from "../model/repository.js";
-import sendEmail from '../third-party/email.js';
+import { sendVerificationEmail, sendPasswordResetEmail } from '../third-party/email.js';
 
 export async function createUser(req, res) {
   try {
@@ -34,7 +36,7 @@ export async function createUser(req, res) {
       const createdUser = await _createUser(username, email, hashedPassword, verificationCode);
 
       // Send email to user
-      await sendEmail(email, username, verificationCode);
+      await sendVerificationEmail(email, username, verificationCode);
 
       return res.status(201).json({
         message: `Created new user ${username} successfully`,
@@ -170,7 +172,6 @@ export async function verifyUser(req, res) {
   try {
     const { code } = req.query;
     const user = await _findUserByVerificationCode(code);
-    console.log(user);
     if (!user) {
       return res.status(404).json({ message: `User not found with verification code ${code}` });
     }
@@ -187,6 +188,75 @@ export async function verifyUser(req, res) {
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Unknown error when verifying user!" });
+  }
+}
+
+export async function requestPasswordReset(req, res) {
+  try {
+    const { email } = req.body;
+    if (email) {
+      const user = await _findUserByEmail(email);
+      if (!user) {
+        return res.status(404).json({ message: `User not found with email ${email}` });
+      }
+
+      // For password reset, you can generate a random password reset code and save it in the database
+      const passwordResetCode = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+
+      const updatedUser = await _addPasswordResetCodeToUser(user.id, passwordResetCode);
+      console.log(updatedUser);
+
+      // Send email to user
+      await sendPasswordResetEmail(email, user.username, passwordResetCode);
+
+      return res.status(200).json({ message: `Sent password reset email to user ${user.username}` });
+    } else {
+      return res.status(400).json({ message: "email is missing!" });
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Unknown error when requesting password reset!" });
+  }
+}
+
+export async function checkPasswordResetCode(req, res) {
+  try {
+    const { code } = req.body;
+    const user = await _findUserByPasswordResetCode(code);
+    if (!user) {
+      return res.status(404).json({ message: `User not found with verification code ${code}` });
+    }
+
+    return res.status(200).json({ message: `Found user with verification code ${code}`, username: user.username });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Unknown error when checking verification code!" });
+  }
+}
+
+export async function resetPasswordUsingCode(req, res) {
+  try {
+    const { code, password } = req.body;
+    if (password) {
+      const user = await _findUserByPasswordResetCode(code);
+      if (!user) {
+        return res.status(404).json({ message: `User not found with verification code ${code}` });
+      }
+
+      const salt = bcrypt.genSaltSync(10);
+      const hashedPassword = bcrypt.hashSync(password, salt);
+
+      const updatedUser = await _updateUserById(user.id, user.username, user.email, hashedPassword, user.bio, user.linkedin, user.github);
+      return res.status(200).json({
+        message: `Reset password for user ${user.username}`,
+        data: formatUserResponse(updatedUser),
+      });
+    } else {
+      return res.status(400).json({ message: "password is missing!" });
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Unknown error when resetting password!" });
   }
 }
 

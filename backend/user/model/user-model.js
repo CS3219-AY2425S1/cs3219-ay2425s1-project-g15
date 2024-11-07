@@ -37,6 +37,10 @@ const UserModelSchema = new Schema({
     type: String,
     default: "",
   },
+  passwordResetCode: {
+    type: String,
+    default: "",
+  },
   isVerified: {
     type: Boolean,
     required: true,

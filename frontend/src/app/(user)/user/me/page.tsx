@@ -85,12 +85,12 @@ const ProfilePage = () => {
         <p className="text-white">{user?.id} </p>
       </div>
 
-      <h2 className="text-lg text-yellow-500 mt-10">EMAIL</h2>
+      <h2 className="text-lg text-yellow-500 mt-5">EMAIL</h2>
       <div className="flex my-2 gap-2">
         <p className="text-white">{user?.email} </p>
         <VerificationSymbol isVerified={user?.isVerified || false}/>
       </div>
-      
+
       <Form {...form}>
         <form className="my-5 grid gap-4" onSubmit={form.handleSubmit(onSubmit)}>
           <FormField

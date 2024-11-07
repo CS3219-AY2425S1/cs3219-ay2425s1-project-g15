@@ -92,3 +92,15 @@ export async function verifyUserByVerificationCode(verificationCode) {
     { new: true },  // return the updated user
   );
 }
+
+export async function addPasswordResetCodeToUser(userId, passwordResetCode) {
+  return UserModel.findByIdAndUpdate(
+    userId,
+    { $set: { passwordResetCode } },
+    { new: true },  // return the updated user
+  );
+}
+
+export async function findUserByPasswordResetCode(passwordResetCode) {
+  return UserModel.findOne({ passwordResetCode });
+}

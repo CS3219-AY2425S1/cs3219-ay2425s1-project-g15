@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
 });
 
 // Function to send an email
-const sendEmail = async (email, username, code) => {
+export const sendVerificationEmail = async (email, username, code) => {
   try {
     const link = `${process.env.FRONTEND_URL}/verify?code=${code}`;
     const info = await transporter.sendMail({
@@ -35,4 +35,27 @@ const sendEmail = async (email, username, code) => {
   }
 };
 
-export default sendEmail;
+export const sendPasswordResetEmail = async (email, username, code) => {
+  try {
+    const link = `${process.env.FRONTEND_URL}/reset-password?code=${code}`;
+    const info = await transporter.sendMail({
+      from: '"Mai from PeerPrep" <peerprepg15@gmail.com>', // sender address
+      to: email,                 // recipient address(es)
+      subject: 'Reset Your Password for PeerPrep',               // subject line
+      html: `
+        Hi, ${username}!<br><br>
+        We received a request to reset your password for your PeerPrep account.<br><br>
+        To reset your password, please click the link below:
+        <a href="${link}">${link}</a><br><br>
+        If you did not request a password reset, please disregard this email.<br><br>
+        Thanks for using PeerPrep! We’re here to help you every step of the way.<br><br>
+        Best regards,<br>
+        Mai from PeerPrep
+      ` // HTML body (optional)
+    });
+
+    console.log('Email sent:', info.messageId);
+  } catch (error) {
+    console.error('Error sending email:', error);
+  }
+}
