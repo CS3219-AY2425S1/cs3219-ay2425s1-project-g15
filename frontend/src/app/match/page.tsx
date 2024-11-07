@@ -164,9 +164,7 @@ const FindPeer = () => {
                 }
 
                 // Pass language as a query parameter to the collaboration page
-                window.location.href = `/collaboration/${collaborationId}?language=${encodeURIComponent(
-                  language
-                )}`;
+                window.location.href = `/collaboration/${collaborationId}`;
               });
               client.deactivate();
             } catch (error) {

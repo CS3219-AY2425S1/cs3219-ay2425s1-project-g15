@@ -1,4 +1,3 @@
-import { fetchSingleQuestion } from "@/api/question-dashboard";
 import { NewQuestionData } from "@/types/find-match";
 import {
   KeyboardEvent,
@@ -9,7 +8,6 @@ import {
 } from "react";
 import ComplexityPill from "./complexity";
 import Pill from "./pill";
-import { fetchSession } from "@/api/collaboration";
 import { getUsername } from "@/api/user";
 import { Button } from "@/components/ui/button";
 import { Client as StompClient } from "@stomp/stompjs";
@@ -27,9 +25,15 @@ interface Message {
   text: string;
 }
 
-const Question = ({ collabid }: { collabid: string }) => {
-  const [question, setQuestion] = useState<NewQuestionData | null>(null);
-  const [collaborator, setCollaborator] = useState<string | null>(null);
+const Question = ({
+  collabid,
+  question,
+  collaborator,
+}: {
+  collabid: string;
+  question: NewQuestionData | null;
+  collaborator: string;
+}) => {
   const [userID, setUserID] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState<string>("");
@@ -63,7 +67,7 @@ const Question = ({ collabid }: { collabid: string }) => {
           const newMessage: Message = {
             position: "left",
             type: "text",
-            title: collaborator!,
+            title: collaborator,
             text: messageReceived,
           };
           setMessages((prev) => [...prev, newMessage]);
@@ -127,16 +131,6 @@ const Question = ({ collabid }: { collabid: string }) => {
       console.error("STOMP client not connected");
     }
   };
-
-  useEffect(() => {
-    fetchSession(collabid).then(async (data) => {
-      await fetchSingleQuestion(data.question_id.toString()).then((data) => {
-        setQuestion(data);
-      });
-
-      setCollaborator(data.users.filter((user) => user !== userID)[0]);
-    });
-  }, [collabid, userID]);
 
   const questionCategories = question?.category || [];
 

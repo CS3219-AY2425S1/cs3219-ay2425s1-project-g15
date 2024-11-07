@@ -8,15 +8,16 @@ import { WebrtcProvider } from "y-webrtc";
 import { getUser } from "@/api/user";
 import { Cursors } from "./cursors";
 import { Toolbar } from "./toolbar";
-import { fetchSession, updateSession } from "@/api/collaboration";
+import { updateSession } from "@/api/collaboration";
 import VideoCall from "./video";
 
 type Props = {
   room: string;
   language: string;
+  code: string;
 };
 
-function Collaboration({ room, language }: Readonly<Props>) {
+function Collaboration({ room, language, code }: Readonly<Props>) {
   const editorRef = useRef<any>(null); // Ref to store the editor instance
   const docRef = useRef(new Y.Doc()); // Initialize a single YJS document
   const providerRef = useRef<WebrtcProvider | null>(null); // Ref to store the provider instance
@@ -42,7 +43,9 @@ function Collaboration({ room, language }: Readonly<Props>) {
   useEffect(() => {
     if (!providerRef.current) {
       //const signalingServer = ["ws://localhost:4444"];
-      const signalingServer = ["wss://signaling-598285527681.us-central1.run.app"];
+      const signalingServer = [
+        "wss://signaling-598285527681.us-central1.run.app",
+      ];
       providerRef.current = new WebrtcProvider(room, docRef.current, {
         signaling: signalingServer,
       });
@@ -68,17 +71,16 @@ function Collaboration({ room, language }: Readonly<Props>) {
     }
   }, [room]);
 
-  const loadSession = useCallback(async () => {
+  useEffect(() => {
     try {
-      const session = await fetchSession(room);
-      if (session.code) {
-        const update = Uint8Array.from(Buffer.from(session.code, "base64"));
+      if (code) {
+        const update = Uint8Array.from(Buffer.from(code, "base64"));
         Y.applyUpdate(docRef.current, update);
       }
     } catch (err) {
       console.error(err);
     }
-  }, [room]);
+  }, [code]);
 
   function handleEditorDidMount(
     editor: { onDidChangeCursorPosition: (arg0: (e: any) => void) => void },
@@ -132,10 +134,6 @@ function Collaboration({ room, language }: Readonly<Props>) {
       clearInterval(intervalId);
     };
   }, [saveSession]);
-
-  useEffect(() => {
-    loadSession();
-  }, [loadSession]);
 
   return (
     <div
