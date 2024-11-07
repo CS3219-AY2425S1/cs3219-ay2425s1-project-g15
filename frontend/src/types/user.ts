@@ -13,12 +13,14 @@ export interface AttemptedQuestion {
 }
 
 export interface User {
+  id?: string;
   username?: string;
   email?: string;
   bio?: string;
   linkedin?: string;
   github?: string;
   createdAt?: string;
+  isVerified?: boolean;
 }
 
 export interface UserLogin {

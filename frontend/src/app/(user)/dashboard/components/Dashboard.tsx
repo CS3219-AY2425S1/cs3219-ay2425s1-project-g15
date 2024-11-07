@@ -2,7 +2,7 @@
 "use client";
 
 import { getUserHistoryData } from "@/api/dashboard";
-import { getUser, getUserId, getUsername } from "@/api/user";
+import { getUserId, getUsername } from "@/api/user";
 import Container from "@/components/ui/Container";
 import { TCombinedSession } from "@/types/dashboard";
 import { useEffect, useState } from "react";
@@ -39,16 +39,18 @@ const Dashboard = () => {
       <div className="flex flex-row w-full gap-8">
         <DashboardCard
           cardTitleLabel="Questions Attempted"
-          cardBodyLabel={`${data.length}`}
-          cardFooterLabel={`${
-            data.filter((question) => question.complexity == "Easy").length
-          } easy, 
-            ${
+          cardBodyLabels={[
+            `${
+              data.filter((question) => question.complexity == "Easy").length
+            }`,
+            `${
               data.filter((question) => question.complexity == "Medium").length
-            } medium, 
-            ${
+            }`,
+            `${
               data.filter((question) => question.complexity == "Hard").length
-            } hard`}
+            }`,
+          ]}
+          cardFooterLabels={["Easy", "Medium", "Hard"]}
         />
       </div>
       <DashboardDataTable data={data} />

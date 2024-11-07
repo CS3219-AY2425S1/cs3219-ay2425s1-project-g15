@@ -1,6 +1,10 @@
 import { NewSession, SessionExists, SessionFull } from "@/types/session";
 
+<<<<<<< HEAD
 const COLLABORATION_SERVICE = "http://34.54.37.142:80/api/collaboration";
+=======
+const COLLABORATION_SERVICE = "http://localhost:3001/api/collaboration";
+>>>>>>> 9b57c2270301874bff65093df82060d52b4426cd
 
 export const createSession = async (data: NewSession): Promise<SessionFull> => {
   const url = `${COLLABORATION_SERVICE}/create`;

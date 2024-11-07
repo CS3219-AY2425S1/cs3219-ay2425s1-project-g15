@@ -55,11 +55,18 @@ export default function CollaborationPage() {
           question={question}
           collaborator={collaborator}
           collaboratorId={collaboratorId}
+          language={language}
+          setLanguage={setLanguage}
         />
       </Panel>
       <PanelResizeHandle />
       <Panel defaultSize={55} minSize={35}>
-        <Collaboration room={room} language={language} code={code} />
+        <Collaboration
+          room={room}
+          language={language}
+          code={code}
+          setLanguage={setLanguage}
+        />
       </Panel>
     </PanelGroup>
   );

@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import Link from "next/link";
 import { getUser } from "@/api/user";
+import VerificationSymbol from "@/app/common/VerificationSymbol";
 
 const Cell = ({
   className,
@@ -51,6 +52,7 @@ export const columns: ColumnDef<TCombinedSession>[] = [
           >
             {peerData.data.username as string}
           </Link>
+          <VerificationSymbol isVerified={row.getValue("isVerified")} />
         </Cell>
       );
     },

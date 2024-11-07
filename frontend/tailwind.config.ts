@@ -54,6 +54,7 @@ const config: Config = {
           foreground: "hsl(var(--secondary-foreground))",
         },
         red: "#EF6B73",
+        green: "#61C766",
         yellow: {
           "300": "#FFD280",
           "500": "#FFCC66",

@@ -33,6 +33,19 @@ const UserModelSchema = new Schema({
     type: Date,
     default: Date.now, // Setting default to the current date/time
   },
+  verificationCode: {
+    type: String,
+    default: "",
+  },
+  passwordResetCode: {
+    type: String,
+    default: "",
+  },
+  isVerified: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
   isAdmin: {
     type: Boolean,
     required: true,
