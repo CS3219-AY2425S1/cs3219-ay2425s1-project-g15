@@ -37,10 +37,10 @@ const Dashboard = () => {
       <div className="flex flex-row w-full gap-8">
         <DashboardCard
           cardTitleLabel="Questions Attempted"
-          cardBodyLabel={`${data.length}`}
-          cardFooterLabel={`${data.filter(question => question.complexity == "Easy").length} easy, 
-            ${data.filter(question => question.complexity == "Medium").length} medium, 
-            ${data.filter(question => question.complexity == "Hard").length} hard`}
+          cardBodyLabels={[`${data.filter(question => question.complexity == "Easy").length}`,
+           `${data.filter(question => question.complexity == "Medium").length}`,
+           `${data.filter(question => question.complexity == "Hard").length}`]}
+          cardFooterLabels={["Easy", "Medium", "Hard"]}
         />
       </div>
       <DashboardDataTable data={data}/>

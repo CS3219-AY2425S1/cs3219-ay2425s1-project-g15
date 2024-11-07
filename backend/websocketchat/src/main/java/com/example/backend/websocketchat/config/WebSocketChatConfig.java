@@ -24,7 +24,7 @@ public class WebSocketChatConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // HTTP URL for the WebSocket connection used by the client
         registry.addEndpoint("/chat-websocket")
-                .setAllowedOrigins(allowedOrigin) 
+                .setAllowedOriginPatterns("http://localhost:3000") 
                 .setHandshakeHandler(new UserHandshakeHandler())
                 .withSockJS();
     }

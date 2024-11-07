@@ -12,8 +12,8 @@ type VideoCallProps = {
 };
 
 const VideoCall = ({ provider }: VideoCallProps) => {
-  const localVideoRef = useRef(null);
-  const remoteVideoRef = useRef(null);
+  const localVideoRef = useRef<HTMLVideoElement>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
   const localStreamRef = useRef<MediaStream | null>(null);
   const remoteStreamRef = useRef<MediaStream | null>(null);
@@ -97,13 +97,13 @@ const VideoCall = ({ provider }: VideoCallProps) => {
   };
 
   useEffect(() => {
-    const awarenessListener = ({ added, updated, removed }) => {
+    const awarenessListener = ({ added, updated, removed }: { added: number[], updated: number[], removed: number[] }) => {
       added.concat(updated).forEach((clientId) => {
         if (clientId !== provider.awareness.clientID) {
           const state = provider.awareness.getStates().get(clientId);
           console.log(state);
           if (state?.webrtc) {
-            handleSignalingMessage(state.webrtc, clientId);
+            handleSignalingMessage(state.webrtc);
           }
         }
       });
@@ -133,7 +133,8 @@ const VideoCall = ({ provider }: VideoCallProps) => {
     };
   }, [provider]);
 
-  const handleSignalingMessage = async (message, from) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleSignalingMessage = async (message: any) => {
     try {
       if (peerConnectionRef.current) {
         switch (message.type) {
@@ -203,7 +204,11 @@ const VideoCall = ({ provider }: VideoCallProps) => {
       localStreamRef.current = stream;
       stream
         .getTracks()
-        .forEach((track) => peerConnectionRef.current.addTrack(track, stream));
+        .forEach((track) => {
+          if (peerConnectionRef.current) {
+            peerConnectionRef.current.addTrack(track, stream);
+          }
+        });
 
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream;

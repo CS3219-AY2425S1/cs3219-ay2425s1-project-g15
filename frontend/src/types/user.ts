@@ -13,6 +13,7 @@ export interface AttemptedQuestion {
 }
 
 export interface User {
+  id?: string;
   username?: string;
   profilePictureUrl?: string;
   email?: string;
@@ -20,6 +21,7 @@ export interface User {
   linkedin?: string;
   github?: string;
   createdAt?: string;
+  isVerified?: boolean;
 }
 
 export interface UserLogin {

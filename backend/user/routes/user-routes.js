@@ -1,13 +1,17 @@
 import express from "express";
 
 import {
+  checkPasswordResetCode,
   createUser,
   deleteUser,
   getAllUsers,
   getUser,
+  requestPasswordReset,
+  resetPasswordUsingCode,
   updateUser,
   updateUserPrivilege,
   getFileUrl,
+  verifyUser,
 } from "../controller/user-controller.js";
 import {
   verifyAccessToken,
@@ -25,6 +29,14 @@ router.patch(
   verifyIsAdmin,
   updateUserPrivilege
 );
+
+router.get("/verify", verifyUser);
+
+router.post("/request-password-reset", requestPasswordReset);
+
+router.post("/check-password-reset-code", checkPasswordResetCode);
+
+router.post("/password-reset", resetPasswordUsingCode);
 
 router.post("/", createUser);
 

@@ -17,7 +17,21 @@ spec:
     spec:
       containers:
       - name: "matching-service-sha256-1"
-        image: "gcr.io/peerprep-backend/matching@sha256:49e6a0a6e0699f5c013c056045606095337f0370f4b6dd7b3e2ff5162ba634c3"
+        image: "gcr.io/peerprep-backend/matching@sha256:e1b856b519b3d6d6828c7a59ea63f357b87b0fce47ea3a4b864de7f7de24c415"
+        ports:
+        - containerPort: 3002
+        livenessProbe:
+          httpGet:
+            path: /api/matching
+            port: 3002
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/matching
+            port: 3002
+          initialDelaySeconds: 5
+          periodSeconds: 5
         resources:
           requests:
             memory: "1Gi"

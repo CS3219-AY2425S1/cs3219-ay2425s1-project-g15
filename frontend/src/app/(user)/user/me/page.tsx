@@ -26,6 +26,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Swal from "sweetalert2";
 import { CgProfile } from "react-icons/cg";
 import MoonLoader from "react-spinners/MoonLoader";
+import VerificationSymbol from "@/app/common/VerificationSymbol";
 
 const formSchema = z.object({
   username: z
@@ -77,6 +78,7 @@ const ProfilePage = () => {
   useEffect(() => {
     getUser().then((res) => {
       setUser(res.data);
+      console.log(res.data);
       form.reset(res.data);
     });
   }, [form]);

@@ -14,6 +14,7 @@ import { validationResult } from "express-validator";
 const router = express.Router();
 
 router.get("/", (req, res) => {
+  console.log("Sending Greetings!");
   res.send("Hello from collaboration service!");
 });
 

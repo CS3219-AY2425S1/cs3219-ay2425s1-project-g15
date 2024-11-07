@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: "websocketchat-service-sha256-1"
-        image: "gcr.io/peerprep-backend/websocketchat@sha256:7ffe1df99b6df065c596f7a48ab336cc3a1654be46ce35b625e299992ee6a9a0"
+        image: "gcr.io/peerprep-backend/websocketchat@sha256:d1b871047482bbdacb566e434d456e6d7e0ef6a7038d38d446b284fa1bf25d8d"
         imagePullPolicy: "IfNotPresent"
         resources:
           requests:
@@ -27,5 +27,6 @@ spec:
             memory: "1Gi"
             cpu: "1000m"
         env:
+        # allow the exposed ingress to access the service
         - name: "FRONTEND_CORS_ALLOWED_ORIGINS"
-          value: "http://35.184.99.208/match"
+          value: "*"

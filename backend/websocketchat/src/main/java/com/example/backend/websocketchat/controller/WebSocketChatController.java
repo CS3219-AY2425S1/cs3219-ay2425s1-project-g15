@@ -29,6 +29,15 @@ public class WebSocketChatController {
         System.out.println("User ID: " + userID + " sent message: " + message.toString());
 
 
-        this.webSocketChatService.sendToOtherUser("/queue/chat", message, userID);
+        this.webSocketChatService.sendToOtherUser("/queue/chat", message);
+    }
+
+    @MessageMapping("/sendLanguageChange")
+    public void processLanguageChange(Message message, Principal principal) {
+        ChatUserPrincipal myUserPrincipal = (ChatUserPrincipal) principal;
+        String userID = myUserPrincipal.getName(); // This should return the wsid
+        System.out.println("User ID: " + userID + " sent language change to: " + message.toString());
+
+        this.webSocketChatService.sendToOtherUser("/queue/language", message);
     }
 }

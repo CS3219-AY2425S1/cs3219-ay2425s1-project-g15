@@ -54,35 +54,37 @@ export const getAuthStatus = () => {
   return AuthStatus.AUTHENTICATED;
 };
 
-const NEXT_PUBLIC_IAM_USER_SERVICE =
-  process.env["NEXT_PUBLIC_IAM_USER_SERVICE"] ||
-  "https://user-service-598285527681.us-central1.run.app/api/iam/user";
+const NEXT_PUBLIC_IAM_USER_SERVICE = process.env.NEXT_PUBLIC_IAM_USER_SERVICE;
 
-const NEXT_PUBLIC_IAM_AUTH_SERVICE =
-  process.env["NEXT_PUBLIC_IAM_AUTH_SERVICE"] ||
-  "https://user-service-598285527681.us-central1.run.app/api/iam/auth";
+const NEXT_PUBLIC_IAM_AUTH_SERVICE = process.env.NEXT_PUBLIC_IAM_AUTH_SERVICE;
 
 export const verifyToken = async (token: string) => {
-  const response = await fetch(`${NEXT_PUBLIC_IAM_AUTH_SERVICE}/verify-token`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  try {
+    const response = await fetch(
+      `${NEXT_PUBLIC_IAM_AUTH_SERVICE}/verify-token`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (response.status !== 200) {
+      Cookie.remove("token");
+      Cookie.remove("username");
+      Cookie.remove("id");
+      Cookie.remove("isAdmin");
+      return false;
+    }
 
-  if (response.status !== 200) {
-    Cookie.remove("token");
-    Cookie.remove("username");
-    Cookie.remove("id");
-    Cookie.remove("isAdmin");
-    return false;
+    const data = await response.json();
+    setUsername(data.data.username);
+    setIsAdmin(data.data.isAdmin);
+    setUserId(data.data.id);
+    return response.status === 200;
+  } catch (e) {
+    console.error(e);
   }
-
-  const data = await response.json();
-  setUsername(data.data.username);
-  setIsAdmin(data.data.isAdmin);
-  setUserId(data.data.id);
-  return response.status === 200;
 };
 
 export const login = async (email: string, password: string) => {
@@ -202,6 +204,7 @@ export const updateUser = async (userData: {
     body: JSON.stringify(userData),
   });
   const data = await response.json();
+  console.log(data);
 
   if (response.status !== 200) {
     toast.fire({
@@ -243,11 +246,87 @@ export const getFileUrl = async (
     });
     throw new Error("Failed to upload profile picture: " + res.statusText);
   }
+  return data;
+};
+
+export const requestPasswordReset = async (email: string) => {
+  toast.fire({
+    icon: "info",
+    title: "Requesting password reset...",
+  });
+  const response = await fetch(
+    `${NEXT_PUBLIC_IAM_USER_SERVICE}/request-password-reset`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    }
+  );
+  const data = await response.json();
+  console.log(data);
+
+  if (response.status !== 200) {
+    toast.fire({
+      icon: "error",
+      title: data.message,
+    });
+    return false;
+  }
 
   toast.fire({
     icon: "success",
-    title: "Profile updated successfully",
+    title: "Password reset requested. Please check your email.",
   });
 
-  return data;
+  return true;
+};
+
+export const checkPasswordResetCode = async (code: string) => {
+  const response = await fetch(
+    `${NEXT_PUBLIC_IAM_USER_SERVICE}/check-password-reset-code`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ code }),
+    }
+  );
+  const data = await response.json();
+
+  if (response.status !== 200) {
+    toast.fire({
+      icon: "error",
+      title: data.message,
+    });
+    return false;
+  }
+
+  return { username: data.username };
+};
+
+export const resetPasswordWithCode = async (code: string, password: string) => {
+  const response = await fetch(
+    `${NEXT_PUBLIC_IAM_USER_SERVICE}/password-reset`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ code, password }),
+    }
+  );
+  const data = await response.json();
+
+  if (response.status !== 200) {
+    toast.fire({
+      icon: "error",
+      title: data.message,
+    });
+    return false;
+  }
+
+  return true;
 };

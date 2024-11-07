@@ -17,6 +17,7 @@ import "react-chat-elements/dist/main.css";
 import { Input, MessageList } from "react-chat-elements";
 import SockJS from "sockjs-client";
 import ResizeObserver from "resize-observer-polyfill";
+import Swal from "sweetalert2";
 
 const CHAT_SOCKET_URL = "http://localhost:3007/chat-websocket";
 
@@ -27,7 +28,7 @@ interface Message {
   text: string;
 }
 
-const Question = ({ collabid }: { collabid: string }) => {
+const Question = ({ collabid, language, setLanguage }: { collabid: string, language: string, setLanguage: (lang: string) => void }) => {
   const [question, setQuestion] = useState<NewQuestionData | null>(null);
   const [collaborator, setCollaborator] = useState<string | null>(null);
   const [userID, setUserID] = useState<string | null>(null);
@@ -36,8 +37,10 @@ const Question = ({ collabid }: { collabid: string }) => {
   const stompClientRef = useRef<StompClient | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
-  const containerRef = useRef(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const [visibleCategories, setVisibleCategories] = useState([]);
+  // To determine if a language change is initiated by the user, or received from the collaborator
+  const isLanguageChangeActive = useRef(false); 
 
   const messageListRef = useRef<HTMLDivElement | null>(null);
 
@@ -67,6 +70,16 @@ const Question = ({ collabid }: { collabid: string }) => {
             text: messageReceived,
           };
           setMessages((prev) => [...prev, newMessage]);
+        });
+
+        client.subscribe("/user/queue/language", (message) => {
+          const messageReceived = message.body;
+          isLanguageChangeActive.current = false;
+          setLanguage(messageReceived);
+          Swal.fire({
+            title: "Language changed by your collaborator!",
+            icon: "success",
+          })
         });
       },
       onDisconnect: () => {
@@ -129,6 +142,26 @@ const Question = ({ collabid }: { collabid: string }) => {
   };
 
   useEffect(() => {
+    if (stompClientRef.current && isConnected && isLanguageChangeActive.current) {
+      const message = {
+        message: language,
+        collabID: collabid,
+        targetID: collaborator, // BUG: Should be the other user's ID, not username. Temporary workaround.
+      };
+      stompClientRef.current.publish({
+        destination: "/app/sendLanguageChange",
+        body: JSON.stringify(message),
+      });
+      Swal.fire({
+        title: "You have initiated a language change!",
+        icon: "success",
+      });
+    } else {
+      isLanguageChangeActive.current = true;
+    }
+  }, [language])
+
+  useEffect(() => {
     fetchSession(collabid).then(async (data) => {
       await fetchSingleQuestion(data.question_id.toString()).then((data) => {
         setQuestion(data);
@@ -144,7 +177,6 @@ const Question = ({ collabid }: { collabid: string }) => {
     const calculateVisibleCategories = () => {
       if (containerRef.current) {
         const containerWidth = containerRef.current.clientWidth;
-        console.log(containerWidth);
         let totalWidth = 200;
         const visible = [];
 
@@ -173,7 +205,9 @@ const Question = ({ collabid }: { collabid: string }) => {
     };
 
     const observer = new ResizeObserver(calculateVisibleCategories);
-    observer.observe(containerRef.current);
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
 
     calculateVisibleCategories();
 
@@ -185,7 +219,7 @@ const Question = ({ collabid }: { collabid: string }) => {
         observer.unobserve(containerRef.current);
       }
     };
-  }, [questionCategories]);
+  }, []);
 
   const remainingCategories = questionCategories.slice(
     visibleCategories.length
@@ -199,7 +233,8 @@ const Question = ({ collabid }: { collabid: string }) => {
             {question?.title}
           </h1>
           <span className="flex flex-wrap gap-1.5 my-1 pb-2">
-            {visibleCategories.map((category, index) => (
+            
+            {visibleCategories.map((category) => (
               <Pill key={category} text={category} />
             ))}
             {remainingCategories.length > 0 && (
