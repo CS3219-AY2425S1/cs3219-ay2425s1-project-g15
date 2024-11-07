@@ -45,6 +45,13 @@ function Collaboration({ room, language }: Readonly<Props>) {
       const signalingServer = ["ws://34.135.245.0:32624"];
       providerRef.current = new WebrtcProvider(room, docRef.current, {
         signaling: signalingServer,
+        peerOpts: {
+          config: {
+            iceServers: [
+              { urls: "stun:stun.l.google.com:19302" },
+            ]
+          }
+        }
       });
 
       // Cleanup provider on component unmount or when room changes
