@@ -54,36 +54,36 @@ export const getAuthStatus = () => {
   return AuthStatus.AUTHENTICATED;
 };
 
-// const NEXT_PUBLIC_IAM_USER_SERVICE =
-//   "https://user-service-598285527681.us-central1.run.app/api/iam/user";
+const NEXT_PUBLIC_IAM_USER_SERVICE =
+  "https://user-service-598285527681.us-central1.run.app/api/iam/user";
 
-// const NEXT_PUBLIC_IAM_AUTH_SERVICE =
-//   "https://user-service-598285527681.us-central1.run.app/api/iam/auth";
-
-const NEXT_PUBLIC_IAM_USER_SERVICE = process.env.NEXT_PUBLIC_IAM_USER_SERVICE;
-const NEXT_PUBLIC_IAM_AUTH_SERVICE = process.env.NEXT_PUBLIC_IAM_AUTH_SERVICE;
+const NEXT_PUBLIC_IAM_AUTH_SERVICE =
+  "https://user-service-598285527681.us-central1.run.app/api/iam/auth";
 
 export const verifyToken = async (token: string) => {
-  const response = await fetch(`${NEXT_PUBLIC_IAM_AUTH_SERVICE}/verify-token`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  try {
+    const response = await fetch(`${NEXT_PUBLIC_IAM_AUTH_SERVICE}/verify-token`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (response.status !== 200) {
+      Cookie.remove("token");
+      Cookie.remove("username");
+      Cookie.remove("id");
+      Cookie.remove("isAdmin");
+      return false;
+    }
 
-  if (response.status !== 200) {
-    Cookie.remove("token");
-    Cookie.remove("username");
-    Cookie.remove("id");
-    Cookie.remove("isAdmin");
-    return false;
+    const data = await response.json();
+    setUsername(data.data.username);
+    setIsAdmin(data.data.isAdmin);
+    setUserId(data.data.id);
+    return response.status === 200;
+  } catch (e) {
+    console.error(e);
   }
-
-  const data = await response.json();
-  setUsername(data.data.username);
-  setIsAdmin(data.data.isAdmin);
-  setUserId(data.data.id);
-  return response.status === 200;
 };
 
 export const login = async (email: string, password: string) => {
