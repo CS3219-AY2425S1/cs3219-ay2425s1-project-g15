@@ -17,6 +17,18 @@ const UserModelSchema = new Schema({
     type: String,
     required: true,
   },
+  bio: {
+    type: String,
+    default: "",
+  },
+  linkedin: {
+    type: String,
+    default: "",
+  },
+  github: {
+    type: String,
+    default: "",
+  },
   createdAt: {
     type: Date,
     default: Date.now, // Setting default to the current date/time

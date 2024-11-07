@@ -1,3 +1,10 @@
+export enum AuthStatus {
+  LOADING = "LOADING",
+  UNAUTHENTICATED = "UNAUTHENTICATED",
+  AUTHENTICATED = "AUTHENTICATED",
+  ADMIN = "ADMIN",
+}
+
 export interface AttemptedQuestion {
   title: string;
   peer: string;
@@ -7,9 +14,11 @@ export interface AttemptedQuestion {
 
 export interface User {
   username?: string;
+  email?: string;
   bio?: string;
   linkedin?: string;
   github?: string;
+  createdAt?: string;
 }
 
 export interface UserLogin {

@@ -2,25 +2,35 @@ package com.example.backend.matchverification.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import com.example.backend.matchverification.kafka.producers.MatchVerificationProducer;
-import com.example.backend.matchverification.model.Match;
+import com.example.backend.matchverification.model.PickQuestionDTO;
+import com.example.backend.matchverification.model.PickedQuestionResponse;
 import com.example.backend.matchverification.model.VerificationResponse;
-import com.example.backend.matchverification.repository.MatchesRepository;
+import com.example.backend.matchverification.model.VerifyMatchesDTO;
+import com.example.backend.matchverification.redis.MatchVerificationHashsetService;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/matchverification")
 public class MatchingVerificationRestController {
 
     private final MatchVerificationHashsetService invalidMatchesHashset;
     private MatchVerificationProducer matchVerificationProducer;
-    private MatchesRepository matchesRepository;
 
     private enum VerificationStatus {
         SUCCESS,
@@ -28,10 +38,13 @@ public class MatchingVerificationRestController {
         CONFLICT_BOTH_INVALID
     }
 
-    public MatchingVerificationRestController(MatchVerificationHashsetService matchRequestService, MatchVerificationProducer matchVerificationProducer, MatchesRepository matchesRepository) {
+    private static final String QUESTION_API_URL = System.getenv("ENV").equals("DEV") ? System.getenv("DEV_QUESTION_API_URL") : System.getenv("PROD_QUESTION_API_URL");
+
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    public MatchingVerificationRestController(MatchVerificationHashsetService matchRequestService, MatchVerificationProducer matchVerificationProducer) {
         this.invalidMatchesHashset = matchRequestService;
         this.matchVerificationProducer = matchVerificationProducer;
-        this.matchesRepository = matchesRepository;
     }
 
     @GetMapping("")
@@ -40,22 +53,16 @@ public class MatchingVerificationRestController {
     }
 
     @PostMapping("/verify")
-    public VerificationResponse verify(@RequestBody List<String> userMatches) {
-        if (userMatches.size() != 2) {
-            return new VerificationResponse(
-                "Error", 
-                "Invalid input, must provide exactly two match requests.", 
-                new ArrayList<>(), 
-                new ArrayList<>()
-            );
-        }
-
-        String matchReq1 = userMatches.get(0);
-        String matchReq2 = userMatches.get(1);
+    public VerificationResponse verify(@RequestBody VerifyMatchesDTO userMatches) {
+        String matchReq1 = userMatches.getUser1();
+        String matchReq2 = userMatches.getUser2();
         String userId1 = matchReq1.split("_")[0];
         String userEmail1 = matchReq1.split("_")[1];
         String userId2 = matchReq2.split("_")[0];
         String userEmail2 = matchReq2.split("_")[1];
+        String matchCriteriaTopic = userMatches.getMatchCriteriaTopic();
+        String matchCriteriaDifficulty = userMatches.getMatchCriteriaDifficulty();
+        String matchCriteriaLanguage = userMatches.getMatchCriteriaLanguage();
 
         System.out.println("Verifying match requests: " + matchReq1 + " and " + matchReq2);
 
@@ -93,9 +100,53 @@ public class MatchingVerificationRestController {
             message = "Both match requests are new and valid.";
             invalidMatchesHashset.addToSeenRequests(userId1); // Add userId1
             invalidMatchesHashset.addToSeenRequests(userId2); // Add userId2
-            String successfulMatch = userId1 + "_" + userEmail1 + "_" + userId2 + "_" + userEmail2;
+
+            int questionId = -1;
+
+            try {
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+
+                PickQuestionDTO pickQuestionDTO = new PickQuestionDTO(matchCriteriaDifficulty, matchCriteriaTopic);
+                HttpEntity<PickQuestionDTO> request = new HttpEntity<>(pickQuestionDTO, headers);
+                
+                ResponseEntity<PickedQuestionResponse> response = restTemplate.exchange(
+                    QUESTION_API_URL + "/pick-question",
+                    HttpMethod.POST,
+                    request,
+                    new ParameterizedTypeReference<PickedQuestionResponse>() {}
+                );
+
+                if (!response.getStatusCode().is2xxSuccessful()) {
+                    throw new RestClientException("Failed to pick a question for the match criteria. Status code: " + response.getStatusCode());
+                }
+
+                PickedQuestionResponse pickedQuestionResponse = response.getBody();
+                if (pickedQuestionResponse == null) {
+                    System.err.println("Failed to pick a question for the match criteria. Picked question response is missing.");
+                }
+
+                questionId = pickedQuestionResponse.getQuestionid();
+            } catch (RestClientException e) {
+                System.err.println("Error calling question service: " + e.getMessage());
+            }  
+
+            String collaborationUniqueId = UUID.randomUUID().toString();
+            String successfulMatch = collaborationUniqueId 
+                                    + "_" 
+                                    + questionId 
+                                    + "_" 
+                                    + matchCriteriaLanguage
+                                    + "_"
+                                    + userId1 
+                                    + "_" 
+                                    + userEmail1 
+                                    + "_" 
+                                    + userId2 
+                                    + "_" 
+                                    + userEmail2;
+            System.out.println("Successful match message: " + successfulMatch);
             matchVerificationProducer.sendMessage("SUCCESSFUL_MATCHES", successfulMatch, successfulMatch);
-            matchesRepository.save(new Match(userEmail1, userEmail2));
         }
 
         return new VerificationResponse(

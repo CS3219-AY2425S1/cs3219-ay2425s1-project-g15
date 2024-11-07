@@ -16,21 +16,30 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 import com.example.backend.websocket.kafka.producers.DisconnectProducer;
 
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Autowired
     private DisconnectProducer disconnectProducer;
 
-    private final String allowedOrigin = System.getenv("FRONTEND_CORS_ALLOWED_ORIGINS");
+    @Autowired
+    private JedisPool jedisPool;
+
+    // private final String allowedOrigin = System.getenv("FRONTEND_CORS_ALLOWED_ORIGINS");
+    private final String allowedOrigin = "http://localhost:3000";
+
+    private final String ACTIVE_USERS = "ActiveUsers";
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // HTTP URL for the WebSocket connection used by the client
         registry.addEndpoint("/matching-websocket")
-                .setAllowedOrigins(allowedOrigin) 
+                .setAllowedOriginPatterns(allowedOrigin)
                 .setHandshakeHandler(new UserHandshakeHandler())
-                .withSockJS();
+                .withSockJS();  
     }
 
     @Override
@@ -60,9 +69,25 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                     
                     // Handle disconnection events
                     if (StompCommand.DISCONNECT.equals(accessor.getCommand())) {
-                        String disconnectedUser = accessor.getUser().getName();
-                        System.out.println("User disconnected: " + disconnectedUser);
-                        disconnectProducer.sendMessage("DISCONNECTS", disconnectedUser, disconnectedUser); 
+                        MyUserPrincipal principal = (MyUserPrincipal) accessor.getUser();
+                        String disconnectedUserEmail = principal.getUserEmail(); 
+                        if (disconnectedUserEmail.equals("")) {
+                            // This is the disconnection event for the same user's second connection
+                            System.out.println("Disconnection event for active user's subsequent connection");
+                            return message;
+                        }
+
+                        try {
+                            Jedis jedis = jedisPool.getResource();
+                            jedis.srem(ACTIVE_USERS, disconnectedUserEmail);
+                            jedis.close();
+                        } catch (Exception e) {
+                            System.out.println("Error removing user from ActiveUsers: " + e.getMessage());
+                        }
+            
+                        String disconnectedUserWsid = principal.getName();
+                        System.out.println("User disconnected: " + disconnectedUserWsid);
+                        disconnectProducer.sendMessage("DISCONNECTS", disconnectedUserWsid, disconnectedUserWsid); 
                     }
                 }
                 

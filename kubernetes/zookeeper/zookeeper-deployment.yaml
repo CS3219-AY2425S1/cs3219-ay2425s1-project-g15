@@ -1,0 +1,39 @@
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "zookeeper-deployment"
+  namespace: "default"
+  labels:
+    app: "zookeeper-deployment"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "zookeeper-deployment"
+  template:
+    metadata:
+      labels:
+        app: "zookeeper-deployment"
+    spec:
+      containers:
+      - name: "zookeper-service-sha256-1"
+        image: confluentinc/cp-zookeeper:7.7.1
+        imagePullPolicy: "IfNotPresent"
+        resources:
+          requests:
+            memory: "500Mi"
+            cpu: "500m"
+          limits:
+            memory: "800Mi"
+            cpu: "1000m"
+        env:
+        - name: "ZOOKEEPER_CLIENT_PORT"
+          valueFrom:
+            configMapKeyRef:
+              key: "ZOOKEEPER_CLIENT_PORT"
+              name: "zookeeper-deployment-config-jhye"
+        - name: "ZOOKEEPER_TICK_TIME"
+          valueFrom:
+            configMapKeyRef:
+              key: "ZOOKEEPER_TICK_TIME"
+              name: "zookeeper-deployment-config-jhye"

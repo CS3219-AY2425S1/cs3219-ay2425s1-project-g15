@@ -27,6 +27,7 @@ interface IQuestionServiceAPI {
   + GET /{id}
   + POST /{id}/update [updateQuestion: EditQuestion]
   + POST /{id}/delete
+  + POST /count-question [complexity: string[], category: string[]]
   + POST /pick-question [complexity: string[], category: string[]]
 }
 
@@ -37,6 +38,7 @@ note right of IQuestionServiceAPI
   - GET /{id}: Retrieve a specific question by ID
   - POST /{id}/update: Update a specific question by ID
   - POST /{id}/delete: Delete a specific question by ID
+  - POST /count-question: Count non-deleted questions given a list of complexities and categories
   - POST /pick-question: Pick a random question given a list of complexities and categories
 end note
 

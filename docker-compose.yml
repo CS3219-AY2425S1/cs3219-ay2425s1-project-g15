@@ -1,59 +1,12 @@
+version: "3.8"
+
 services:
-  collaboration:
-    build: ./backend/collaboration
-    container_name: collaboration-container
-    ports:
-      - "3001:3001"
-    volumes:
-      - ./backend/collaboration:/app
-      - /app/node_modules
-    env_file:
-      - ./backend/collaboration/.env
-    networks:
-      - peer-prep-network
-
-  matching:
-    build: ./backend/matching
-    container_name: matching-container
-    ports:
-      - "3002:3002"
-    env_file:
-      - ./backend/matching/.env # Env file for matching service, to test in prod
-    volumes:
-      - ./backend/matching/src:/app/src
-    networks:
-      - peer-prep-network
-
-  matchverification:
-    build: ./backend/matchverification
-    container_name: match-verification-container
-    ports:
-      - "3006:3006"
-    env_file:
-      - ./backend/matchverification/.env # Env file for matching service, to test in prod
-    volumes:
-      - ./backend/matchverification/src:/app/src
-    networks:
-      - peer-prep-network
-
-  websocket:
-    build: ./backend/websocket
-    container_name: websocket-container
-    ports:
-      - "3005:3005"
-    env_file:
-      - ./backend/websocket/.env # Env file for matching service, to test in prod
-    volumes:
-      - ./backend/websocket/src:/app/src
-    networks:
-      - peer-prep-network
-
   zookeeper:
     image: confluentinc/cp-zookeeper:7.7.1
     container_name: zookeeper
     platform: linux/arm64
     ports:
-      - "22181:2181"
+      - "2181:2181"
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -72,7 +25,92 @@ services:
       KAFKA_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    restart: on-failure:10 # temporary workaround for kafka container failing to start the first time until we find a fix
+    depends_on:
+      - zookeeper
+    networks:
+      - peer-prep-network
+
+  matching:
+    build: ./backend/matching
+    container_name: matching-container
+    ports:
+      - "3002:3002"
+    env_file:
+      - ./backend/matching/.env
+    volumes:
+      - ./backend/matching/src:/app/src
+    depends_on:
+      - kafka
+    networks:
+      - peer-prep-network
+
+  matchverification:
+    build: ./backend/matchverification
+    container_name: match-verification-container
+    ports:
+      - "3006:3006"
+    env_file:
+      - ./backend/matchverification/.env
+    volumes:
+      - ./backend/matchverification/src:/app/src
+    depends_on:
+      - matching
+    networks:
+      - peer-prep-network
+
+  collaboration:
+    build: ./backend/collaboration
+    container_name: collaboration-container
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend/collaboration:/app
+      - /app/node_modules
+    env_file:
+      - ./backend/collaboration/.env
+    networks:
+      - peer-prep-network
+
+  signaling:
+    build: ./backend/signaling
+    container_name: signaling-container
+    ports:
+      - "4444:4444"
+    volumes:
+      - ./backend/signaling:/app
+      - /app/node_modules
+    networks:
+      - peer-prep-network
+
+  websocket:
+    build: ./backend/websocket
+    container_name: websocket-container
+    ports:
+      - "3005:3005"
+    env_file:
+      - ./backend/websocket/.env
+    volumes:
+      - ./backend/websocket/src:/app/src
+    networks:
+      - peer-prep-network
+
+  websocketchat:
+    build: ./backend/websocketchat
+    container_name: websocket-chat-container
+    ports:
+      - "3007:3007"
+    env_file:
+      - ./backend/websocketchat/.env
+    volumes:
+      - ./backend/websocketchat/src:/app/src
+    networks:
+      - peer-prep-network
+
+  redis:
+    image: redis:6.2.6
+    container_name: redis-container
+    ports:
+      - "6379:6379"
     networks:
       - peer-prep-network
 

@@ -184,6 +184,44 @@ paths:
           description: Question not found
         "500":
           description: Internal server error
+  /count-question:
+    post:
+      summary: Count the number of questions given a list of complexities and categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                complexity:
+                  type: array
+                  items:
+                    type: string
+                  default: []
+                  description: Filter by complexities
+                  example: ["Easy"]
+                category:
+                  type: array
+                  items:
+                    type: string
+                  default: []
+                  description: Filter by categories
+                  example: ["Hash Table"]
+
+      responses:
+        "200":
+          description: Questions count
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 1
+
+        "500":
+          description: Internal server error
   /pick-question:
     post:
       summary: Pick a random question given a list of complexities and categories
@@ -244,6 +282,9 @@ components:
         complexity:
           type: string
           example: "Easy"
+        deleted:
+          type: boolean
+          example: false
 
     QuestionCreate:
       type: object

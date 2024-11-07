@@ -1,8 +1,20 @@
 /* eslint-disable */
 
-import toast from "@/components/modals/toast";
-import { UserLogin } from "@/types/user";
+import { AuthStatus } from "@/types/user";
 import Cookie from "js-cookie";
+import Swal from "sweetalert2";
+
+const toast = Swal.mixin({
+  toast: true,
+  position: "top-end",
+  showConfirmButton: false,
+  timer: 3000,
+  timerProgressBar: true,
+  didOpen: (toast) => {
+    toast.onmouseenter = Swal.stopTimer;
+    toast.onmouseleave = Swal.resumeTimer;
+  },
+});
 
 export const setToken = (token: string) => {
   Cookie.set("token", token, { expires: 1 });
@@ -12,55 +24,71 @@ export const getToken = () => {
   return Cookie.get("token");
 };
 
-export const setBaseUserData = (data: {
-  username: string;
-  id: string;
-  isAdmin: string;
-}) => {
-  Cookie.set("username", data.username, { expires: 1 });
-  Cookie.set("id", data.id, { expires: 1 });
-  Cookie.set("isAdmin", data.isAdmin, { expires: 1 });
+export const setUsername = (username: string) => {
+  Cookie.set("username", username, { expires: 1 });
 };
 
-export const getBaseUserData = () => {
-  return {
-    username: Cookie.get("username"),
-    id: Cookie.get("id"),
-    isAdmin: Cookie.get("isAdmin"),
-  };
+export const getUsername = () => {
+  return Cookie.get("username");
 };
 
-const NEXT_PUBLIC_USER_SERVICE = process.env.NEXT_PUBLIC_USER_SERVICE || "https://user-service-598285527681.us-central1.run.app";
+export const setUserId = (id: string) => {
+  Cookie.set("id", id, { expires: 1 });
+};
 
-export const verifyToken = async (needsLogin: boolean) => {
-  const token = getToken();
-  if (!token) {
-    if (needsLogin) logout();
+export const getUserId = () => {
+  return Cookie.get("id");
+};
+
+export const setIsAdmin = (isAdmin: boolean) => {
+  Cookie.set("isAdmin", isAdmin ? "Y" : "N", { expires: 1 });
+};
+
+export const getIsAdmin = (): boolean => {
+  return Cookie.get("isAdmin") == "Y";
+};
+
+export const getAuthStatus = () => {
+  if (!getToken()) return AuthStatus.UNAUTHENTICATED;
+  if (getIsAdmin()) return AuthStatus.ADMIN;
+  return AuthStatus.AUTHENTICATED;
+};
+
+const NEXT_PUBLIC_IAM_USER_SERVICE =
+  "https://user-service-598285527681.us-central1.run.app/api/iam/user";
+
+const NEXT_PUBLIC_IAM_AUTH_SERVICE =
+  "https://user-service-598285527681.us-central1.run.app/api/iam/auth";
+
+export const verifyToken = async (token: string) => {
+  const response = await fetch(`${NEXT_PUBLIC_IAM_AUTH_SERVICE}/verify-token`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (response.status !== 200) {
+    Cookie.remove("token");
+    Cookie.remove("username");
+    Cookie.remove("id");
+    Cookie.remove("isAdmin");
     return false;
   }
 
-  const response = await fetch(
-    `${NEXT_PUBLIC_USER_SERVICE}/auth/verify-token`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  switch (response.status) {
-    case 200:
-      return true;
-    case 401:
-      return false;
-    default:
-      return false;
-  }
+  const data = await response.json();
+  setUsername(data.data.username);
+  setIsAdmin(data.data.isAdmin);
+  setUserId(data.data.id);
+  return response.status === 200;
 };
 
 export const login = async (email: string, password: string) => {
-  const response = await fetch(`${NEXT_PUBLIC_USER_SERVICE}/auth/login`, {
+  toast.fire({
+    icon: "info",
+    title: "Logging in...",
+  });
+  const response = await fetch(`${NEXT_PUBLIC_IAM_AUTH_SERVICE}/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -72,42 +100,20 @@ export const login = async (email: string, password: string) => {
   });
   const data = await response.json();
 
-  switch (response.status) {
-    case 200:
-      handleSuccessfulLogin(data.data);
-      break;
-    case 401:
-      toast.fire({
-        icon: "error",
-        title: "Invalid email or password",
-      });
-      break;
-    default:
-      toast.fire({
-        icon: "error",
-        title: "An error occurred while logging in",
-      });
-  }
-};
-
-export const handleSuccessfulLogin = async (data: UserLogin) => {
-  const { accessToken, username, id, isAdmin } = data;
-  setBaseUserData({ username, id, isAdmin });
-  setToken(accessToken);
-  const redirect = Cookie.get("redirect");
-  if (!redirect) {
-    window.location.href = "/";
-    return;
+  if (response.status !== 200) {
+    toast.fire({
+      icon: "error",
+      title: data.message,
+    });
+    return false;
   }
 
-  Cookie.remove("redirect");
-  window.location.href = redirect;
-  return;
-};
+  setToken(data.data.accessToken);
+  setUsername(data.data.username);
+  setIsAdmin(data.data.isAdmin);
+  setUserId(data.data.id);
 
-export const redirectToLogin = async () => {
-  Cookie.set("redirect", window.location.pathname, { expires: 1 });
-  window.location.href = "/login";
+  return true;
 };
 
 export const logout = () => {
@@ -115,7 +121,8 @@ export const logout = () => {
   Cookie.remove("username");
   Cookie.remove("id");
   Cookie.remove("isAdmin");
-  redirectToLogin();
+
+  window.location.href = "/";
 };
 
 export const register = async (
@@ -123,7 +130,11 @@ export const register = async (
   password: string,
   username: string
 ) => {
-  const response = await fetch(`${NEXT_PUBLIC_USER_SERVICE}/users`, {
+  toast.fire({
+    icon: "info",
+    title: "Registering...",
+  });
+  const response = await fetch(`${NEXT_PUBLIC_IAM_USER_SERVICE}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -136,84 +147,72 @@ export const register = async (
   });
   const data = await response.json();
 
-  switch (response.status) {
-    case 201:
-      return handleSuccessfulLogin(data.data);
-    case 400:
-      toast.fire({
-        icon: "error",
-        title: "Invalid email or password",
-      });
-      break;
-    case 409:
-      toast.fire({
-        icon: "error",
-        title: "User already exists",
-      });
-      break;
-    default:
-      toast.fire({
-        icon: "error",
-        title: "An error occurred while registering",
-      });
+  if (response.status !== 201) {
+    toast.fire({
+      icon: "error",
+      title: data.message,
+    });
+    return false;
   }
+
+  return true;
 };
 
-export const getUser = async () => {
+// optional userId parameter
+export const getUser = async (userId = "") => {
   const token = getToken();
-  const { id } = getBaseUserData();
-  const response = await fetch(`${NEXT_PUBLIC_USER_SERVICE}/users/${id}`, {
+  const url = `${NEXT_PUBLIC_IAM_USER_SERVICE}/${userId || getUserId()}`;
+  const response = await fetch(url, {
     method: "GET",
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
+  const data = await response.json();
 
-  switch (response.status) {
-    case 200:
-      return await response.json();
-    case 401:
-      logout();
-      break;
-    default:
-      toast.fire({
-        icon: "error",
-        title: "An error occurred while fetching your profile",
-      });
+  if (response.status !== 200) {
+    toast.fire({
+      icon: "error",
+      title: data.message,
+    });
+    return false;
   }
+
+  return data;
 };
 
-export const updateUser = async (data: {
-  email: string;
-  password: string;
-  bio: string;
-  linkedin: string;
-  github: string;
+export const updateUser = async (userData: {
+  username?: string;
+  email?: string;
+  password?: string;
+  bio?: string;
+  linkedin?: string;
+  github?: string;
 }) => {
   const token = getToken();
-  const { id } = getBaseUserData();
-  const response = await fetch(`${NEXT_PUBLIC_USER_SERVICE}/users/${id}`, {
-    method: "PUT",
+  const userId = getUserId();
+  const response = await fetch(`${NEXT_PUBLIC_IAM_USER_SERVICE}/${userId}`, {
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify(userData),
+  });
+  const data = await response.json();
+
+  if (response.status !== 200) {
+    toast.fire({
+      icon: "error",
+      title: data.message,
+    });
+    return false;
+  }
+
+  toast.fire({
+    icon: "success",
+    title: "Profile updated successfully",
   });
 
-  switch (response.status) {
-    case 200:
-      return response;
-    case 400:
-      toast.fire({
-        icon: "error",
-        title: "Invalid data",
-      });
-      break;
-    default:
-      toast.fire({
-        icon: "error",
-        title: "An error occurred while updating your profile",
-      });
-  }
+  return true;
 };

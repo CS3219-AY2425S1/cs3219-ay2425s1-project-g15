@@ -8,6 +8,7 @@ import {
   findUserById as _findUserById,
   findUserByUsername as _findUserByUsername,
   findUserByUsernameOrEmail as _findUserByUsernameOrEmail,
+  findUserByUsernameOrId as _findUserByUsernameOrId,
   updateUserById as _updateUserById,
   updateUserPrivilegeById as _updateUserPrivilegeById,
 } from "../model/repository.js";
@@ -40,11 +41,8 @@ export async function createUser(req, res) {
 export async function getUser(req, res) {
   try {
     const userId = req.params.id;
-    if (!isValidObjectId(userId)) {
-      return res.status(404).json({ message: `User ${userId} not found` });
-    }
 
-    const user = await _findUserById(userId);
+    const user = await _findUserByUsernameOrId(userId);
     if (!user) {
       return res.status(404).json({ message: `User ${userId} not found` });
     } else {
@@ -69,8 +67,8 @@ export async function getAllUsers(req, res) {
 
 export async function updateUser(req, res) {
   try {
-    const { username, email, password } = req.body;
-    if (username || email || password) {
+    const { username, email, password, bio, linkedin, github } = req.body;
+    if (username || email || password || bio || linkedin || github) {
       const userId = req.params.id;
       if (!isValidObjectId(userId)) {
         return res.status(404).json({ message: `User ${userId} not found` });
@@ -95,7 +93,7 @@ export async function updateUser(req, res) {
         const salt = bcrypt.genSaltSync(10);
         hashedPassword = bcrypt.hashSync(password, salt);
       }
-      const updatedUser = await _updateUserById(userId, username, email, hashedPassword);
+      const updatedUser = await _updateUserById(userId, username, email, hashedPassword, bio, linkedin, github);
       return res.status(200).json({
         message: `Updated data for user ${userId}`,
         data: formatUserResponse(updatedUser),
@@ -161,6 +159,9 @@ export function formatUserResponse(user) {
     id: user.id,
     username: user.username,
     email: user.email,
+    bio: user.bio,
+    linkedin: user.linkedin,
+    github: user.github,
     isAdmin: user.isAdmin,
     createdAt: user.createdAt,
   };

@@ -23,13 +23,16 @@ public class MatchRequestConsumer {
         System.out.println("Received successful match: " + value);
         
         String[] userInformation = value.split("_");
-        String user1Id = userInformation[0];
-        String user1Email = userInformation[1];
-        String user2Id = userInformation[2];
-        String user2Email = userInformation[3];
+        String collaborationId = userInformation[0];
+        String questionId = userInformation[1];
+        String language = userInformation[2];
+        String user1Id = userInformation[3];
+        String user1Email = userInformation[4];
+        String user2Id = userInformation[5];
+        String user2Email = userInformation[6];
     
-        MatchNotification user1Notification = new MatchNotification(user2Email);
-        MatchNotification user2Notification = new MatchNotification(user1Email);
+        MatchNotification user1Notification = new MatchNotification(user2Email, collaborationId, questionId, language);
+        MatchNotification user2Notification = new MatchNotification(user1Email, collaborationId, questionId, language);
 
         try {
             String jsonNotification1 = objectMapper.writeValueAsString(user1Notification);

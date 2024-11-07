@@ -17,7 +17,7 @@ app.use((req, res, next) => {
 
   res.header(
     "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
   );
 
   // Browsers usually send this before PUT or POST Requests
@@ -30,15 +30,19 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/users", userRoutes);
-app.use("/auth", authRoutes);
+const apiRouter = express.Router();
 
-app.get("/", (req, res, next) => {
+apiRouter.use("/user", userRoutes);
+apiRouter.use("/auth", authRoutes);
+
+apiRouter.get("/", (req, res, next) => {
   console.log("Sending Greetings!");
   res.json({
-    message: "Hello World from user-service",
+    message: "Hello World from iam-service",
   });
 });
+
+app.use("/api/iam", apiRouter);
 
 // Handle When No Route Match Is Found
 app.use((req, res, next) => {

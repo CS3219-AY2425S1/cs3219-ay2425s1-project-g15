@@ -27,6 +27,14 @@ export async function findUserByUsername(username) {
   return UserModel.findOne({ username });
 }
 
+export async function findUserByUsernameOrId(userId) {
+  const length = userId.length;
+  if (length === 24) {
+    return await findUserById(userId);
+  }
+  return await findUserByUsername(userId);
+}
+
 export async function findUserByUsernameOrEmail(username, email) {
   return UserModel.findOne({
     $or: [
@@ -40,7 +48,7 @@ export async function findAllUsers() {
   return UserModel.find();
 }
 
-export async function updateUserById(userId, username, email, password) {
+export async function updateUserById(userId, username, email, password, bio, linkedin, github) {
   return UserModel.findByIdAndUpdate(
     userId,
     {
@@ -48,6 +56,9 @@ export async function updateUserById(userId, username, email, password) {
         username,
         email,
         password,
+        bio,
+        linkedin,
+        github,
       },
     },
     { new: true },  // return the updated user

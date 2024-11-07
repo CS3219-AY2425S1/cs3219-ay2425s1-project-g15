@@ -3,7 +3,7 @@ package com.example.backend.matchverification.kafka.consumers;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
-import com.example.backend.matchverification.controller.MatchVerificationHashsetService;
+import com.example.backend.matchverification.redis.MatchVerificationHashsetService;
 
 @Component
 public class MatchVerificationConsumer {

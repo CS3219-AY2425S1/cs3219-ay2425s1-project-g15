@@ -26,7 +26,7 @@ export const createQuestionValidators = [
 
 export const idValidators = [check("id").isInt({ min: 1 })];
 
-export const pickQuestionValidators = [
+export const countQuestionValidators = [
   check("complexity").custom((complexity) => {
     if (!Array.isArray(complexity) || complexity.length === 0) {
       throw new Error("Complexity must be a non-empty array");
@@ -53,6 +53,11 @@ export const pickQuestionValidators = [
     }
     return true;
   }),
+];
+
+export const pickQuestionValidators = [
+  check("complexity").isString().isLength({ min: 1 }),
+  check("category").isString().isLength({ min: 1 }),
 ];
 
 export const updateQuestionValidators = [

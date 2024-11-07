@@ -1,25 +1,24 @@
 "use client";
 
+import { ReactNode, Suspense } from "react";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "@/components/auth/AuthContext";
+import LoadingPage from "./common/LoadingPage";
 
 const inter = Inter({
   subsets: ["latin"],
 });
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+const Layout = ({ children }: { children: ReactNode }) => {
   return (
     <html lang="en" className={`${inter.className} h-full`}>
-      <body className="h-full">
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+      <body className="h-full w-full">
+        <Suspense fallback={<LoadingPage/>}>
+          <div className="w-full overflow-y-scroll">{children}</div>
+        </Suspense>
       </body>
     </html>
   );
-}
+};
+
+export default Layout;

@@ -1,10 +1,6 @@
 package com.example.backend.matching.kafka.consumers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -19,6 +15,8 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.example.backend.matching.model.VerificationResponse;
+import com.example.backend.matching.model.VerifyMatchesDTO;
+import com.example.backend.matching.redis.WaitingRequestsHashMapService;
 
 @Component
 public class MatchRequestConsumer {
@@ -29,40 +27,42 @@ public class MatchRequestConsumer {
         CONFLICT_BOTH_INVALID
     }
 
-    private final Map<String, String> waitingRequests = new HashMap<>();
+    @Autowired
+    private WaitingRequestsHashMapService waitingRequestsService;
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    private static final String VERIFY_API_URL = System.getenv("VERIFY_API_URL");
+    private static final String VERIFY_API_URL =  System.getenv("ENV").equals("DEV") ? System.getenv("DEV_VERIFY_API_URL") : System.getenv("PROD_VERIFY_API_URL");
 
     @KafkaListener(topics = "MATCH_REQUESTS", groupId = "matching-service")
     public void listen(@Header(KafkaHeaders.RECEIVED_KEY) String key, String value) {
         System.out.println("Received message, key: " + key + " value: " + value);
 
-        if (waitingRequests.containsKey(key)) {
+        if (waitingRequestsService.containsWaitingRequest(key)) {
             String receivedUserEmail = value.split("_")[1];
-            String storedUserEmail = waitingRequests.get(key).split("_")[1];
+            String storedUserEmail = waitingRequestsService.getWaitingRequest(key).split("_")[1];
+            String matchCriteriaTopic = key.split("_")[0];
+            String matchCriteriaLanguage = key.split("_")[1];
+            String matchCriteriaDifficulty = key.split("_")[2];
 
             // Do not match the same user with themselves
             if (!storedUserEmail.equals(receivedUserEmail)) {
                 // Match found
-                String otherUserValue = waitingRequests.remove(key);
+                String otherUserValue = waitingRequestsService.getAndRemoveWaitingRequest(key);
 
                 System.out.println("Match found for key: " + key);
                 System.out.println("Matching users: " + value + " and " + otherUserValue);
                 System.out.println("Verifying match requests...");
 
-                List<String> matchRequests = new ArrayList<>();
-                matchRequests.add(value);
-                matchRequests.add(otherUserValue);
+                VerifyMatchesDTO verifyMatchesDTO = new VerifyMatchesDTO(value, otherUserValue, matchCriteriaTopic, matchCriteriaDifficulty, matchCriteriaLanguage);
 
                 try {
                     HttpHeaders headers = new HttpHeaders();
                     headers.setContentType(MediaType.APPLICATION_JSON);
 
-                    HttpEntity<List<String>> request = new HttpEntity<>(matchRequests, headers);
+                    HttpEntity<VerifyMatchesDTO> request = new HttpEntity<>(verifyMatchesDTO, headers);
                     ResponseEntity<VerificationResponse> response = restTemplate.exchange(
-                        VERIFY_API_URL,
+                        VERIFY_API_URL + "/verify",
                         HttpMethod.POST,
                         request,
                         new ParameterizedTypeReference<VerificationResponse>() {}
@@ -90,7 +90,7 @@ public class MatchRequestConsumer {
                         System.out.println("Partial match verification failed.");
                         assert verificationResponse.getInvalidMatches().size() == 1; // Defensive check
                         String unseenMatch = verificationResponse.getValidMatches().get(0);
-                        waitingRequests.put(key, unseenMatch);
+                        waitingRequestsService.addWaitingRequest(key, unseenMatch);
                     } else if (vStatus.equals(VerificationStatus.CONFLICT_BOTH_INVALID.toString())) {
                         System.out.println("Both matches are invalid. Not sending to Kafka topic.");
                         assert verificationResponse.getInvalidMatches().isEmpty(); // Defensive check
@@ -105,11 +105,11 @@ public class MatchRequestConsumer {
                 }
             } else {
                 System.out.println("No match found for key: " + key);
-                waitingRequests.put(key, value);
+                waitingRequestsService.addWaitingRequest(key, value);
             }
         } else {
             System.out.println("No match found for key: " + key);
-            waitingRequests.put(key, value);
+            waitingRequestsService.addWaitingRequest(key, value);
         }
     }
 }
