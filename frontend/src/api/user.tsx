@@ -219,12 +219,12 @@ export const updateUser = async (userData: {
   return true;
 };
 
-export const uploadProfilePicture = async (
+export const getFileUrl = async (
   userId: string,
   formData: FormData
 ): Promise<UploadProfilePictureResponse> => {
   const res = await fetch(
-    `${NEXT_PUBLIC_IAM_USER_SERVICE}/${userId}/uploadProfilePicture`,
+    `${NEXT_PUBLIC_IAM_USER_SERVICE}/${userId}/getFileUrl`,
     {
       method: "POST",
       headers: {

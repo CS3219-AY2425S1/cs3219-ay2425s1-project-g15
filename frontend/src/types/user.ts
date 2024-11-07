@@ -32,5 +32,5 @@ export interface UserLogin {
 }
 
 export interface UploadProfilePictureResponse {
-  profilePictureUrl: string;
+  fileUrl: string;
 }

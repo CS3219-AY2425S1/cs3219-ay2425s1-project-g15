@@ -17,14 +17,15 @@ import {
   getUser,
   getUserId,
   updateUser,
-  uploadProfilePicture,
+  getFileUrl,
 } from "@/api/user";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { User } from "@/types/user";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Swal from "sweetalert2";
 import { CgProfile } from "react-icons/cg";
+import MoonLoader from "react-spinners/MoonLoader";
 
 const formSchema = z.object({
   username: z
@@ -53,6 +54,8 @@ const formSchema = z.object({
 const ProfilePage = () => {
   const [token, setToken] = useState(false);
   const [user, setUser] = useState<User>({});
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -92,6 +95,12 @@ const ProfilePage = () => {
     setUser(data);
   };
 
+  const triggerFileInput = () => {
+    if (fileInputRef.current && !isLoading) {
+      fileInputRef.current.click();
+    }
+  };
+
   const handleProfilePictureUpload = async (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -101,14 +110,15 @@ const ProfilePage = () => {
         const formData = new FormData();
         formData.append("profilePicture", imageFile);
         const userId = getUserId() ?? "";
-        console.log(userId);
 
-        const res = await uploadProfilePicture(userId, formData);
+        setIsLoading(true);
+        const res = await getFileUrl(userId, formData);
 
-        if (res.profilePictureUrl) {
-          form.setValue("profilePictureUrl", res.profilePictureUrl);
-          setUser({ ...user, profilePictureUrl: res.profilePictureUrl });
+        if (res.fileUrl) {
+          form.setValue("profilePictureUrl", res.fileUrl);
+          setUser({ ...user, profilePictureUrl: res.fileUrl });
         }
+        setIsLoading(false);
       }
     } catch (error) {
       console.log(error);
@@ -134,21 +144,36 @@ const ProfilePage = () => {
                   <FormControl>
                     <div className="w-full flex justify-center">
                       {field.value ? (
-                        <img
-                          src={field.value}
-                          alt="Profile Picture"
-                          className="w-24 h-24 rounded-full object-cover"
-                        />
+                        <div
+                          className="relative group w-40 h-40 rounded-full"
+                          onClick={triggerFileInput}
+                        >
+                          <img
+                            src={field.value}
+                            className="w-full h-full rounded-full object-cover"
+                          ></img>
+                          {isLoading ? (
+                            <div className="absolute inset-0 rounded-full flex items-center justify-center bg-primary-300 opacity-70">
+                              <MoonLoader />
+                            </div>
+                          ) : (
+                            <div className="absolute inset-0 bg-primary-300 opacity-0 group-hover:opacity-70 transition-opacity duration-300 hover:cursor-pointer rounded-full flex items-center justify-center text-5xl">
+                              +
+                            </div>
+                          )}
+                        </div>
                       ) : (
                         <CgProfile
                           size={150}
                           className="hover:bg-primary-300 hover:cursor-pointer hover:rounded-full"
+                          onClick={triggerFileInput}
                         />
                       )}
                       <input
                         type="file"
                         id="profilePictureInput"
-                        className="display-none"
+                        ref={fileInputRef}
+                        className="hidden"
                         onChange={handleProfilePictureUpload}
                         accept="image/*"
                       />
