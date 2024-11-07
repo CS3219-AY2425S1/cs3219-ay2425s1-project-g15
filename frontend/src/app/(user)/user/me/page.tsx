@@ -118,10 +118,11 @@ const ProfilePage = () => {
           form.setValue("profilePictureUrl", res.fileUrl);
           setUser({ ...user, profilePictureUrl: res.fileUrl });
         }
-        setIsLoading(false);
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -306,6 +307,7 @@ const ProfilePage = () => {
             <Button
               type="submit"
               className="bg-yellow-500 hover:bg-yellow-300 px-4 py-2 my-2 rounded-md text-black"
+              disabled={form.formState.isSubmitting || isLoading}
             >
               Save Changes
             </Button>
