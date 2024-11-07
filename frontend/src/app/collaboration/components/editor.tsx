@@ -43,9 +43,11 @@ function Collaboration({ room, language, code }: Readonly<Props>) {
   useEffect(() => {
     if (!providerRef.current) {
       //const signalingServer = ["ws://localhost:4444"];
-      const signalingServer = [
-        "wss://signaling-598285527681.us-central1.run.app",
-      ];
+      // const signalingServer = [
+      //   "wss://signaling-598285527681.us-central1.run.app",
+      // ];
+      const signalingServer = ["ws://34.135.245.0:32624"];
+
       providerRef.current = new WebrtcProvider(room, docRef.current, {
         signaling: signalingServer,
       });

@@ -20,6 +20,7 @@ export default function CollaborationPage() {
   const [language, setLanguage] = useState<string>("");
   const [code, setCode] = useState<string>("");
   const [collaborator, setCollaborator] = useState<string>("");
+  const [collaboratorId, setCollaboratorId] = useState<string>("");
   const [question, setQuestion] = useState<NewQuestionData | null>(null);
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -28,9 +29,13 @@ export default function CollaborationPage() {
           setQuestion(data);
         });
         const userId = getUserId(); // Change to userID
+        console.log(userId);
         const otherUserId = data.users.filter((user) => user !== userId)[0];
+        console.log(otherUserId);
         await getUser(otherUserId).then((res) => {
+          console.log(res.data);
           setCollaborator(res.data.username);
+          setCollaboratorId(res.data.id);
         });
 
         setCode(data.code);
@@ -52,6 +57,7 @@ export default function CollaborationPage() {
           collabid={room}
           question={question}
           collaborator={collaborator}
+          collaboratorId={collaboratorId}
         />
       </Panel>
       <PanelResizeHandle />

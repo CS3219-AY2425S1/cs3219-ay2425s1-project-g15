@@ -2,7 +2,7 @@
 "use client";
 
 import { getUserHistoryData } from "@/api/dashboard";
-import { getUsername } from "@/api/user";
+import { getUserId, getUsername } from "@/api/user";
 import Container from "@/components/ui/Container";
 import { TCombinedSession } from "@/types/dashboard";
 import { useEffect, useState } from "react";
@@ -15,9 +15,11 @@ const Dashboard = () => {
 
   useEffect(() => {
     const username = getUsername();
+    const userId = getUserId();
     if (!username) return;
+    if (!userId) return;
     setUsername(username);
-    getUserHistoryData(username).then((userHistory) => {
+    getUserHistoryData(userId).then((userHistory) => {
       setData(userHistory);
     });
   }, []);
@@ -38,12 +40,18 @@ const Dashboard = () => {
         <DashboardCard
           cardTitleLabel="Questions Attempted"
           cardBodyLabel={`${data.length}`}
-          cardFooterLabel={`${data.filter(question => question.complexity == "Easy").length} easy, 
-            ${data.filter(question => question.complexity == "Medium").length} medium, 
-            ${data.filter(question => question.complexity == "Hard").length} hard`}
+          cardFooterLabel={`${
+            data.filter((question) => question.complexity == "Easy").length
+          } easy, 
+            ${
+              data.filter((question) => question.complexity == "Medium").length
+            } medium, 
+            ${
+              data.filter((question) => question.complexity == "Hard").length
+            } hard`}
         />
       </div>
-      <DashboardDataTable data={data}/>
+      <DashboardDataTable data={data} />
     </Container>
   );
 };
