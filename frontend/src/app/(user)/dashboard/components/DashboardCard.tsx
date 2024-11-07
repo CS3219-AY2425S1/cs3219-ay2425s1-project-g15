@@ -1,35 +1,38 @@
 import {
   Card,
-  CardContent,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 
+import DashboardCardItem from './DashboardCardItem';
+
 interface DashboardCardProps {
   cardTitleLabel: string;
-  cardBodyLabel: string;
-  cardFooterLabel: string;
+  cardBodyLabels: string[];
+  cardFooterLabels: string[];
 }
 
 const DashboardCard = ({
   cardTitleLabel,
-  cardBodyLabel,
-  cardFooterLabel,
+  cardBodyLabels,
+  cardFooterLabels,
 }: DashboardCardProps) => {
   return (
-    <Card className="bg-primary-900 border-none p-6 pr-20 w-full drop-shadow">
-      <CardHeader className="p-0">
+    <Card className="bg-primary-900 border-none p-6 w-full drop-shadow">
+      <CardHeader className="p-3">
         <CardTitle className="text-xs font-light text-primary-300">
           {cardTitleLabel}
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-0">
-        <p className="font-bold text-h2 text-white">{cardBodyLabel}</p>
-      </CardContent>
-      <CardFooter className="text-xs font-light text-primary-300 p-0">
-        {cardFooterLabel}
-      </CardFooter>
+      <div className="flex w-full space-x-10">
+        {cardBodyLabels.map((bodyLabel: string, index) => (
+          <DashboardCardItem
+            key={index}
+            cardBodyLabel={bodyLabel}
+            cardFooterLabel={cardFooterLabels[index]}
+          />
+        ))}
+      </div>
     </Card>
   );
 };

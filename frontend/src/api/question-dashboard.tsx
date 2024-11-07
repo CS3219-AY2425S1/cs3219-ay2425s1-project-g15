@@ -1,6 +1,6 @@
 import { QuestionAll, QuestionFull, NewQuestionData } from "@/types/find-match";
 
-const QUESTION_SERVICE = "http://35.192.214.143:80/api/question";
+const QUESTION_SERVICE = process.env.NEXT_PUBLIC_QUESTION_SERVICE;
 
 export const createSingleQuestion = async (
   data: NewQuestionData

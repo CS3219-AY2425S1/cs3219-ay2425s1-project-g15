@@ -1,8 +1,8 @@
 import { TCombinedSession, TQuestion, TSession } from "@/types/dashboard";
 
 // retrieve from .env
-const COLLAB_SERVICE = "http://35.192.214.143:80/api/collaboration";
-const QUESTION_SERVICE = "http://35.192.214.143:80/api/question";
+const COLLAB_SERVICE = process.env.NEXT_PUBLIC_COLLAB_SERVICE;
+const QUESTION_SERVICE = process.env.NEXT_PUBLIC_QUESTION_SERVICE;
 
 export const getUserHistoryData = async (username: string): Promise<TCombinedSession[]> => {
   const collabUrl = `${COLLAB_SERVICE}/sessions/${username}`;

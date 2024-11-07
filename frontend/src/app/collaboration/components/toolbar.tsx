@@ -4,16 +4,38 @@ import styles from "./toolbar.module.css";
 import UndoIcon from "./icon/UndoIcon";
 import RedoIcon from "./icon/RedoIcon";
 import MoonLoader from "react-spinners/MoonLoader";
+import React from 'react';
+import Select from 'react-select';
 
 type Props = {
   editor: editor.IStandaloneCodeEditor;
   language: string;
   saving: boolean;
+  setLanguage: (language: string) => void;
 };
 
-export function Toolbar({ editor, language, saving }: Props) {
-  const languageCapitalized =
-    language.charAt(0).toUpperCase() + language.slice(1);
+export function Toolbar({ editor, language, saving, setLanguage }: Props) {
+  const languages = [
+    { value: 'javascript', label: 'JavaScript' },
+    { value: 'python', label: 'Python' },
+  ];
+
+  const handleLanguageChange = (selectedOption: { value: string; label: string } | null) => {
+    if (selectedOption) {
+      setLanguage(selectedOption.value);
+    }
+  };
+
+  const customStyles = {
+    option: (provided: any, state: any) => ({
+      ...provided,
+      backgroundColor: state.isSelected ? '#2F3B54' : 'white',
+      '&:hover': {
+        backgroundColor: '#8695B7',
+      },
+    }),
+  };
+
   return (
     <div className={styles.toolbar}>
       <button
@@ -43,7 +65,13 @@ export function Toolbar({ editor, language, saving }: Props) {
             <div className="text-grey-300 text-opacity-75 text-xs">Saving</div>
           </div>
         )}
-        {languageCapitalized}
+        <Select
+          value={languages.find(lang => lang.value === language)}
+          onChange={handleLanguageChange}
+          options={languages}
+          className="w-32"
+          styles={customStyles}
+        />
       </div>
     </div>
   );
