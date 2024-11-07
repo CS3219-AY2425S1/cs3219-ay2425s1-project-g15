@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: "signaling-server-sha256-1"
-        image: "gcr.io/peerprep-backend/signaling@sha256:f3b115d92bcaaeaf353f609bab3e4cbb3cdfe1b3d5979ba1732926c5ffdba5c5"
+        image: "gcr.io/peerprep-backend/signaling@sha256:d1898585e95936fda098ee108bb8cc21bcbb8d322947baa3c4c5e8e86b2de7b9"
         imagePullPolicy: "IfNotPresent"
         resources:
           requests:
@@ -26,3 +26,7 @@ spec:
           limits:
             memory: "1Gi"
             cpu: "1000m"
+        env:
+        - name: SIGNALING_SERVER_PORT
+          value: "32624" # You can modify this value as needed
+

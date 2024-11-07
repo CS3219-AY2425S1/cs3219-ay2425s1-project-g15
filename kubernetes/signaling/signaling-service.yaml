@@ -8,6 +8,7 @@ spec:
     app: signaling-deployment
   ports:
   - protocol: TCP
-    port: 4444
-    targetPort: 4444
-  type: ClusterIP
+    port: 32624 # Port exposed by the service
+    targetPort: 32634 # Port exposed by the pod
+    nodePort: 32624
+  type: LoadBalancer

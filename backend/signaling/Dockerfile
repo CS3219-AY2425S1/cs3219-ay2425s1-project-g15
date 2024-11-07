@@ -32,7 +32,7 @@ COPY --from=builder /app /app
 WORKDIR /app
 ENV NODE_ENV production
 ENV PATH /root/.volta/bin:$PATH
-ENV PORT 4444
-EXPOSE 4444
+ENV PORT 32624
+EXPOSE 32624
 
 CMD [ "npm", "run", "start" ]
