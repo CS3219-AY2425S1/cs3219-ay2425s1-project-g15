@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-import { AuthStatus } from "@/types/user";
+import { AuthStatus, UploadProfilePictureResponse } from "@/types/user";
 import Cookie from "js-cookie";
 import Swal from "sweetalert2";
 
@@ -55,9 +55,11 @@ export const getAuthStatus = () => {
 };
 
 const NEXT_PUBLIC_IAM_USER_SERVICE =
+  process.env["NEXT_PUBLIC_IAM_USER_SERVICE"] ||
   "https://user-service-598285527681.us-central1.run.app/api/iam/user";
 
 const NEXT_PUBLIC_IAM_AUTH_SERVICE =
+  process.env["NEXT_PUBLIC_IAM_AUTH_SERVICE"] ||
   "https://user-service-598285527681.us-central1.run.app/api/iam/auth";
 
 export const verifyToken = async (token: string) => {
@@ -215,4 +217,37 @@ export const updateUser = async (userData: {
   });
 
   return true;
+};
+
+export const uploadProfilePicture = async (
+  userId: string,
+  formData: FormData
+): Promise<UploadProfilePictureResponse> => {
+  const res = await fetch(
+    `${NEXT_PUBLIC_IAM_USER_SERVICE}/${userId}/uploadProfilePicture`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+      body: formData,
+    }
+  );
+
+  const data: UploadProfilePictureResponse = await res.json();
+
+  if (res.status !== 200) {
+    toast.fire({
+      icon: "error",
+      title: res.statusText,
+    });
+    throw new Error("Failed to upload profile picture: " + res.statusText);
+  }
+
+  toast.fire({
+    icon: "success",
+    title: "Profile updated successfully",
+  });
+
+  return data;
 };

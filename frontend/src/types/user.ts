@@ -14,6 +14,7 @@ export interface AttemptedQuestion {
 
 export interface User {
   username?: string;
+  profilePictureUrl?: string;
   email?: string;
   bio?: string;
   linkedin?: string;
@@ -28,4 +29,8 @@ export interface UserLogin {
   email: string;
   isAdmin: string;
   createdAt: string;
+}
+
+export interface UploadProfilePictureResponse {
+  profilePictureUrl: string;
 }
