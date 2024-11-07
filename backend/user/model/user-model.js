@@ -33,6 +33,10 @@ const UserModelSchema = new Schema({
     type: Date,
     default: Date.now, // Setting default to the current date/time
   },
+  profilePictureUrl: {
+    type: String,
+    default: "",
+  },
   isAdmin: {
     type: Boolean,
     required: true,
