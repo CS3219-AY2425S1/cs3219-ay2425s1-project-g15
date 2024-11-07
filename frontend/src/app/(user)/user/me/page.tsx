@@ -40,13 +40,13 @@ const formSchema = z.object({
   linkedin: z
     .string()
     .refine((val) => val.length == 0 || val.includes("linkedin.com/in/"), {
-      message: "Invalid URL",
+      message: "Invalid URL, is this a LinekdIn URL?",
     })
     .optional(),
   github: z
     .string()
     .refine((val) => val.length == 0 || val.includes("github.com/"), {
-      message: "Invalid URL",
+      message: "Invalid URL, is this a GitHub URL?",
     })
     .optional(),
 });
