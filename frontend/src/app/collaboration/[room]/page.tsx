@@ -8,7 +8,7 @@ import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { fetchSession } from "@/api/collaboration";
 import { NewQuestionData } from "@/types/find-match";
 import { fetchSingleQuestion } from "@/api/question-dashboard";
-import { getUsername } from "@/api/user";
+import { getUser, getUserId } from "@/api/user";
 
 // Disable SSR for this component
 const Collaboration = dynamic(() => import("../components/editor"), {
@@ -27,9 +27,12 @@ export default function CollaborationPage() {
         await fetchSingleQuestion(data.question_id.toString()).then((data) => {
           setQuestion(data);
         });
-        const userID = getUsername(); // Change to userID
+        const userId = getUserId(); // Change to userID
+        const otherUserId = data.users.filter((user) => user !== userId)[0];
+        await getUser(otherUserId).then((res) => {
+          setCollaborator(res.data.username);
+        });
 
-        setCollaborator(data.users.filter((user) => user !== userID)[0]);
         setCode(data.code);
         setLanguage(data.language);
       });
