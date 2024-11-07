@@ -29,11 +29,8 @@ export default function CollaborationPage() {
           setQuestion(data);
         });
         const userId = getUserId(); // Change to userID
-        console.log(userId);
         const otherUserId = data.users.filter((user) => user !== userId)[0];
-        console.log(otherUserId);
         await getUser(otherUserId).then((res) => {
-          console.log(res.data);
           setCollaborator(res.data.username);
           setCollaboratorId(res.data.id);
         });

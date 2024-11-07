@@ -23,6 +23,7 @@ import { TCombinedSession } from "@/types/dashboard";
 import { cn } from "@/lib/utils";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import Link from "next/link";
+import { getUser } from "@/api/user";
 
 const Cell = ({
   className,
@@ -38,15 +39,17 @@ export const columns: ColumnDef<TCombinedSession>[] = [
   {
     accessorKey: "peer",
     header: () => <Cell>Peer</Cell>,
-    cell: ({ row }) => {
-      const peer = row.getValue("peer");
+    cell: async ({ row }) => {
+      const peer: string = row.getValue("peer");
+      const peerData = await getUser(peer);
+
       return (
         <Cell className="capitalize">
           <Link
             className="group text-center p-2 rounded-xl hover:bg-white hover:text-primary-900 underline"
-            href={`/user/${peer}`}
+            href={`/user/${peerData.data.username}`}
           >
-            {peer as string}
+            {peerData.data.username as string}
           </Link>
         </Cell>
       );

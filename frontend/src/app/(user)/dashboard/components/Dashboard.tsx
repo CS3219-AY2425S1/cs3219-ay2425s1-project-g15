@@ -2,7 +2,7 @@
 "use client";
 
 import { getUserHistoryData } from "@/api/dashboard";
-import { getUserId, getUsername } from "@/api/user";
+import { getUser, getUserId, getUsername } from "@/api/user";
 import Container from "@/components/ui/Container";
 import { TCombinedSession } from "@/types/dashboard";
 import { useEffect, useState } from "react";
