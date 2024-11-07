@@ -243,7 +243,7 @@ export function formatUserResponse(user) {
   };
 }
 
-export function uploadProfilePicture(req, res) {
+export function getFileUrl(req, res) {
   upload(req, res, async (err) => {
     if (err) {
       console.error("File upload error:", err);
@@ -287,30 +287,10 @@ export function uploadProfilePicture(req, res) {
     blobStream.on("finish", async () => {
       const publicUrl = `https://storage.googleapis.com/${profileBucketName}/${blob.name}`;
 
-      const { username, email, password, bio, linkedin, github } = user;
-
-      // Update user's profile picture URL in the database
-      try {
-        const updatedUser = await _updateUserById(
-          userId,
-          username,
-          email,
-          password,
-          bio,
-          linkedin,
-          github,
-          publicUrl
-        );
-        const formattedUser = formatUserResponse(updatedUser);
-
-        return res.status(200).json({
-          message: "Profile picture uploaded successfully",
-          data: formattedUser,
-        });
-      } catch (dbError) {
-        console.error("Database update error:", dbError);
-        return res.status(500).json({ message: "Error updating user profile" });
-      }
+      return res.status(200).json({
+        message: "Picture uploaded successfully",
+        fileUrl: publicUrl,
+      });
     });
 
     // Pipe the file buffer to the blob stream

@@ -7,7 +7,7 @@ import {
   getUser,
   updateUser,
   updateUserPrivilege,
-  uploadProfilePicture,
+  getFileUrl,
 } from "../controller/user-controller.js";
 import {
   verifyAccessToken,
@@ -28,7 +28,7 @@ router.patch(
 
 router.post("/", createUser);
 
-router.post("/:id/uploadProfilePicture", uploadProfilePicture);
+router.post("/:id/getFileUrl", getFileUrl);
 
 router.get("/:id", verifyAccessToken, getUser);
 
