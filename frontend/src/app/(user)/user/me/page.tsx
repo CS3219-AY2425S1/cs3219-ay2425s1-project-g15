@@ -26,7 +26,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Swal from "sweetalert2";
 import { CgProfile } from "react-icons/cg";
 import MoonLoader from "react-spinners/MoonLoader";
-import VerificationSymbol from "@/app/common/VerificationSymbol";
 
 const formSchema = z.object({
   username: z
@@ -71,6 +70,8 @@ const ProfilePage = () => {
     },
   });
 
+  const { isDirty } = form.formState;
+
   useEffect(() => {
     setToken((_) => !!getToken());
   }, []);
@@ -78,7 +79,6 @@ const ProfilePage = () => {
   useEffect(() => {
     getUser().then((res) => {
       setUser(res.data);
-      console.log(res.data);
       form.reset(res.data);
     });
   }, [form]);
@@ -309,7 +309,7 @@ const ProfilePage = () => {
             <Button
               type="submit"
               className="bg-yellow-500 hover:bg-yellow-300 px-4 py-2 my-2 rounded-md text-black"
-              disabled={form.formState.isSubmitting || isLoading}
+              disabled={form.formState.isSubmitting || isLoading || !isDirty}
             >
               Save Changes
             </Button>
