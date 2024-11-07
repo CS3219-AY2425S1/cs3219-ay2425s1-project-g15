@@ -18,7 +18,7 @@ import { Input, MessageList } from "react-chat-elements";
 import SockJS from "sockjs-client";
 import ResizeObserver from "resize-observer-polyfill";
 
-const CHAT_SOCKET_URL = "http://34.54.37.142/chat-websocket";
+const CHAT_SOCKET_URL = "http://localhost:3007/chat-websocket";
 
 interface Message {
   position: "left" | "right";
