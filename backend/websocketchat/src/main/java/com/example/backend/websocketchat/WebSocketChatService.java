@@ -20,7 +20,7 @@ public class WebSocketChatService {
         this.userRegistry = userRegistry;
     }
 
-    public void sendToOtherUser(String topic, Message message, String senderUserID) {
+    public void sendToOtherUser(String topic, Message message) {
         String targetID = message.getTargetID();
         boolean targetUserConnected = userRegistry.getUsers().stream()
                 .map(SimpUser::getName)
@@ -29,7 +29,7 @@ public class WebSocketChatService {
         if (targetUserConnected) {
             System.out.println("Sending message " + message.toString() + " to " + targetID);
             System.out.println("Topic is " + topic);
-            messagingTemplate.convertAndSendToUser(targetID, "/queue/chat", message.getMessage());
+            messagingTemplate.convertAndSendToUser(targetID, topic, message.getMessage());
         } else {
             System.out.println("User " + targetID + " is not connected.");
         }

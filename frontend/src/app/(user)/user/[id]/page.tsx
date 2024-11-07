@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { User } from "@/types/user";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import VerificationSymbol from "@/app/common/VerificationSymbol";
 
 // no need login
 const ProfilePage = () => {
@@ -35,7 +36,10 @@ const ProfilePage = () => {
         <span className="text-white font-light text-lg">{calculateAge(user?.createdAt)} days</span>
 
         <h2 className="text-yellow-500 font-bold text-h3">Email</h2>
-        <span className="text-white font-light text-lg">{user?.email}</span>
+        <div className="flex my-2 gap-2">
+          <p className="text-white">{user?.email} </p>
+          <VerificationSymbol isVerified={user?.isVerified || false}/>
+        </div>
 
         <h2 className="text-yellow-500 font-bold text-h3">Bio</h2>
         {user?.bio && <span className="text-white font-light text-lg">{user?.bio}</span>}

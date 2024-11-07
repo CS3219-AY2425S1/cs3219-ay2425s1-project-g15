@@ -11,8 +11,8 @@ export async function connectToDB() {
   await connect(mongoDBUri);
 }
 
-export async function createUser(username, email, password) {
-  return new UserModel({ username, email, password }).save();
+export async function createUser(username, email, password, verificationCode) {
+  return new UserModel({ username, email, password, verificationCode }).save();
 }
 
 export async function findUserByEmail(email) {
@@ -37,10 +37,7 @@ export async function findUserByUsernameOrId(userId) {
 
 export async function findUserByUsernameOrEmail(username, email) {
   return UserModel.findOne({
-    $or: [
-      { username },
-      { email },
-    ],
+    $or: [{ username }, { email }],
   });
 }
 
@@ -48,7 +45,16 @@ export async function findAllUsers() {
   return UserModel.find();
 }
 
-export async function updateUserById(userId, username, email, password, bio, linkedin, github) {
+export async function updateUserById(
+  userId,
+  username,
+  email,
+  password,
+  bio,
+  linkedin,
+  github,
+  profilePictureUrl
+) {
   return UserModel.findByIdAndUpdate(
     userId,
     {
@@ -59,9 +65,10 @@ export async function updateUserById(userId, username, email, password, bio, lin
         bio,
         linkedin,
         github,
+        profilePictureUrl,
       },
     },
-    { new: true },  // return the updated user
+    { new: true } // return the updated user
   );
 }
 
@@ -73,10 +80,34 @@ export async function updateUserPrivilegeById(userId, isAdmin) {
         isAdmin,
       },
     },
-    { new: true },  // return the updated user
+    { new: true } // return the updated user
   );
 }
 
 export async function deleteUserById(userId) {
   return UserModel.findByIdAndDelete(userId);
+}
+
+export async function findUserByVerificationCode(verificationCode) {
+  return UserModel.findOne({ verificationCode });
+}
+
+export async function verifyUserByVerificationCode(verificationCode) {
+  return UserModel.findOneAndUpdate(
+    { verificationCode },
+    { $set: { isVerified: true } }, // we keep verification code because we want to say "already verified" if the user decides to go again
+    { new: true },  // return the updated user
+  );
+}
+
+export async function addPasswordResetCodeToUser(userId, passwordResetCode) {
+  return UserModel.findByIdAndUpdate(
+    userId,
+    { $set: { passwordResetCode } },
+    { new: true },  // return the updated user
+  );
+}
+
+export async function findUserByPasswordResetCode(passwordResetCode) {
+  return UserModel.findOne({ passwordResetCode });
 }
