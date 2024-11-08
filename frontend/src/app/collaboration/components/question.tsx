@@ -227,7 +227,10 @@ const Question = ({
     <div className="px-12 grid grid-rows-[20%_45%_35%] gap-4 grid-cols-1 h-full items-start">
       <div className="mt-10 row-span-1 grid grid-rows-1 grid-cols-[75%_25%] w-full">
         <div className="flex flex-col" ref={containerRef}>
-          <h1 className="text-yellow-500 text-xl font-bold pb-2">
+          <h1
+            className="text-yellow-500 text-xl font-bold pb-2 truncate"
+            title={question?.title}
+          >
             {question?.title}
           </h1>
           <span className="flex flex-wrap gap-1.5 my-1 pb-2">
