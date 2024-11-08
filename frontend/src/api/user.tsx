@@ -192,6 +192,7 @@ export const updateUser = async (userData: {
   bio?: string;
   linkedin?: string;
   github?: string;
+  profilePictureUrl?: string;
 }) => {
   const token = getToken();
   const userId = getUserId();

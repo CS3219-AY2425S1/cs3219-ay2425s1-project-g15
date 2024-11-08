@@ -8,7 +8,7 @@ import {
 } from "react";
 import ComplexityPill from "./complexity";
 import Pill from "./pill";
-import { getUserId, getUsername } from "@/api/user";
+import { getUser, getUserId, getUsername } from "@/api/user";
 import { Button } from "@/components/ui/button";
 import { Client as StompClient } from "@stomp/stompjs";
 import "react-chat-elements/dist/main.css";
@@ -16,6 +16,7 @@ import { Input, MessageList } from "react-chat-elements";
 import SockJS from "sockjs-client";
 import ResizeObserver from "resize-observer-polyfill";
 import Swal from "sweetalert2";
+import { CgProfile } from "react-icons/cg";
 
 const CHAT_SOCKET_URL = "http://localhost:3007/chat-websocket";
 
@@ -50,10 +51,21 @@ const Question = ({
   const [showTooltip, setShowTooltip] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [visibleCategories, setVisibleCategories] = useState<string[]>([]);
+  const [collaboratorProfilePic, setCollaboratorProfilePic] =
+    useState<string>("");
   // To determine if a language change is initiated by the user, or received from the collaborator
   const isLanguageChangeActive = useRef(false);
 
   const messageListRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const getUserProfilePic = async () => {
+      const collaboratorData = await getUser(collaboratorId);
+      const collaborator = collaboratorData.data.profilePictureUrl;
+      setCollaboratorProfilePic(collaborator);
+    };
+    getUserProfilePic();
+  }, [collaboratorId]);
 
   useEffect(() => {
     const socket = new SockJS(`${CHAT_SOCKET_URL}?userID=${userID}`);
@@ -224,7 +236,7 @@ const Question = ({
   );
 
   return (
-    <div className="px-12 grid grid-rows-[20%_45%_35%] gap-4 grid-cols-1 h-full items-start">
+    <div className="px-12 grid grid-rows-[20%_45%_35%] gap-3 grid-cols-1 h-full items-start">
       <div className="mt-10 row-span-1 grid grid-rows-1 grid-cols-[75%_25%] w-full">
         <div className="flex flex-col" ref={containerRef}>
           <h1 className="text-yellow-500 text-xl font-bold pb-2">
@@ -264,8 +276,18 @@ const Question = ({
             )}
             <ComplexityPill complexity={question?.complexity || ""} />
           </span>
-          <h2 className="text-grey-300 text-s pt-3 leading-[0]">
-            Your collaborator: {collaborator}
+          <h2 className="text-grey-300 text-s leading-[0] flex flex-row gap-1 items-center">
+            Your collaborator:
+            {collaboratorProfilePic ? (
+              <img
+                src={collaboratorProfilePic}
+                alt="Collaborator profile pic"
+                className="w-6 h-6 rounded-full object-cover"
+              />
+            ) : (
+              <CgProfile size={25} />
+            )}
+            {collaborator}
           </h2>
         </div>
         <Button
@@ -276,7 +298,7 @@ const Question = ({
           Exit Room
         </Button>
       </div>
-      <span className="row-span-1 text-primary-300 text-md max-h-[100%] h-full overflow-y-auto flex flex-col gap-2 bg-primary-800 p-3 rounded-md">
+      <span className="row-span-1 text-primary-300 text-md max-h-[100%] h-full overflow-y-auto flex flex-col gap-2 bg-primary-800 p-3  rounded-md">
         <span className="text-yellow-500 font-bold">Question Description</span>
         <span className="text-white py-8 text-md">{question?.description}</span>
       </span>
