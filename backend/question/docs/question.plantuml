@@ -5,14 +5,14 @@ entity Question {
   + title : string
   + description : string
   + complexity : string
-  + categories : Array<string>
+  + category : Array<string>
 }
 
 entity EditQuestion {
   + title : string
   + description : string
   + complexity : string
-  + categories : Array<string>
+  + category : Array<string>
 }
 
 entity Pagination {
@@ -24,6 +24,7 @@ interface IQuestionServiceAPI {
   + GET /
   + POST /create [createQuestion: EditQuestion]
   + POST /all [pagination: Pagination, title: string, complexity: string[], category: string[]]
+  + POST /all-ids [questionIds: number[]]
   + GET /{id}
   + POST /{id}/update [updateQuestion: EditQuestion]
   + POST /{id}/delete
@@ -35,6 +36,7 @@ note right of IQuestionServiceAPI
   - GET /: Check service status
   - POST /create: Create a new question
   - POST /all: Retrieve all questions with pagination (Supports filtering by title, complexiy and category)
+  - POST /all-ids: Retrieve all questions based on a list of question ids
   - GET /{id}: Retrieve a specific question by ID
   - POST /{id}/update: Update a specific question by ID
   - POST /{id}/delete: Delete a specific question by ID
