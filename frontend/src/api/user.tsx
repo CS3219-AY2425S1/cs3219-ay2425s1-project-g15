@@ -1,6 +1,6 @@
 /* eslint-disable */
 
-import { AuthStatus } from "@/types/user";
+import { AuthStatus, UploadProfilePictureResponse } from "@/types/user";
 import Cookie from "js-cookie";
 import Swal from "sweetalert2";
 
@@ -54,20 +54,21 @@ export const getAuthStatus = () => {
   return AuthStatus.AUTHENTICATED;
 };
 
-const NEXT_PUBLIC_IAM_USER_SERVICE =
-  process.env.NEXT_PUBLIC_IAM_USER_SERVICE;
+const NEXT_PUBLIC_IAM_USER_SERVICE = process.env.NEXT_PUBLIC_IAM_USER_SERVICE;
 
-const NEXT_PUBLIC_IAM_AUTH_SERVICE =
-  process.env.NEXT_PUBLIC_IAM_AUTH_SERVICE;
+const NEXT_PUBLIC_IAM_AUTH_SERVICE = process.env.NEXT_PUBLIC_IAM_AUTH_SERVICE;
 
 export const verifyToken = async (token: string) => {
   try {
-    const response = await fetch(`${NEXT_PUBLIC_IAM_AUTH_SERVICE}/verify-token`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await fetch(
+      `${NEXT_PUBLIC_IAM_AUTH_SERVICE}/verify-token`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     if (response.status !== 200) {
       Cookie.remove("token");
       Cookie.remove("username");
@@ -221,18 +222,48 @@ export const updateUser = async (userData: {
   return true;
 };
 
+export const getFileUrl = async (
+  userId: string,
+  formData: FormData
+): Promise<UploadProfilePictureResponse> => {
+  const res = await fetch(
+    `${NEXT_PUBLIC_IAM_USER_SERVICE}/${userId}/getFileUrl`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+      body: formData,
+    }
+  );
+
+  const data: UploadProfilePictureResponse = await res.json();
+
+  if (res.status !== 200) {
+    toast.fire({
+      icon: "error",
+      title: res.statusText,
+    });
+    throw new Error("Failed to upload profile picture: " + res.statusText);
+  }
+  return data;
+};
+
 export const requestPasswordReset = async (email: string) => {
   toast.fire({
     icon: "info",
     title: "Requesting password reset...",
   });
-  const response = await fetch(`${NEXT_PUBLIC_IAM_USER_SERVICE}/request-password-reset`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email }),
-  });
+  const response = await fetch(
+    `${NEXT_PUBLIC_IAM_USER_SERVICE}/request-password-reset`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    }
+  );
   const data = await response.json();
   console.log(data);
 
@@ -250,16 +281,19 @@ export const requestPasswordReset = async (email: string) => {
   });
 
   return true;
-}
+};
 
 export const checkPasswordResetCode = async (code: string) => {
-  const response = await fetch(`${NEXT_PUBLIC_IAM_USER_SERVICE}/check-password-reset-code`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ code }),
-  });
+  const response = await fetch(
+    `${NEXT_PUBLIC_IAM_USER_SERVICE}/check-password-reset-code`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ code }),
+    }
+  );
   const data = await response.json();
 
   if (response.status !== 200) {
@@ -271,16 +305,19 @@ export const checkPasswordResetCode = async (code: string) => {
   }
 
   return { username: data.username };
-}
+};
 
 export const resetPasswordWithCode = async (code: string, password: string) => {
-  const response = await fetch(`${NEXT_PUBLIC_IAM_USER_SERVICE}/password-reset`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ code, password }),
-  });
+  const response = await fetch(
+    `${NEXT_PUBLIC_IAM_USER_SERVICE}/password-reset`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ code, password }),
+    }
+  );
   const data = await response.json();
 
   if (response.status !== 200) {
@@ -292,4 +329,4 @@ export const resetPasswordWithCode = async (code: string, password: string) => {
   }
 
   return true;
-}
+};
