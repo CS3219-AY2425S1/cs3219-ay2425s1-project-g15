@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 type VideoCallProps = {
   provider: WebrtcProvider;
 };
+import "./video.css";
 
 const VideoCall = ({ provider }: VideoCallProps) => {
   const localVideoRef = useRef<HTMLVideoElement>(null);
