@@ -16,8 +16,6 @@ import { Input, MessageList } from "react-chat-elements";
 import SockJS from "sockjs-client";
 import ResizeObserver from "resize-observer-polyfill";
 import Swal from "sweetalert2";
-import { fetchSession } from "@/api/collaboration";
-import { fetchSingleQuestion } from "@/api/question-dashboard";
 
 const CHAT_SOCKET_URL = "http://localhost:3007/chat-websocket";
 
@@ -156,7 +154,7 @@ const Question = ({
       const message = {
         message: language,
         collabID: collabid,
-        targetID: collaborator, // BUG: Should be the other user's ID, not username. Temporary workaround.
+        targetID: collaboratorId,
       };
       stompClientRef.current.publish({
         destination: "/app/sendLanguageChange",
@@ -219,7 +217,7 @@ const Question = ({
         observer.unobserve(containerRef.current);
       }
     };
-  }, []);
+  }, [questionCategories]);
 
   const remainingCategories = questionCategories.slice(
     visibleCategories.length
