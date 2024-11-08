@@ -149,7 +149,7 @@ const Question = ({
 
   useEffect(() => {
     if (
-      stompClientRef.current &&
+      stompClientRef.current?.connected &&
       isConnected &&
       isLanguageChangeActive.current
     ) {
