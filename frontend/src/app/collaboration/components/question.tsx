@@ -168,7 +168,7 @@ const Question = ({
     } else {
       isLanguageChangeActive.current = true;
     }
-  }, [language, isConnected, collabid, collaboratorId]);
+  }, [language]);
 
   const questionCategories = useMemo(() => {
     return question?.category || [];
