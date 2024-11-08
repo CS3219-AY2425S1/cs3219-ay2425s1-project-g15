@@ -23,6 +23,7 @@ import { TCombinedSession } from "@/types/dashboard";
 import { cn } from "@/lib/utils";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import Link from "next/link";
+import { getUser } from "@/api/user";
 import VerificationSymbol from "@/app/common/VerificationSymbol";
 
 const Cell = ({
@@ -39,14 +40,21 @@ export const columns: ColumnDef<TCombinedSession>[] = [
   {
     accessorKey: "peer",
     header: () => <Cell>Peer</Cell>,
-    cell: ({ row }) => {
-      const peer = row.getValue("peer");
-      return <Cell className="capitalize">
-        <Link className="group text-center p-2 rounded-xl hover:bg-white hover:text-primary-900 underline" href={`/user/${peer}`}>
-          {peer as string}
-        </Link>
-        <VerificationSymbol isVerified={row.getValue("isVerified")} />
-      </Cell>
+    cell: async ({ row }) => {
+      const peer: string = row.getValue("peer");
+      const peerData = await getUser(peer);
+
+      return (
+        <Cell className="capitalize">
+          <Link
+            className="group text-center p-2 rounded-xl hover:bg-white hover:text-primary-900 underline"
+            href={`/user/${peerData.data.username}`}
+          >
+            {peerData.data.username as string}
+          </Link>
+          <VerificationSymbol isVerified={row.getValue("isVerified")} />
+        </Cell>
+      );
     },
   },
   {
@@ -59,7 +67,9 @@ export const columns: ColumnDef<TCombinedSession>[] = [
     header: () => <Cell>Language</Cell>,
     cell: ({ row }) => {
       const language = row.getValue("language") as string;
-      return <Cell>{language.charAt(0).toUpperCase() + language.slice(1)}</Cell>;
+      return (
+        <Cell>{language.charAt(0).toUpperCase() + language.slice(1)}</Cell>
+      );
     },
   },
   {
@@ -74,9 +84,12 @@ export const columns: ColumnDef<TCombinedSession>[] = [
     header: () => <Cell>Category</Cell>,
     cell: ({ row }) => {
       const categories: string[] = row.getValue("category");
-      return <Cell>
-        {categories.slice(0, 3).join(", ")}{categories.length > 3 ? "..." : ""}
-      </Cell>;
+      return (
+        <Cell>
+          {categories.slice(0, 3).join(", ")}
+          {categories.length > 3 ? "..." : ""}
+        </Cell>
+      );
     },
   },
   {
@@ -85,8 +98,12 @@ export const columns: ColumnDef<TCombinedSession>[] = [
     cell: ({ row }) => {
       return (
         <Cell>
-          <Link className="group grid p-2 rounded-xl hover:bg-white hover:text-primary-900 mx-auto" href={`/collaboration/${row.getValue('collabid')}?language=${row.getValue('language')}`} key={row.getValue('collabid')}>
-            <FaExternalLinkAlt size={20} className="mx-auto"/>
+          <Link
+            className="group grid p-2 rounded-xl hover:bg-white hover:text-primary-900 mx-auto"
+            href={`/collaboration/${row.getValue("collabid")}`}
+            key={row.getValue("collabid")}
+          >
+            <FaExternalLinkAlt size={20} className="mx-auto" />
           </Link>
         </Cell>
       );

@@ -1,16 +1,15 @@
-import { fetchSingleQuestion } from "@/api/question-dashboard";
 import { NewQuestionData } from "@/types/find-match";
 import {
   KeyboardEvent,
   SetStateAction,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
 import ComplexityPill from "./complexity";
 import Pill from "./pill";
-import { fetchSession } from "@/api/collaboration";
-import { getUsername } from "@/api/user";
+import { getUserId, getUsername } from "@/api/user";
 import { Button } from "@/components/ui/button";
 import { Client as StompClient } from "@stomp/stompjs";
 import "react-chat-elements/dist/main.css";
@@ -28,31 +27,37 @@ interface Message {
   text: string;
 }
 
-const Question = ({ collabid, language, setLanguage }: { collabid: string, language: string, setLanguage: (lang: string) => void }) => {
-  const [question, setQuestion] = useState<NewQuestionData | null>(null);
-  const [collaborator, setCollaborator] = useState<string | null>(null);
-  const [userID, setUserID] = useState<string | null>(null);
+const Question = ({
+  collabid,
+  question,
+  collaborator,
+  collaboratorId,
+  language,
+  setLanguage,
+}: {
+  collabid: string;
+  question: NewQuestionData | null;
+  collaborator: string;
+  collaboratorId: string;
+  language: string;
+  setLanguage: (lang: string) => void;
+}) => {
+  const userID = getUserId() ?? "Anonymous";
+  const username = getUsername() ?? "Anonymous";
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState<string>("");
   const stompClientRef = useRef<StompClient | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [visibleCategories, setVisibleCategories] = useState([]);
+  const [visibleCategories, setVisibleCategories] = useState<string[]>([]);
   // To determine if a language change is initiated by the user, or received from the collaborator
-  const isLanguageChangeActive = useRef(false); 
+  const isLanguageChangeActive = useRef(false);
 
   const messageListRef = useRef<HTMLDivElement | null>(null);
 
-  // NOTE: We use the username of the collaborator instead of the userID. This is because we cannot retrieve the collaborator's ID.
-  // Thus, the backend identifies pairs of users by their username for now. However, this can introduce bugs as
-  // although usernames are unique, if a user leaves the collaboration, changes their username, and comes back, the backend will not be able to identify them.
-  // This is because the Session will still have the old username. Therefore, we should change this to use the userID instead.
-
   useEffect(() => {
-    setUserID(getUsername() ?? "Anonymous"); // Change me later
-
-    const socket = new SockJS(`${CHAT_SOCKET_URL}?userID=${userID}`); // BUG: This should NOT be username, but userID. Use this for now because we can't retrieve the collaborator's ID.
+    const socket = new SockJS(`${CHAT_SOCKET_URL}?userID=${userID}`);
     const client = new StompClient({
       webSocketFactory: () => socket,
       debug: (str) => console.log(str),
@@ -66,7 +71,7 @@ const Question = ({ collabid, language, setLanguage }: { collabid: string, langu
           const newMessage: Message = {
             position: "left",
             type: "text",
-            title: collaborator!,
+            title: collaborator,
             text: messageReceived,
           };
           setMessages((prev) => [...prev, newMessage]);
@@ -79,7 +84,7 @@ const Question = ({ collabid, language, setLanguage }: { collabid: string, langu
           Swal.fire({
             title: "Language changed by your collaborator!",
             icon: "success",
-          })
+          });
         });
       },
       onDisconnect: () => {
@@ -97,7 +102,7 @@ const Question = ({ collabid, language, setLanguage }: { collabid: string, langu
     return () => {
       client.deactivate();
     };
-  }, [userID, collaborator]);
+  }, [userID, collaborator, setLanguage]);
 
   const handleExit = () => {
     window.location.href = "/"; // We cannot use next/router, in order to trigger beforeunload listener
@@ -119,7 +124,7 @@ const Question = ({ collabid, language, setLanguage }: { collabid: string, langu
       ...prev,
       {
         position: "right" as const,
-        title: userID!,
+        title: username,
         text: inputMessage,
         type: "text",
       },
@@ -129,7 +134,7 @@ const Question = ({ collabid, language, setLanguage }: { collabid: string, langu
       const message = {
         message: inputMessage,
         collabID: collabid,
-        targetID: collaborator, // BUG: Should be the other user's ID, not username. Temporary workaround.
+        targetID: collaboratorId,
       };
       stompClientRef.current.publish({
         destination: "/app/sendMessage",
@@ -142,11 +147,15 @@ const Question = ({ collabid, language, setLanguage }: { collabid: string, langu
   };
 
   useEffect(() => {
-    if (stompClientRef.current && isConnected && isLanguageChangeActive.current) {
+    if (
+      stompClientRef.current?.connected &&
+      isConnected &&
+      isLanguageChangeActive.current
+    ) {
       const message = {
         message: language,
         collabID: collabid,
-        targetID: collaborator, // BUG: Should be the other user's ID, not username. Temporary workaround.
+        targetID: collaboratorId,
       };
       stompClientRef.current.publish({
         destination: "/app/sendLanguageChange",
@@ -159,24 +168,18 @@ const Question = ({ collabid, language, setLanguage }: { collabid: string, langu
     } else {
       isLanguageChangeActive.current = true;
     }
-  }, [language])
+  }, [language]);
+
+  const questionCategories = useMemo(() => {
+    return question?.category || [];
+  }, [question?.category]);
 
   useEffect(() => {
-    fetchSession(collabid).then(async (data) => {
-      await fetchSingleQuestion(data.question_id.toString()).then((data) => {
-        setQuestion(data);
-      });
+    const container = containerRef.current;
 
-      setCollaborator(data.users.filter((user) => user !== userID)[0]);
-    });
-  }, [collabid, userID]);
-
-  const questionCategories = question?.category || [];
-
-  useEffect(() => {
     const calculateVisibleCategories = () => {
-      if (containerRef.current) {
-        const containerWidth = containerRef.current.clientWidth;
+      if (container) {
+        const containerWidth = container.clientWidth;
         let totalWidth = 200;
         const visible = [];
 
@@ -205,8 +208,8 @@ const Question = ({ collabid, language, setLanguage }: { collabid: string, langu
     };
 
     const observer = new ResizeObserver(calculateVisibleCategories);
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
+    if (container) {
+      observer.observe(container);
     }
 
     calculateVisibleCategories();
@@ -215,11 +218,11 @@ const Question = ({ collabid, language, setLanguage }: { collabid: string, langu
 
     return () => {
       window.removeEventListener("resize", calculateVisibleCategories);
-      if (containerRef.current) {
-        observer.unobserve(containerRef.current);
+      if (container) {
+        observer.unobserve(container);
       }
     };
-  }, []);
+  }, [questionCategories]);
 
   const remainingCategories = questionCategories.slice(
     visibleCategories.length
@@ -229,11 +232,13 @@ const Question = ({ collabid, language, setLanguage }: { collabid: string, langu
     <div className="px-12 grid grid-rows-[20%_45%_35%] gap-4 grid-cols-1 h-full items-start">
       <div className="mt-10 row-span-1 grid grid-rows-1 grid-cols-[75%_25%] w-full">
         <div className="flex flex-col" ref={containerRef}>
-          <h1 className="text-yellow-500 text-xl font-bold pb-2">
+          <h1
+            className="text-yellow-500 text-xl font-bold pb-2 truncate"
+            title={question?.title}
+          >
             {question?.title}
           </h1>
           <span className="flex flex-wrap gap-1.5 my-1 pb-2">
-            
             {visibleCategories.map((category) => (
               <Pill key={category} text={category} />
             ))}

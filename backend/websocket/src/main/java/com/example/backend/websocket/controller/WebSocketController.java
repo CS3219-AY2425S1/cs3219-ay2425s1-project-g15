@@ -35,7 +35,7 @@ public class WebSocketController {
         myUserPrincipal.setUserEmail(matchRequest.getUserEmail());
         webSocketService.addToActiveUsers(matchRequest.getUserEmail());
         matchRequest.getValidMatchCriteriaKey().forEach(key -> {
-            matchRequestProducer.sendMessage("MATCH_REQUESTS", key, userId + "_" + matchRequest.getUserEmail());
+            matchRequestProducer.sendMessage("MATCH_REQUESTS", key, userId + "_" + matchRequest.getUserEmail() + "_" + matchRequest.getUserId());
         });
     }
 }
