@@ -17,15 +17,10 @@ import SockJS from "sockjs-client";
 import ResizeObserver from "resize-observer-polyfill";
 import Swal from "sweetalert2";
 import { CgProfile } from "react-icons/cg";
+import { getChatlogs } from "@/api/chat";
+import { ChatLog } from "@/types/chat";
 
 const CHAT_SOCKET_URL = "http://localhost:3007/chat-websocket";
-
-interface Message {
-  position: "left" | "right";
-  type: "text";
-  title: string;
-  text: string;
-}
 
 const Question = ({
   collabid,
@@ -44,7 +39,6 @@ const Question = ({
 }) => {
   const userID = getUserId() ?? "Anonymous";
   const username = getUsername() ?? "Anonymous";
-  const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState<string>("");
   const stompClientRef = useRef<StompClient | null>(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -53,10 +47,28 @@ const Question = ({
   const [visibleCategories, setVisibleCategories] = useState<string[]>([]);
   const [collaboratorProfilePic, setCollaboratorProfilePic] =
     useState<string>("");
+  const [chatLogs, setChatLogs] = useState<ChatLog[]>([]);
+  const [chatLogsPage, setChatLogsPage] = useState<number>(1);
   // To determine if a language change is initiated by the user, or received from the collaborator
   const isLanguageChangeActive = useRef(false);
+  const chatLogsListRef = useRef<HTMLDivElement | null>(null);
+  const CHAT_CHUNK_SIZE = 10; // Number of chat logs to fetch at a time
 
-  const messageListRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const fetchChatLogs = async () => {
+      const res: ChatLog[] = await getChatlogs(
+        collabid,
+        chatLogsPage,
+        CHAT_CHUNK_SIZE
+      );
+      if (res.length === 0) {
+        return;
+      }
+      setChatLogs((prev) => [...prev, ...res]);
+      return res;
+    };
+    fetchChatLogs();
+  }, [chatLogs, chatLogsPage, collabid]);
 
   useEffect(() => {
     const getUserProfilePic = async () => {
@@ -78,14 +90,8 @@ const Question = ({
         setIsConnected(true);
 
         client.subscribe("/user/queue/chat", (message) => {
-          const messageReceived = message.body;
-          const newMessage: Message = {
-            position: "left",
-            type: "text",
-            title: collaborator,
-            text: messageReceived,
-          };
-          setMessages((prev) => [...prev, newMessage]);
+          const newMessage: ChatLog = JSON.parse(message.body);
+          setChatLogs((prev: ChatLog[]) => [...prev, newMessage]);
         });
 
         client.subscribe("/user/queue/language", (message) => {
@@ -120,10 +126,10 @@ const Question = ({
   };
 
   useEffect(() => {
-    if (messageListRef.current) {
-      messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
+    if (chatLogsListRef.current) {
+      chatLogsListRef.current.scrollTop = chatLogsListRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [chatLogs]);
 
   const handleClick = (
     e: React.MouseEvent<HTMLButtonElement> | KeyboardEvent
@@ -131,15 +137,6 @@ const Question = ({
     e.preventDefault();
     if (!inputMessage) return;
     console.log(inputMessage);
-    setMessages((prev) => [
-      ...prev,
-      {
-        position: "right" as const,
-        title: username,
-        text: inputMessage,
-        type: "text",
-      },
-    ]);
 
     if (stompClientRef.current && isConnected) {
       const message = {
@@ -303,19 +300,19 @@ const Question = ({
         <span className="text-white py-8 text-md">{question?.description}</span>
       </span>
       <div className="row-span-1 flex flex-col bg-primary-800 rounded-md h-full max-h-[80%] min-h-[80%] overflow-y-auto">
-        {messages.length == 0 ? (
+        {chatLogs.length == 0 ? (
           <span className="h-full w-full flex items-center justify-center text-primary-300 italic">
             Say hello to your match!
           </span>
         ) : (
           <MessageList
             referance={(el: HTMLDivElement | null) => {
-              messageListRef.current = el as unknown as HTMLDivElement;
+              chatLogsListRef.current = el as unknown as HTMLDivElement;
             }}
             className="overflow-y-auto h-full pt-3"
             lockable={true}
             // @ts-expect-error: Suppressing type mismatch for MessageList dataSource temporarily
-            dataSource={messages}
+            dataSource={chatLogs}
           />
         )}
         <Input
