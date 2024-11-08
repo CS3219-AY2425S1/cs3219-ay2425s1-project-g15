@@ -39,7 +39,7 @@ export default function CollaborationPage() {
         setLanguage(data.language);
       });
     }
-  }, []);
+  }, [room]);
 
   useEffect(() => {
     if (room) {

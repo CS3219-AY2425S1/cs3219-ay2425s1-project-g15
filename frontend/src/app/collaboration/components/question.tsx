@@ -3,6 +3,7 @@ import {
   KeyboardEvent,
   SetStateAction,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -101,7 +102,7 @@ const Question = ({
     return () => {
       client.deactivate();
     };
-  }, [userID, collaborator]);
+  }, [userID, collaborator, setLanguage]);
 
   const handleExit = () => {
     window.location.href = "/"; // We cannot use next/router, in order to trigger beforeunload listener
@@ -167,14 +168,18 @@ const Question = ({
     } else {
       isLanguageChangeActive.current = true;
     }
-  }, [language]);
+  }, [language, isConnected, collabid, collaboratorId]);
 
-  const questionCategories = question?.category || [];
+  const questionCategories = useMemo(() => {
+    return question?.category || [];
+  }, [question?.category]);
 
   useEffect(() => {
+    const container = containerRef.current;
+
     const calculateVisibleCategories = () => {
-      if (containerRef.current) {
-        const containerWidth = containerRef.current.clientWidth;
+      if (container) {
+        const containerWidth = container.clientWidth;
         let totalWidth = 200;
         const visible = [];
 
@@ -203,8 +208,8 @@ const Question = ({
     };
 
     const observer = new ResizeObserver(calculateVisibleCategories);
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
+    if (container) {
+      observer.observe(container);
     }
 
     calculateVisibleCategories();
@@ -213,8 +218,8 @@ const Question = ({
 
     return () => {
       window.removeEventListener("resize", calculateVisibleCategories);
-      if (containerRef.current) {
-        observer.unobserve(containerRef.current);
+      if (container) {
+        observer.unobserve(container);
       }
     };
   }, [questionCategories]);
