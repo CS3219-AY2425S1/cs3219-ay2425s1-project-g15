@@ -265,7 +265,54 @@ export async function deleteUser(req, res) {
   }
 }
 
-// send email to user
+export async function requestVerificationEmail(req, res) {
+  try {
+    const { email } = req.body;
+    if (email) {
+      const user = await _findUserByEmail(email);
+      if (!user) {
+        return res
+          .status(404)
+          .json({ message: `User not found with email ${email}` });
+      }
+
+      // For email verification, you can generate a random verification code and save it in the database
+      const verificationCode =
+        Math.random().toString(36).substring(2, 15) +
+        Math.random().toString(36).substring(2, 15);
+
+      const updatedUser = await _updateUserById(
+        user.id,
+        user.username,
+        user.email,
+        user.password,
+        user.bio,
+        user.linkedin,
+        user.github,
+        user.profilePictureUrl,
+        user.isVerified,
+        verificationCode
+      );
+
+      // Send email to user
+      await sendVerificationEmail(email, user.username, verificationCode);
+
+      return res
+        .status(200)
+        .json({
+          message: `Sent verification email to user ${user.username}`,
+        });
+    } else {
+      return res.status(400).json({ message: "email is missing!" });
+    }
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(500)
+      .json({ message: "Unknown error when requesting verification email!" });
+  }
+}
+
 export async function verifyUser(req, res) {
   try {
     const { code } = req.query;

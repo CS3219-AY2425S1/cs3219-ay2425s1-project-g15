@@ -330,3 +330,44 @@ export const resetPasswordWithCode = async (code: string, password: string) => {
 
   return true;
 };
+
+export const requestVerificationEmail = async (email: string) => {
+  if (!email) {
+    toast.fire({
+      icon: "error",
+      title: "Please provide an email",
+    });
+    return false;
+  }
+  
+  toast.fire({
+    icon: "info",
+    title: "Requesting verification email...",
+  });
+  const response = await fetch(
+    `${NEXT_PUBLIC_IAM_USER_SERVICE}/request-verification-email`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    }
+  );
+  const data = await response.json();
+
+  if (response.status !== 200) {
+    toast.fire({
+      icon: "error",
+      title: data.message,
+    });
+    return false;
+  }
+
+  toast.fire({
+    icon: "success",
+    title: "Verification email sent. Please check your email.",
+  });
+
+  return true;
+}
