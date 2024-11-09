@@ -26,6 +26,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Swal from "sweetalert2";
 import { CgProfile } from "react-icons/cg";
 import MoonLoader from "react-spinners/MoonLoader";
+import VerificationSymbol from "@/app/common/VerificationSymbol";
 
 const formSchema = z.object({
   username: z
@@ -213,7 +214,7 @@ const ProfilePage = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-yellow-500 text-lg">
-                    EMAIL
+                    EMAIL <VerificationSymbol isVerified={user.isVerified || false} />
                   </FormLabel>
                   <FormControl>
                     <Input

@@ -53,7 +53,9 @@ export async function updateUserById(
   bio,
   linkedin,
   github,
-  profilePictureUrl
+  profilePictureUrl,
+  isVerified,
+  verificationCode
 ) {
   return UserModel.findByIdAndUpdate(
     userId,
@@ -66,6 +68,8 @@ export async function updateUserById(
         linkedin,
         github,
         profilePictureUrl,
+        isVerified,
+        verificationCode
       },
     },
     { new: true } // return the updated user
