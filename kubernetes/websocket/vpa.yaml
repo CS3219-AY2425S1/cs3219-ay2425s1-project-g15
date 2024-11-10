@@ -1,0 +1,29 @@
+apiVersion: autoscaling/v2
+kind: VerticalPodAutoscaler
+metadata:
+  name: websocket-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: websocket-deployment
+  updatePolicy:
+    updateMode: "Auto"
+  resourcePolicy:
+    containerPolicies:
+    - containerName: websocket-server-sha256-1
+      controlledResources: [ "cpu", "memory" ]
+      minAllowed:
+        cpu: 100m
+        memory: 100Mi
+      maxAllowed:
+        cpu: 1000m
+        memory: 1Gi
+      controlledValues: "Values"
+      updateMode: "Auto"
+      useRestarts: true
+      useScaleDown: true
+      useScaleUp: true
+      useUpdate: true
+      useVolumeResize: true
+      volumePolicies: []
