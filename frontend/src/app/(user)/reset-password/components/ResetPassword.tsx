@@ -13,7 +13,9 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 const formSchema = z.object({
-  password: z.string().length(8),
+  password: z.string()
+    .min(8, "Password must be at least 8 characters")
+    .max(100, "Password must be at most 100 characters"),
 });
 
 const ResetPassword = () => {

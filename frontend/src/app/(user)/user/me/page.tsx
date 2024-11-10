@@ -36,7 +36,10 @@ const formSchema = z.object({
     .optional(),
   profilePictureUrl: z.string().url("Invalid URL").optional(),
   email: z.string().email("Invalid email").optional(),
-  password: z.string().optional(),
+  password: z
+    .string()
+    .max(100, "Password must be at most 100 characters")
+    .optional(),
   bio: z.string().optional(),
   linkedin: z
     .string()

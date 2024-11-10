@@ -19,7 +19,8 @@ const formSchema = z.object({
   email: z.string()
     .email("Invalid email"),
   password: z.string()
-    .min(8, "Password must be at least 8 characters"),
+    .min(8, "Password must be at least 8 characters")
+    .max(100, "Password must be at most 100 characters"),
 });
 
 const Register = () => {
