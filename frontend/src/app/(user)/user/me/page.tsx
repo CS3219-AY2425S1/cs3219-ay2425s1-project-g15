@@ -229,7 +229,7 @@ const ProfilePage = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-yellow-500 text-lg">
-                    EMAIL (<button className="hover:underline" onClick={onVerify}>VERIFY NOW</button>)
+                    EMAIL ({user?.isVerified ? "VERIFIED" : <button className="hover:underline" onClick={onVerify}>VERIFY NOW</button>})
                   </FormLabel>
                   <FormControl>
                     <Input
