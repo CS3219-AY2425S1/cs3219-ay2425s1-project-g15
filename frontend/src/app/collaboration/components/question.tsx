@@ -55,7 +55,7 @@ const Question = ({
   const chatLogsListRef = useRef<HTMLDivElement | null>(null);
   const CHAT_CHUNK_SIZE = 10; // Number of chat logs to fetch at a time
 
-  const packageMessage = (message: SingleChatLogApiResponse) => {
+  const packageMessage = (message: SingleChatLogApiResponse): ChatLog => {
     return {
       text: message.message,
       title: collaborator,
