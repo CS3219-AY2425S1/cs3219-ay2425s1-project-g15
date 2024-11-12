@@ -11,11 +11,9 @@ const inter = Inter({
 
 const Layout = ({ children }: { children: ReactNode }) => {
   return (
-    <html lang="en" className={`${inter.className} h-full`}>
+    <html lang="en" className={`${inter.className}`}>
       <body className="h-full w-full">
-        <Suspense fallback={<LoadingPage/>}>
-          <div className="w-full overflow-y-scroll">{children}</div>
-        </Suspense>
+        <Suspense fallback={<LoadingPage />}>{children}</Suspense>
       </body>
     </html>
   );
