@@ -98,8 +98,10 @@ const Question = ({
   };
 
   useEffect(() => {
-    fetchChatLogs();
-  }, []);
+    if (collaboratorId && collaborator) {
+      fetchChatLogs();
+    }
+  }, [collaboratorId, collaborator]);
 
   useEffect(() => {
     const getUserProfilePic = async () => {
@@ -142,7 +144,6 @@ const Question = ({
         client.subscribe("/user/queue/chat", (message) => {
           const newMessage: SingleChatLogApiResponse = JSON.parse(message.body);
           const packagedMessage = packageMessage(newMessage);
-          console.log(packagedMessage);
           setChatLogs((prev: ChatLog[]) => [...prev, packagedMessage]);
         });
 
