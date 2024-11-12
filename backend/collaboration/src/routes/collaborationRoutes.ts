@@ -245,10 +245,13 @@ router.get("/chat/:collabid/get_chatlogs", [...getChatLogValidators], async (req
     const skip = (page - 1) * limit;
 
     // Fetch chat logs for the specified collabID, with pagination and sorted by timestamp
-    const chatLogs = await ChatLog.find({ collabid })
+    const chatLogs = await ChatLog.find({ collabId: collabid })
       .sort({ timestamp: -1 }) // Sort by timestamp in descending order (latest first)
       .skip(skip)
       .limit(limit);
+
+    console.log(collabid)
+    console.log(await ChatLog.find({ collabid }));
 
     // Convert each chat log's timestamp to a readable format
     const formattedChatLogs = chatLogs.map(log => {

@@ -12,7 +12,7 @@ export interface IChatLog extends TChatLog, Document {}
 
 const chatLogSchema: Schema = new Schema(
     {
-        collabid: {
+        collabId: {
             type: String,
             required: true,
         },
