@@ -1,6 +1,6 @@
 "use client";
 
-import { getUsername, getToken } from "@/api/user";
+import { getUsername, getToken, getUserId } from "@/api/user";
 import { Button } from "@/components/ui/button";
 import Container from "@/components/ui/Container";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
@@ -27,6 +27,7 @@ interface FindMatchFormOutput {
 
 interface FindMatchSocketMessage {
   userEmail: string;
+  userId: string;
   topics: string[];
   programmingLanguages: string[];
   difficulties: string[];
@@ -34,6 +35,7 @@ interface FindMatchSocketMessage {
 
 interface FindMatchSocketMessageResponse {
   matchedUserEmail: string;
+  matchedUserId: string;
   collaborationId: string;
   questionId: number;
   language: string;
@@ -77,7 +79,8 @@ const closeLoadingSpinner = () => {
 
 const SOCKET_URL = "http://34.54.37.142/matching-websocket";
 
-const CURRENT_USER = getUsername(); // Username is unique
+const CURRENT_USERNAME = getUsername(); // Username is unique
+const CURRENT_USERID = getUserId(); // UserId is unique
 
 const FindPeer = () => {
   const stompClientRef = useRef<StompClient | null>(null);
@@ -128,7 +131,8 @@ const FindPeer = () => {
               const response: FindMatchSocketMessageResponse = JSON.parse(
                 message.body
               );
-              const matchedUserEmail = response.matchedUserEmail;
+              const matchedUsername = response.matchedUserEmail;
+              const matchedUserId = response.matchedUserId;
               const collaborationId = response.collaborationId;
               const questionId = response.questionId;
               const language = response.language;
@@ -136,7 +140,7 @@ const FindPeer = () => {
               clearTimeout(timeout);
               Swal.fire(
                 "Match Found!",
-                `We found a match for you! You have been matched with ${matchedUserEmail}.`,
+                `We found a match for you! You have been matched with ${matchedUsername}.`,
                 "success"
               ).then(async () => {
                 Swal.fire({
@@ -154,7 +158,7 @@ const FindPeer = () => {
                   if (!sessionExists.exists) {
                     await createSession({
                       collabid: collaborationId,
-                      users: [CURRENT_USER!, matchedUserEmail],
+                      users: [CURRENT_USERID!, matchedUserId],
                       question_id: questionId,
                       language: language,
                     });
@@ -164,9 +168,7 @@ const FindPeer = () => {
                 }
 
                 // Pass language as a query parameter to the collaboration page
-                window.location.href = `/collaboration/${collaborationId}?language=${encodeURIComponent(
-                  language
-                )}`;
+                window.location.href = `/collaboration/${collaborationId}`;
               });
               client.deactivate();
             } catch (error) {
@@ -250,7 +252,7 @@ const FindPeer = () => {
   };
 
   const sendMatchRequest = async (userFilter: FindMatchFormOutput) => {
-    checkUser(CURRENT_USER);
+    checkUser(CURRENT_USERNAME);
 
     if (stompClientRef.current == null || !isConnected) {
       console.log("STOMP client not connected. Attempting to connect...");
@@ -259,7 +261,8 @@ const FindPeer = () => {
 
     // Repackage user filter data
     const userMatchRequest: FindMatchSocketMessage = {
-      userEmail: CURRENT_USER || "",
+      userEmail: CURRENT_USERNAME || "",
+      userId: CURRENT_USERID || "",
       topics: userFilter.questionTopics,
       programmingLanguages: userFilter.preferredLanguages,
       difficulties: userFilter.questionDifficulties,
@@ -276,13 +279,13 @@ const FindPeer = () => {
       return;
     }
 
-    checkUser(CURRENT_USER);
+    checkUser(CURRENT_USERNAME);
 
     client.publish({
       destination: "/app/matchRequest",
       body: JSON.stringify(userMatchRequest),
     });
-    console.log("Match request sent: ", CURRENT_USER);
+    console.log("Match request sent: ", CURRENT_USERNAME);
 
     showLoadingSpinner(cancelSocketConnection);
   };

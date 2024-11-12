@@ -13,12 +13,15 @@ export interface AttemptedQuestion {
 }
 
 export interface User {
+  id?: string;
   username?: string;
+  profilePictureUrl?: string;
   email?: string;
   bio?: string;
   linkedin?: string;
   github?: string;
   createdAt?: string;
+  isVerified?: boolean;
 }
 
 export interface UserLogin {
@@ -28,4 +31,8 @@ export interface UserLogin {
   email: string;
   isAdmin: string;
   createdAt: string;
+}
+
+export interface UploadProfilePictureResponse {
+  fileUrl: string;
 }

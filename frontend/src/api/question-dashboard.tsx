@@ -64,6 +64,8 @@ export const updateSingleQuestion = async ({
   description,
   category,
   complexity,
+  examples,
+  solution,
 }: QuestionFull) => {
   const url = `${QUESTION_SERVICE}/${questionId}/update`;
   const resp = await fetch(url, {
@@ -76,6 +78,8 @@ export const updateSingleQuestion = async ({
       description: description,
       category: category,
       complexity: complexity,
+      examples: examples,
+      solution: solution,
     }),
   });
 
