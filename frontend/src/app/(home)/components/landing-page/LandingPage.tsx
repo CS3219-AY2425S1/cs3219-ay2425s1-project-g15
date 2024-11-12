@@ -2,9 +2,20 @@ import CodeSnippet from "@/app/(home)/components/code-snippet/CodeSnippetHighlig
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import Navbar from "@/app/common/Navbar";
+import { getAuthStatus } from "@/api/user";
+import { AuthStatus } from "@/types/user";
 
 const LandingPage = () => {
   const router = useRouter();
+  const authStatus = getAuthStatus();
+
+  const handleRedirect = () => {
+    if (authStatus === AuthStatus.UNAUTHENTICATED) {
+      router.push("/login");
+    } else {
+      router.push("/dashboard");
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-full">
@@ -22,9 +33,13 @@ const LandingPage = () => {
           <div className="pt-8">
             <Button
               className="font-semibold w-full"
-              onClick={() => router.push("/login")}
+              onClick={() => handleRedirect()}
             >
-              <span className="pl-2">Get Started</span>
+              <span className="pl-2">
+                {authStatus === AuthStatus.UNAUTHENTICATED
+                  ? "Get Started"
+                  : "View Dashboard"}
+              </span>
             </Button>
           </div>
         </div>
