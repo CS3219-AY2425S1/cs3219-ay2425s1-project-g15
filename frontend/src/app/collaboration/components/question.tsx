@@ -38,51 +38,6 @@ const Question = ({
   language: string;
   setLanguage: (lang: string) => void;
 }) => {
-  const SAMPLECHATS = [
-    {
-      text: "Hello",
-      title: "John Doe",
-      date: new Date(),
-      position: "left",
-      type: "text",
-    },
-    {
-      text: "Hi",
-      title: "Jane Doe",
-      date: new Date(),
-      position: "right",
-      type: "text",
-    },
-    {
-      text: "Hi",
-      title: "Jane Doe",
-      date: new Date(),
-      position: "right",
-      type: "text",
-    },
-    {
-      text: "Hi",
-      title: "Jane Doe",
-      date: new Date(),
-      position: "right",
-      type: "text",
-    },
-    {
-      text: "Hi",
-      title: "Jane Doe",
-      date: new Date(),
-      position: "right",
-      type: "text",
-    },
-    {
-      text: "Hi",
-      title: "Jane Doe",
-      date: new Date(),
-      position: "right",
-      type: "text",
-    },
-  ];
-
   const userID = getUserId() ?? "Anonymous";
   const username = getUsername() ?? "Anonymous";
   const [inputMessage, setInputMessage] = useState<string>("");
@@ -93,7 +48,7 @@ const Question = ({
   const [visibleCategories, setVisibleCategories] = useState<string[]>([]);
   const [collaboratorProfilePic, setCollaboratorProfilePic] =
     useState<string>("");
-  const [chatLogs, setChatLogs] = useState<ChatLog[]>(SAMPLECHATS);
+  const [chatLogs, setChatLogs] = useState<ChatLog[]>([]);
   const [chatLogsPage, setChatLogsPage] = useState<number>(1);
   // To determine if a language change is initiated by the user, or received from the collaborator
   const isLanguageChangeActive = useRef(false);
