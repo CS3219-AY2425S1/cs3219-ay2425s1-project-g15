@@ -1,6 +1,6 @@
 import { NewSession, SessionExists, SessionFull } from "@/types/session";
 
-const COLLABORATION_SERVICE = "http://localhost:3001/api/collaboration";
+export const COLLABORATION_SERVICE = "http://localhost:3001/api/collaboration";
 
 export const createSession = async (data: NewSession): Promise<SessionFull> => {
   const url = `${COLLABORATION_SERVICE}/create`;
@@ -47,7 +47,7 @@ export const checkUserInSession = async (
   const response = await fetch(url);
   const data = await response.json();
   return data;
-}
+};
 
 export const updateSession = async (
   collabid: string,

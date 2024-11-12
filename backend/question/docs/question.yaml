@@ -109,6 +109,32 @@ paths:
         "500":
           description: Internal server error
 
+  /all-ids:
+    post:
+      summary: Retrieve all questions based on a list of question ids
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                questionIds:
+                  type: array
+                  items:
+                    type: number
+                  default: []
+                  description: Retrieve by questionid
+                  example: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+      responses:
+        "200":
+          description: List of questions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuestionAll"
+        "500":
+          description: Internal server error
+
   /{id}:
     get:
       summary: Get a specific question by ID

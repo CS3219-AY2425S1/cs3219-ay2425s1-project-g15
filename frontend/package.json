@@ -43,9 +43,11 @@
     "react-modal": "^3.16.1",
     "react-pro-sidebar": "^1.1.0",
     "react-resizable-panels": "^2.1.6",
+    "react-select": "^5.8.2",
     "react-spinners": "^0.14.1",
     "react-syntax-highlighter": "^15.5.0",
     "resize-observer-polyfill": "^1.5.1",
+    "shiki": "^1.22.2",
     "sockjs-client": "^1.6.1",
     "sweetalert2": "^11.14.1",
     "tailwind-merge": "^2.5.2",
@@ -57,6 +59,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@shikijs/monaco": "^1.22.2",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^20",
     "@types/react": "^18",

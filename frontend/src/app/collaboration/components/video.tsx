@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 type VideoCallProps = {
   provider: WebrtcProvider;
 };
+import "./video.css";
 
 const VideoCall = ({ provider }: VideoCallProps) => {
   const localVideoRef = useRef<HTMLVideoElement>(null);
@@ -30,7 +31,19 @@ const VideoCall = ({ provider }: VideoCallProps) => {
 
   useEffect(() => {
     const pc = new RTCPeerConnection({
-      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+      iceServers: [
+        { urls: "stun:stun.l.google.com:19302" },
+        {
+          urls: "turn:global.relay.metered.ca:80",
+          username: "2b012e1176eda910d0c8a755",
+          credential: "6KjvgYahJZ21gdAp",
+        },
+        {
+          urls: "turn:global.relay.metered.ca:80?transport=tcp",
+          username: "2b012e1176eda910d0c8a755",
+          credential: "6KjvgYahJZ21gdAp",
+        }
+      ],
     });
 
     pc.onicecandidate = (event) => {
@@ -66,7 +79,19 @@ const VideoCall = ({ provider }: VideoCallProps) => {
 
   const startPC = () => {
     const pc = new RTCPeerConnection({
-      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+      iceServers: [
+        { urls: "stun:stun.l.google.com:19302" },
+        {
+          urls: "turn:global.relay.metered.ca:80",
+          username: "2b012e1176eda910d0c8a755",
+          credential: "6KjvgYahJZ21gdAp",
+        },
+        {
+          urls: "turn:global.relay.metered.ca:80?transport=tcp",
+          username: "2b012e1176eda910d0c8a755",
+          credential: "6KjvgYahJZ21gdAp",
+        }
+      ],
     });
 
     pc.onicecandidate = (event) => {
@@ -95,43 +120,6 @@ const VideoCall = ({ provider }: VideoCallProps) => {
     peerConnectionRef.current = pc;
     console.log("new connection done");
   };
-
-  useEffect(() => {
-    const awarenessListener = ({ added, updated, removed }: { added: number[], updated: number[], removed: number[] }) => {
-      added.concat(updated).forEach((clientId) => {
-        if (clientId !== provider.awareness.clientID) {
-          const state = provider.awareness.getStates().get(clientId);
-          console.log(state);
-          if (state?.webrtc) {
-            handleSignalingMessage(state.webrtc);
-          }
-        }
-      });
-
-      removed.forEach((clientId) => {
-        console.log("Client disconnected:", clientId);
-        if (remoteVideoRef.current) {
-          if (clientId !== provider.awareness.clientID) {
-            remoteVideoRef.current.srcObject = null;
-            remoteStreamRef.current = null;
-            setRemoteVideoSourceObject(false);
-            iceCandidatesQueue.current = [];
-            startPC();
-            startCall();
-          } else {
-            setVideoStart(false);
-          }
-          console.log("Remote video stopped");
-        }
-      });
-    };
-
-    provider.awareness.on("change", awarenessListener);
-
-    return () => {
-      provider.awareness.off("change", awarenessListener);
-    };
-  }, [provider]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleSignalingMessage = async (message: any) => {
@@ -186,13 +174,6 @@ const VideoCall = ({ provider }: VideoCallProps) => {
     } catch {}
   };
 
-  const processIceCandidatesQueue = async () => {
-    while (iceCandidatesQueue.current.length > 0) {
-      const candidate = iceCandidatesQueue.current.shift();
-      await peerConnectionRef.current?.addIceCandidate(candidate);
-    }
-  };
-
   const startCall = async () => {
     setVideoStart(true);
     console.log(peerConnectionRef.current);
@@ -202,13 +183,11 @@ const VideoCall = ({ provider }: VideoCallProps) => {
         audio: true,
       });
       localStreamRef.current = stream;
-      stream
-        .getTracks()
-        .forEach((track) => {
-          if (peerConnectionRef.current) {
-            peerConnectionRef.current.addTrack(track, stream);
-          }
-        });
+      stream.getTracks().forEach((track) => {
+        if (peerConnectionRef.current) {
+          peerConnectionRef.current.addTrack(track, stream);
+        }
+      });
 
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream;
@@ -222,6 +201,58 @@ const VideoCall = ({ provider }: VideoCallProps) => {
         offer: offer,
       });
       console.log("Sent offer:", offer);
+    }
+  };
+
+  useEffect(() => {
+    const awarenessListener = ({
+      added,
+      updated,
+      removed,
+    }: {
+      added: number[];
+      updated: number[];
+      removed: number[];
+    }) => {
+      added.concat(updated).forEach((clientId) => {
+        if (clientId !== provider.awareness.clientID) {
+          const state = provider.awareness.getStates().get(clientId);
+          console.log(state);
+          if (state?.webrtc) {
+            handleSignalingMessage(state.webrtc);
+          }
+        }
+      });
+
+      removed.forEach((clientId) => {
+        console.log("Client disconnected:", clientId);
+        if (remoteVideoRef.current) {
+          if (clientId !== provider.awareness.clientID) {
+            remoteVideoRef.current.srcObject = null;
+            remoteStreamRef.current = null;
+            setRemoteVideoSourceObject(false);
+            iceCandidatesQueue.current = [];
+            startPC();
+            if (videoStart) startCall();
+          } else {
+            setVideoStart(false);
+          }
+          console.log("Remote video stopped");
+        }
+      });
+    };
+
+    provider.awareness.on("change", awarenessListener);
+
+    return () => {
+      provider.awareness.off("change", awarenessListener);
+    };
+  }, [provider, handleSignalingMessage, startCall, startPC]);
+
+  const processIceCandidatesQueue = async () => {
+    while (iceCandidatesQueue.current.length > 0) {
+      const candidate = iceCandidatesQueue.current.shift();
+      await peerConnectionRef.current?.addIceCandidate(candidate);
     }
   };
 
