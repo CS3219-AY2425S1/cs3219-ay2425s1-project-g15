@@ -5,14 +5,26 @@ import ChatLog, { IChatLog } from './models/ChatLog';
 // // Kafka Configuration
 const kafka = new Kafka({
   clientId: 'my-id',
-  brokers: ['localhost:9092'] // Change this if needed
+  brokers: ['kafka:9092'] 
 });
 
 const consumer = kafka.consumer({ groupId: 'chat-logs-group' });
 
 async function startConsumer(): Promise<void> {
-  await consumer.connect();
-  await consumer.subscribe({ topic: 'CHATLOGS', fromBeginning: true });
+  console.log("Starting Chatlog Kafka Consumer");
+
+  while (true) {
+    try {
+      await consumer.connect();
+      console.log("Kafka consumer connected successfully");
+      break; // Exit loop on successful connection
+    } catch (error) {
+      console.error("Failed to connect to Kafka, retrying in 5 seconds...", error);
+      await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait 5 seconds before retrying
+    }
+  }
+
+  await consumer.subscribe({ topic: 'CHATLOGS'});
 
   await consumer.run({
     eachMessage: async ({ message }: EachMessagePayload) => {
@@ -22,8 +34,10 @@ async function startConsumer(): Promise<void> {
       // Save message to MongoDB
       const newChatLog: IChatLog = new ChatLog({
         senderId: chatLog.senderId,
+        collabId: chatLog.collabId,
+        recipientId: chatLog.recipientId,
         message: chatLog.message,
-        timestamp: new Date(chatLog.timestamp)
+        timestamp: new Date(chatLog.timestamp * 1000)
       });
 
       await newChatLog.save();

@@ -1,6 +1,7 @@
 package com.example.backend.websocketchat.controller;
 
 import java.security.Principal;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
@@ -31,6 +32,7 @@ public class WebSocketChatController {
         System.out.println("Sender ID: " + senderId + " sent message: " + message.toString());
         MessageForwarded forwardedMessage = createForwardedMessage(message, senderId);
 
+
         this.chatlogProducer.sendMessage("CHATLOGS", forwardedMessage);
         
         this.webSocketChatService.sendToCurrentUser("/queue/chat", forwardedMessage);
@@ -49,7 +51,8 @@ public class WebSocketChatController {
     }
 
     private MessageForwarded createForwardedMessage(MessageConsumed message, String senderId) {
-        ZonedDateTime currDateTime = ZonedDateTime.now(ZoneId.of("Asia/Singapore"));
+        ZonedDateTime zonedDateTime = ZonedDateTime.now(ZoneId.of("Asia/Singapore"));
+        OffsetDateTime currDateTime = zonedDateTime.toOffsetDateTime().withNano(0);
 
         return new MessageForwarded(message.getMessage(), message.getCollabId(), senderId, message.getRecipientId(), currDateTime);
     }

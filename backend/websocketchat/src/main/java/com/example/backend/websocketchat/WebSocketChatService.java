@@ -20,7 +20,7 @@ public class WebSocketChatService {
 
     public void sendToCurrentUser(String topic, MessageForwarded message) {
         String senderId = message.getSenderId();
-        System.out.println("Sending message " + message.toString() + " to sender" + senderId);
+        System.out.println("Sending message " + message.toString() + " to sender " + senderId);
         messagingTemplate.convertAndSendToUser(senderId, topic, message);
     }
 
