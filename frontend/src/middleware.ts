@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  const isAdmin = getIsAdmin();
+  const isAdmin = request.cookies.get("isAdmin")?.value === "Y";
   if (!isAdmin && request.nextUrl.pathname.startsWith('/admin')) {
     return NextResponse.redirect(new URL('/403', request.url));
   }

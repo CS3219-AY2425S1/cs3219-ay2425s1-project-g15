@@ -26,7 +26,7 @@ const LandingPage = () => {
                         <div className="pt-8">
                             <Button 
                                 className="font-semibold w-full" 
-                                onClick={() => status === AuthStatus.UNAUTHENTICATED ? router.push("/login") : router.push("/dashboard")}
+                                onClick={() => status === AuthStatus.UNAUTHENTICATED ? router.push("/login") : router.push("/match")}
                             >
                                 <span className="pl-2">Get Started</span>
                             </Button>
