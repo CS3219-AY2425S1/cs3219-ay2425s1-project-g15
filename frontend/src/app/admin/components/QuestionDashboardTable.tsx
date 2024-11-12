@@ -460,7 +460,8 @@ export function QuestionDashboardTable({
             Prev
           </Button>
           <div>
-            Page {table.getState().pagination.pageIndex + 1} /{" "}
+            Page {table.getPageCount() == 0 ? 0 : table.getState().pagination.pageIndex + 1} 
+            /
             {table.getPageCount()}
           </div>
           <Button
