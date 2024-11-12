@@ -58,6 +58,8 @@ const Question = ({
   const chatLogsListRef = useRef<HTMLDivElement | null>(null);
   const CHAT_CHUNK_SIZE = 10; // Number of chat logs to fetch at a time
 
+  console.log(question);
+
   const packageMessage = (message: SingleChatLogApiResponse): ChatLog => {
     return {
       text: message.message,
@@ -357,7 +359,33 @@ const Question = ({
       </div>
       <span className="row-span-1 text-primary-300 text-md max-h-[100%] h-full overflow-y-auto flex flex-col gap-2 bg-primary-800 p-3  rounded-md">
         <span className="text-yellow-500 font-bold">Question Description</span>
-        <span className="text-white py-8 text-md">{question?.description}</span>
+        <span className="text-white text-md py-4">{question?.description}</span>
+        <span className="text-yellow-500 font-bold">Examples</span>
+        {question?.examples?.map((example, idx) => (
+          <div key={idx}>
+            <div className="font-bold underline">
+              Example {example.example_num}:
+            </div>
+            <div>
+              <span className="font-bold">Expected Input: </span>
+              <span className="text-primary-400 tracking-wide">
+                {example.expected_input}
+              </span>
+            </div>
+            <div>
+              <span className="font-bold">Expected Output: </span>
+              <span className="text-primary-400 tracking-wide">
+                {example.expected_output}
+              </span>
+            </div>
+            <span className="font-bold">Explanation: </span>
+            <span className="text-primary-400 tracking-wide">
+              {example.explanation}
+            </span>
+            <br />
+            <br />
+          </div>
+        ))}
       </span>
       <div className="row-span-1 flex flex-col bg-primary-800 rounded-md h-full max-h-[80%] min-h-[80%] overflow-y-auto">
         {isLoading && (
