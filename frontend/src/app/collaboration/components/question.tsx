@@ -179,7 +179,7 @@ const Question = ({
   }, [userID, collaborator, setLanguage]);
 
   const handleExit = () => {
-    window.location.href = "/"; // We cannot use next/router, in order to trigger beforeunload listener
+    window.location.href = "/dashboard"; // We cannot use next/router, in order to trigger beforeunload listener
   };
 
   useEffect(() => {
@@ -294,8 +294,8 @@ const Question = ({
   );
 
   return (
-    <div className="px-12 grid grid-rows-[20%_45%_35%] gap-3 grid-cols-1 h-full items-start max-h-screen">
-      <div className="mt-10 row-span-1 grid grid-rows-1 grid-cols-[75%_25%] w-full">
+    <div className="px-2 grid grid-rows-[20%_45%_35%] gap-2 grid-cols-1 h-full items-start">
+      <div className="mt-4 row-span-1 grid grid-rows-1 grid-cols-[75%_25%] w-full h-full">
         <div className="flex flex-col" ref={containerRef}>
           <h1
             className="text-yellow-500 text-xl font-bold pb-2 truncate"
@@ -359,6 +359,14 @@ const Question = ({
           Exit Room
         </Button>
       </div>
+<<<<<<< HEAD
+      <span className="row-span-1 text-primary-300 max-h-[100%] h-full overflow-y-auto flex flex-col bg-primary-800 p-3 rounded-md">
+        <span className="text-yellow-500 font-bold text-md">Question Description</span>
+        <span className="text-white py-2 text-xs">{question?.description}</span>
+      </span>
+      <div className="row-span-1 flex flex-col bg-primary-800 rounded-md h-full max-h-[90%] min-h-[80%] overflow-y-auto">
+        {messages.length == 0 ? (
+=======
       <span className="row-span-1 text-primary-300 text-md max-h-[100%] h-full overflow-y-auto flex flex-col gap-2 bg-primary-800 p-3  rounded-md">
         <span className="text-yellow-500 font-bold">Question Description</span>
         <span className="text-white text-md py-4">{question?.description}</span>
@@ -414,6 +422,7 @@ const Question = ({
           </div>
         )}
         {chatLogs.length === 0 ? (
+>>>>>>> 01a3654adb4dcd9a11153237fbd0c990683af6ca
           <span className="h-full w-full flex items-center justify-center text-primary-300 italic">
             Say hello to your match!
           </span>
