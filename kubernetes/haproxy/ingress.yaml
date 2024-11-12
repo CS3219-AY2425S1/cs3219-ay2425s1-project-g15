@@ -7,7 +7,7 @@ metadata:
     haproxy.org/ingress.class: "haproxy" # Specify HAProxy as the Ingress class
     haproxy.org/cors-allow-origin: "*" # Enable CORS
     haproxy.org/websocket: "true"
-    haproxy.org/rate-limit-requests: 10
+    haproxy.org/rate-limit-requests: "100"
     haproxy.org/timeout-client: "1m" # Timeout for client inactivity
     haproxy.org/timeout-server: "1m" # Timeout for server inactivity
     haproxy.org/timeout-keep-alive: "1m" # Timeout for HTTP keep-alive connections

@@ -21,7 +21,7 @@ spec:
         memory: 1Gi
       controlledValues: "Values"
       updateMode: "Auto"
-      useRestarts: true
+      useRestarts: false
       useScaleDown: true
       useScaleUp: true
       useUpdate: true
