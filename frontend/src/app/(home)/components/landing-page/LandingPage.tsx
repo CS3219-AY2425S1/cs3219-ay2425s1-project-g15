@@ -4,10 +4,17 @@ import { useRouter } from "next/navigation";
 import Navbar from "@/app/common/Navbar";
 import { getAuthStatus } from "@/api/user";
 import { AuthStatus } from "@/types/user";
+import { useEffect, useState } from "react";
 
 const LandingPage = () => {
   const router = useRouter();
-  const authStatus = getAuthStatus();
+  const [authStatus, setAuthStatus] = useState<AuthStatus>(
+    AuthStatus.UNAUTHENTICATED
+  );
+
+  useEffect(() => {
+    setAuthStatus(getAuthStatus());
+  }, []);
 
   const handleRedirect = () => {
     if (authStatus === AuthStatus.UNAUTHENTICATED) {
