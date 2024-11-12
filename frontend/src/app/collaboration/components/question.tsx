@@ -21,6 +21,7 @@ import { CgProfile } from "react-icons/cg";
 import { getChatlogs } from "@/api/chat";
 import { ChatLog, SingleChatLogApiResponse } from "@/types/chat";
 import MoonLoader from "react-spinners/MoonLoader";
+import SyntaxHighlighter from "react-syntax-highlighter";
 
 const CHAT_SOCKET_URL = process.env["NEXT_PUBLIC_CHAT_SERVICE_WEBSOCKET"] || "";
 
@@ -52,6 +53,7 @@ const Question = ({
   const [chatLogs, setChatLogs] = useState<ChatLog[]>([]);
   const [chatLogsPage, setChatLogsPage] = useState<number>(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [showAnswer, setShowAnswer] = useState(false);
   // To determine if a language change is initiated by the user, or received from the collaborator
   const isLanguageChangeActive = useRef(false);
   const hasMoreMessages = useRef(true);
@@ -386,6 +388,24 @@ const Question = ({
             <br />
           </div>
         ))}
+        <Button
+          variant="outline"
+          onClick={() => setShowAnswer((prev) => !prev)}
+          className="mb-3"
+        >
+          {showAnswer ? "Hide" : "Show"} Answer
+          {showAnswer ? " ▼" : " ▲"}
+        </Button>
+        {showAnswer && question?.solution && (
+          <div className="h-[50px] text-sm">
+            <span className="text-xs italic">
+              We currently only support JavaScript. Sorry!
+            </span>
+            <SyntaxHighlighter language="javascript">
+              {question?.solution}
+            </SyntaxHighlighter>
+          </div>
+        )}
       </span>
       <div className="row-span-1 flex flex-col bg-primary-800 rounded-md h-full max-h-[80%] min-h-[80%] overflow-y-auto">
         {isLoading && (
