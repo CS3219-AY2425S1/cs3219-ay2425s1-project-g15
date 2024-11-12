@@ -27,11 +27,8 @@ function Collaboration({ room, language, code, setLanguage }: Readonly<Props>) {
   const [username, setUsername] = useState<string | null>(null);
   const [selectionRange, setSelectionRange] = useState(null);
   const [saving, setSaving] = useState(false);
-<<<<<<< HEAD
   const [peerOnline, setPeerOnline] = useState(false);
-=======
   const [editorTheme, setEditorTheme] = useState("dark-plus");
->>>>>>> 1bc3df5a6f413acb34f2e5a25ffb3d6f8d39527d
 
   // Fetch username on component mount
   useEffect(() => {
