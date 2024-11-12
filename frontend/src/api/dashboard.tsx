@@ -2,7 +2,7 @@ import { TCombinedSession, TQuestion, TSession } from "@/types/dashboard";
 
 // retrieve from .env
 const COLLAB_SERVICE = "http://localhost:3001/api/collaboration";
-const QUESTION_SERVICE = "http://localhost:3002/api/question";
+const QUESTION_SERVICE = "http://localhost:3003/api/question";
 
 export const getUserHistoryData = async (
   username: string

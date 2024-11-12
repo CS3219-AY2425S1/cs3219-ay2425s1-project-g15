@@ -97,43 +97,6 @@ const VideoCall = ({ provider }: VideoCallProps) => {
     console.log("new connection done");
   };
 
-  useEffect(() => {
-    const awarenessListener = ({ added, updated, removed }: { added: number[], updated: number[], removed: number[] }) => {
-      added.concat(updated).forEach((clientId) => {
-        if (clientId !== provider.awareness.clientID) {
-          const state = provider.awareness.getStates().get(clientId);
-          console.log(state);
-          if (state?.webrtc) {
-            handleSignalingMessage(state.webrtc);
-          }
-        }
-      });
-
-      removed.forEach((clientId) => {
-        console.log("Client disconnected:", clientId);
-        if (remoteVideoRef.current) {
-          if (clientId !== provider.awareness.clientID) {
-            remoteVideoRef.current.srcObject = null;
-            remoteStreamRef.current = null;
-            setRemoteVideoSourceObject(false);
-            iceCandidatesQueue.current = [];
-            startPC();
-            startCall();
-          } else {
-            setVideoStart(false);
-          }
-          console.log("Remote video stopped");
-        }
-      });
-    };
-
-    provider.awareness.on("change", awarenessListener);
-
-    return () => {
-      provider.awareness.off("change", awarenessListener);
-    };
-  }, [provider]);
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleSignalingMessage = async (message: any) => {
     try {
@@ -187,13 +150,6 @@ const VideoCall = ({ provider }: VideoCallProps) => {
     } catch {}
   };
 
-  const processIceCandidatesQueue = async () => {
-    while (iceCandidatesQueue.current.length > 0) {
-      const candidate = iceCandidatesQueue.current.shift();
-      await peerConnectionRef.current?.addIceCandidate(candidate);
-    }
-  };
-
   const startCall = async () => {
     setVideoStart(true);
     console.log(peerConnectionRef.current);
@@ -203,13 +159,11 @@ const VideoCall = ({ provider }: VideoCallProps) => {
         audio: true,
       });
       localStreamRef.current = stream;
-      stream
-        .getTracks()
-        .forEach((track) => {
-          if (peerConnectionRef.current) {
-            peerConnectionRef.current.addTrack(track, stream);
-          }
-        });
+      stream.getTracks().forEach((track) => {
+        if (peerConnectionRef.current) {
+          peerConnectionRef.current.addTrack(track, stream);
+        }
+      });
 
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream;
@@ -223,6 +177,58 @@ const VideoCall = ({ provider }: VideoCallProps) => {
         offer: offer,
       });
       console.log("Sent offer:", offer);
+    }
+  };
+
+  useEffect(() => {
+    const awarenessListener = ({
+      added,
+      updated,
+      removed,
+    }: {
+      added: number[];
+      updated: number[];
+      removed: number[];
+    }) => {
+      added.concat(updated).forEach((clientId) => {
+        if (clientId !== provider.awareness.clientID) {
+          const state = provider.awareness.getStates().get(clientId);
+          console.log(state);
+          if (state?.webrtc) {
+            handleSignalingMessage(state.webrtc);
+          }
+        }
+      });
+
+      removed.forEach((clientId) => {
+        console.log("Client disconnected:", clientId);
+        if (remoteVideoRef.current) {
+          if (clientId !== provider.awareness.clientID) {
+            remoteVideoRef.current.srcObject = null;
+            remoteStreamRef.current = null;
+            setRemoteVideoSourceObject(false);
+            iceCandidatesQueue.current = [];
+            startPC();
+            startCall();
+          } else {
+            setVideoStart(false);
+          }
+          console.log("Remote video stopped");
+        }
+      });
+    };
+
+    provider.awareness.on("change", awarenessListener);
+
+    return () => {
+      provider.awareness.off("change", awarenessListener);
+    };
+  }, [provider, handleSignalingMessage, startCall, startPC]);
+
+  const processIceCandidatesQueue = async () => {
+    while (iceCandidatesQueue.current.length > 0) {
+      const candidate = iceCandidatesQueue.current.shift();
+      await peerConnectionRef.current?.addIceCandidate(candidate);
     }
   };
 

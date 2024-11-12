@@ -3,6 +3,7 @@ import {
   KeyboardEvent,
   SetStateAction,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -119,7 +120,7 @@ const Question = ({
     return () => {
       client.deactivate();
     };
-  }, [userID, collaborator]);
+  }, [userID, collaborator, setLanguage]);
 
   const handleExit = () => {
     window.location.href = "/"; // We cannot use next/router, in order to trigger beforeunload listener
@@ -163,7 +164,7 @@ const Question = ({
       const message = {
         message: language,
         collabID: collabid,
-        targetID: collaborator, // BUG: Should be the other user's ID, not username. Temporary workaround.
+        targetID: collaboratorId,
       };
       stompClientRef.current.publish({
         destination: "/app/sendLanguageChange",
@@ -178,12 +179,16 @@ const Question = ({
     }
   }, [language]);
 
-  const questionCategories = question?.category || [];
+  const questionCategories = useMemo(() => {
+    return question?.category || [];
+  }, [question?.category]);
 
   useEffect(() => {
+    const container = containerRef.current;
+
     const calculateVisibleCategories = () => {
-      if (containerRef.current) {
-        const containerWidth = containerRef.current.clientWidth;
+      if (container) {
+        const containerWidth = container.clientWidth;
         let totalWidth = 200;
         const visible = [];
 
@@ -212,8 +217,8 @@ const Question = ({
     };
 
     const observer = new ResizeObserver(calculateVisibleCategories);
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
+    if (container) {
+      observer.observe(container);
     }
 
     calculateVisibleCategories();
@@ -222,11 +227,11 @@ const Question = ({
 
     return () => {
       window.removeEventListener("resize", calculateVisibleCategories);
-      if (containerRef.current) {
-        observer.unobserve(containerRef.current);
+      if (container) {
+        observer.unobserve(container);
       }
     };
-  }, []);
+  }, [questionCategories]);
 
   const remainingCategories = questionCategories.slice(
     visibleCategories.length
@@ -236,7 +241,10 @@ const Question = ({
     <div className="px-12 grid grid-rows-[20%_45%_35%] gap-3 grid-cols-1 h-full items-start">
       <div className="mt-10 row-span-1 grid grid-rows-1 grid-cols-[75%_25%] w-full">
         <div className="flex flex-col" ref={containerRef}>
-          <h1 className="text-yellow-500 text-xl font-bold pb-2">
+          <h1
+            className="text-yellow-500 text-xl font-bold pb-2 truncate"
+            title={question?.title}
+          >
             {question?.title}
           </h1>
           <span className="flex flex-wrap gap-1.5 my-1 pb-2">
