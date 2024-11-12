@@ -13,7 +13,17 @@ const CodeSnippetHighlight = () => {
             if diff in idxDict and i != idxDict[diff]:
                 return [i, idxDict[diff]]`;
   return (
-    <SyntaxHighlighter language="python" style={darcula}>
+    <SyntaxHighlighter
+      language="python"
+      style={darcula}
+      showLineNumbers={true}
+      wrapLines={true}
+      lineProps={{ style: { wordBreak: "break-all", whiteSpace: "pre-wrap" } }}
+      customStyle={{
+        height: "50%",
+        borderRadius: "10px",
+      }}
+    >
       {code}
     </SyntaxHighlighter>
   );

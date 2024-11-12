@@ -80,10 +80,9 @@ const Sidebar = () => {
       .map((item) => <SidebarItem item={item} key={item.linksTo} />);
     setSidebarItemsToShow(sidebarItemsToShow);
   }, []);
-  console.log("authStatus", authStatus);
 
   return (
-    <>
+    <div>
       <nav className="bg-primary-900 w-20 flex flex-col gap-2 py-4 h-screen fixed">
         {sidebarItemsToShow}
 
@@ -104,7 +103,7 @@ const Sidebar = () => {
         )}
       </nav>
       <div className="bg-primary-900 w-20 flex flex-col gap-2 py-4 h-screen"></div>
-    </>
+    </div>
   );
 };
 
