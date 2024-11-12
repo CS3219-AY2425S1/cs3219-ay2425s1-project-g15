@@ -105,7 +105,7 @@ const Question = ({
   }, [userID, collaborator, setLanguage]);
 
   const handleExit = () => {
-    window.location.href = "/"; // We cannot use next/router, in order to trigger beforeunload listener
+    window.location.href = "/dashboard"; // We cannot use next/router, in order to trigger beforeunload listener
   };
 
   useEffect(() => {

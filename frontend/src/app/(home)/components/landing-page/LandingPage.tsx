@@ -3,9 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import Navbar from "@/app/common/Navbar";
+import { getAuthStatus } from "@/api/user";
+import { AuthStatus } from "@/types/user";
 
 const LandingPage = () => {
     const router = useRouter();
+    const status = getAuthStatus();
 
     return (
         <>
@@ -21,7 +24,10 @@ const LandingPage = () => {
                             Created for CS3219 Software Engineering Principles AY24/25 by Group 15.
                         </p>
                         <div className="pt-8">
-                            <Button className="font-semibold w-full" onClick={() => router.push("/login")}>
+                            <Button 
+                                className="font-semibold w-full" 
+                                onClick={() => status === AuthStatus.UNAUTHENTICATED ? router.push("/login") : router.push("/dashboard")}
+                            >
                                 <span className="pl-2">Get Started</span>
                             </Button>
                         </div>
