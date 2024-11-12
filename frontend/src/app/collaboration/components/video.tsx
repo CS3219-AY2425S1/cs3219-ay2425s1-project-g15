@@ -44,19 +44,6 @@ const VideoCall = ({ provider }: VideoCallProps) => {
           credential: "6KjvgYahJZ21gdAp",
         }
       ],
-      iceServers: [
-        { urls: "stun:stun.l.google.com:19302" },
-        {
-          urls: "turn:global.relay.metered.ca:80",
-          username: "2b012e1176eda910d0c8a755",
-          credential: "6KjvgYahJZ21gdAp",
-        },
-        {
-          urls: "turn:global.relay.metered.ca:80?transport=tcp",
-          username: "2b012e1176eda910d0c8a755",
-          credential: "6KjvgYahJZ21gdAp",
-        }
-      ],
     });
 
     pc.onicecandidate = (event) => {

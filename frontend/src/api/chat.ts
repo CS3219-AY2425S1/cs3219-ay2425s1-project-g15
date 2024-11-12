@@ -1,4 +1,3 @@
-import { COLLABORATION_SERVICE } from "@/api/collaboration";
 import { ChatLog, SingleChatLogApiResponse } from "@/types/chat";
 
 interface ChatMetaDataShape {
@@ -8,6 +7,7 @@ interface ChatMetaDataShape {
     recipientName: string
 }
 
+export const COLLABORATION_SERVICE = "http://34.54.37.142/api/collaboration";
 
 export const getChatlogs = async (collabid: string, page_num: number, limit: number, chatMetaData: ChatMetaDataShape): Promise<ChatLog[]> => {
     const url = `${COLLABORATION_SERVICE}/chat/${collabid}/get_chatlogs?page=${page_num}&limit=${limit}`;
