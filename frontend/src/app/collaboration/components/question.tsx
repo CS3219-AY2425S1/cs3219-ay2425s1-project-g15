@@ -66,11 +66,19 @@ const Question = ({
   };
 
   useEffect(() => {
+    const chatMetaData = {
+      senderId: userID,
+      senderName: username,
+      recipientId: collaboratorId,
+      recipientName: collaborator,
+    };
+
     const fetchChatLogs = async () => {
       const res: ChatLog[] = await getChatlogs(
         collabid,
         chatLogsPage,
-        CHAT_CHUNK_SIZE
+        CHAT_CHUNK_SIZE,
+        chatMetaData
       );
       if (res.length === 0) {
         return;
@@ -79,7 +87,7 @@ const Question = ({
       return res;
     };
     fetchChatLogs();
-  }, [chatLogs, chatLogsPage, collabid]);
+  }, [chatLogsPage, collabid, collaborator, collaboratorId, userID, username]);
 
   useEffect(() => {
     const getUserProfilePic = async () => {
