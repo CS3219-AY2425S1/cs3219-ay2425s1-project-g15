@@ -19,7 +19,7 @@ import ResizeObserver from "resize-observer-polyfill";
 import Swal from "sweetalert2";
 import { CgProfile } from "react-icons/cg";
 import { getChatlogs } from "@/api/chat";
-import { ChatLog } from "@/types/chat";
+import { ChatLog, SingleChatLogApiResponse } from "@/types/chat";
 
 const CHAT_SOCKET_URL = "http://localhost:3007/chat-websocket";
 
@@ -55,6 +55,16 @@ const Question = ({
   const chatLogsListRef = useRef<HTMLDivElement | null>(null);
   const CHAT_CHUNK_SIZE = 10; // Number of chat logs to fetch at a time
 
+  const packageMessage = (message: SingleChatLogApiResponse) => {
+    return {
+      text: message.message,
+      title: collaborator,
+      date: new Date(message.timestamp),
+      position: message.senderId === getUserId() ? "right" : "left",
+      type: "text",
+    };
+  };
+
   useEffect(() => {
     const fetchChatLogs = async () => {
       const res: ChatLog[] = await getChatlogs(
@@ -81,7 +91,7 @@ const Question = ({
   }, [collaboratorId]);
 
   useEffect(() => {
-    const socket = new SockJS(`${CHAT_SOCKET_URL}?userID=${userID}`);
+    const socket = new SockJS(`${CHAT_SOCKET_URL}?senderId=${userID}`);
     const client = new StompClient({
       webSocketFactory: () => socket,
       debug: (str) => console.log(str),
@@ -91,8 +101,10 @@ const Question = ({
         setIsConnected(true);
 
         client.subscribe("/user/queue/chat", (message) => {
-          const newMessage: ChatLog = JSON.parse(message.body);
-          setChatLogs((prev: ChatLog[]) => [...prev, newMessage]);
+          const newMessage: SingleChatLogApiResponse = JSON.parse(message.body);
+          const packagedMessage = packageMessage(newMessage);
+          console.log(packagedMessage);
+          setChatLogs((prev: ChatLog[]) => [...prev, packagedMessage]);
         });
 
         client.subscribe("/user/queue/language", (message) => {
@@ -142,8 +154,8 @@ const Question = ({
     if (stompClientRef.current && isConnected) {
       const message = {
         message: inputMessage,
-        collabID: collabid,
-        targetID: collaboratorId,
+        collabId: collabid,
+        recipientId: collaboratorId,
       };
       stompClientRef.current.publish({
         destination: "/app/sendMessage",

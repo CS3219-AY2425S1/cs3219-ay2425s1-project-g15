@@ -1,13 +1,10 @@
 
 export interface SingleChatLogApiResponse {
-        _id: string;
         collabid: string;
         message: string;
         senderId: string;
         recipientId: string;
-        timestampEpoch: number;
-        _v: number;
-        timestampFormatted: string;
+        timestamp: string;
 }
 
 export interface SingleChatLogApi {
@@ -25,8 +22,7 @@ export interface GetChatLogsApiResponse {
 export interface ChatLog {
     text: string;
     title: string;
-    timestampFormatted: string;
+    date: Date;
     position: "left" | "right";
     type: "text";
-    dateString: string;
   }
