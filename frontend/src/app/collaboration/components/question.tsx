@@ -360,28 +360,28 @@ const Question = ({
         </Button>
       </div>
       <span className="row-span-1 text-primary-300 text-md max-h-[100%] h-full overflow-y-auto flex flex-col gap-2 bg-primary-800 p-3  rounded-md">
-        <span className="text-yellow-500 font-bold">Question Description</span>
-        <span className="text-white text-md py-4">{question?.description}</span>
-        <span className="text-yellow-500 font-bold">Examples</span>
+        <span className="text-yellow-500 font-bold text-md">Question Description</span>
+        <span className="text-white py-2 text-xs">{question?.description}</span>
+        <span className="text-yellow-500 font-bold text-md">Examples</span>
         {question?.examples?.map((example, idx) => (
           <div key={idx}>
-            <div className="font-bold underline">
+            <div className="font-bold underline text-xs">
               Example {example.example_num}:
             </div>
             <div>
-              <span className="font-bold">Expected Input: </span>
-              <span className="text-primary-400 tracking-wide">
+              <span className="font-bold text-xs">Expected Input: </span>
+              <span className="text-primary-400 tracking-wide text-xs">
                 {example.expected_input}
               </span>
             </div>
             <div>
-              <span className="font-bold">Expected Output: </span>
-              <span className="text-primary-400 tracking-wide">
+              <span className="font-bold text-xs">Expected Output: </span>
+              <span className="text-primary-400 tracking-wide text-xs">
                 {example.expected_output}
               </span>
             </div>
-            <span className="font-bold">Explanation: </span>
-            <span className="text-primary-400 tracking-wide">
+            <span className="font-bold text-xs">Explanation: </span>
+            <span className="text-primary-400 tracking-wide text-xs">
               {example.explanation}
             </span>
             <br />
@@ -401,7 +401,7 @@ const Question = ({
             <span className="text-xs italic">
               We currently only support JavaScript. Sorry!
             </span>
-            <SyntaxHighlighter language="javascript">
+            <SyntaxHighlighter language="javascript" class="text-xs">
               {question?.solution}
             </SyntaxHighlighter>
           </div>
