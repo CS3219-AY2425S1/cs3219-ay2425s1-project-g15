@@ -117,9 +117,22 @@ const Question = ({
   }, [collaboratorId]);
 
   useEffect(() => {
+    const scrollToPercentage = (percentage: number) => {
+      if (chatLogsListRef.current && hasMoreMessages.current) {
+        const chatContainer = chatLogsListRef.current;
+        const targetPosition = chatContainer.scrollHeight * percentage;
+        chatContainer.scrollTop = targetPosition - chatContainer.clientHeight;
+      }
+    };
+
     const handleScroll = () => {
       if (chatLogsListRef.current && chatLogsListRef.current.scrollTop === 0) {
-        fetchChatLogs();
+        fetchChatLogs().then(() => {
+          requestAnimationFrame(() => {
+            const percentage = Math.min(1 - (chatLogsPage - 1) / chatLogsPage);
+            scrollToPercentage(percentage);
+          });
+        });
       }
     };
 
