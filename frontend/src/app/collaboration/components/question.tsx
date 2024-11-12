@@ -21,8 +21,9 @@ import { CgProfile } from "react-icons/cg";
 import { getChatlogs } from "@/api/chat";
 import { ChatLog, SingleChatLogApiResponse } from "@/types/chat";
 import MoonLoader from "react-spinners/MoonLoader";
+import SyntaxHighlighter from "react-syntax-highlighter";
 
-const CHAT_SOCKET_URL = "http://localhost:3007/chat-websocket";
+const CHAT_SOCKET_URL = process.env["NEXT_PUBLIC_CHAT_SERVICE_WEBSOCKET"] || "";
 
 const Question = ({
   collabid,
@@ -52,11 +53,14 @@ const Question = ({
   const [chatLogs, setChatLogs] = useState<ChatLog[]>([]);
   const [chatLogsPage, setChatLogsPage] = useState<number>(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [showAnswer, setShowAnswer] = useState(false);
   // To determine if a language change is initiated by the user, or received from the collaborator
   const isLanguageChangeActive = useRef(false);
   const hasMoreMessages = useRef(true);
   const chatLogsListRef = useRef<HTMLDivElement | null>(null);
   const CHAT_CHUNK_SIZE = 10; // Number of chat logs to fetch at a time
+
+  console.log(question);
 
   const packageMessage = (message: SingleChatLogApiResponse): ChatLog => {
     return {
@@ -357,7 +361,51 @@ const Question = ({
       </div>
       <span className="row-span-1 text-primary-300 text-md max-h-[100%] h-full overflow-y-auto flex flex-col gap-2 bg-primary-800 p-3  rounded-md">
         <span className="text-yellow-500 font-bold">Question Description</span>
-        <span className="text-white py-8 text-md">{question?.description}</span>
+        <span className="text-white text-md py-4">{question?.description}</span>
+        <span className="text-yellow-500 font-bold">Examples</span>
+        {question?.examples?.map((example, idx) => (
+          <div key={idx}>
+            <div className="font-bold underline">
+              Example {example.example_num}:
+            </div>
+            <div>
+              <span className="font-bold">Expected Input: </span>
+              <span className="text-primary-400 tracking-wide">
+                {example.expected_input}
+              </span>
+            </div>
+            <div>
+              <span className="font-bold">Expected Output: </span>
+              <span className="text-primary-400 tracking-wide">
+                {example.expected_output}
+              </span>
+            </div>
+            <span className="font-bold">Explanation: </span>
+            <span className="text-primary-400 tracking-wide">
+              {example.explanation}
+            </span>
+            <br />
+            <br />
+          </div>
+        ))}
+        <Button
+          variant="outline"
+          onClick={() => setShowAnswer((prev) => !prev)}
+          className="mb-3"
+        >
+          {showAnswer ? "Hide" : "Show"} Answer
+          {showAnswer ? " ▼" : " ▲"}
+        </Button>
+        {showAnswer && question?.solution && (
+          <div className="h-[50px] text-sm">
+            <span className="text-xs italic">
+              We currently only support JavaScript. Sorry!
+            </span>
+            <SyntaxHighlighter language="javascript">
+              {question?.solution}
+            </SyntaxHighlighter>
+          </div>
+        )}
       </span>
       <div className="row-span-1 flex flex-col bg-primary-800 rounded-md h-full max-h-[80%] min-h-[80%] overflow-y-auto">
         {isLoading && (
