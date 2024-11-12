@@ -7,18 +7,18 @@ import lombok.Data;
 
 @Data
 public class ChatUserPrincipal implements Principal, Serializable {
-    private final String userID; 
+    private final String senderId; 
 
-    public ChatUserPrincipal(String userID) {
-        if (userID == null) {
+    public ChatUserPrincipal(String senderId) {
+        if (senderId == null) {
             throw new NullPointerException("null name is illegal");
         }
-        this.userID = userID;
+        this.senderId = senderId;
     }
 
     @Override
     public String getName() {
-        return this.userID;
+        return this.senderId;
     }
 
     // @Override
@@ -40,6 +40,6 @@ public class ChatUserPrincipal implements Principal, Serializable {
 
     @Override
     public String toString() {
-        return "ChatUserPrincipal{UserID='" + this.userID + "'}";
+        return "ChatUserPrincipal{SenderId='" + this.senderId + "'}";
     }
 }

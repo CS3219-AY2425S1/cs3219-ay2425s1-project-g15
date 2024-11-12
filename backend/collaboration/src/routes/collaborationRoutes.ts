@@ -245,27 +245,12 @@ router.get("/chat/:collabid/get_chatlogs", [...getChatLogValidators], async (req
     const skip = (page - 1) * limit;
 
     // Fetch chat logs for the specified collabID, with pagination and sorted by timestamp
-    const chatLogs = await ChatLog.find({ collabid })
+    const chatLogs = await ChatLog.find({ collabId: collabid })
       .sort({ timestamp: -1 }) // Sort by timestamp in descending order (latest first)
       .skip(skip)
       .limit(limit);
 
-    // Convert each chat log's timestamp to a readable format
-    const formattedChatLogs = chatLogs.map(log => {
-      const date = new Date(log["timestampEpoch"]);
-      const formattedTimestamp = date.toLocaleString('en-GB', {
-        day: '2-digit',
-        month: '2-digit',
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: true,
-      }).replace(',', ''); // Remove comma between date and time for cleaner look
-      
-      return {
-        ...log.toObject(),
-        timestampFormatted: formattedTimestamp, // Update timestamp with formatted value
-      };
-    });
+    chatLogs.reverse();
 
     // Get total count of chat logs for the given collabID
     const totalLogs = await ChatLog.countDocuments({ collabid });
@@ -273,7 +258,7 @@ router.get("/chat/:collabid/get_chatlogs", [...getChatLogValidators], async (req
 
     res.status(200).json({
       message: "Chat logs fetched successfully",
-      chatLogs: formattedChatLogs,
+      chatLogs: chatLogs,
       pagination: {
         page,
         limit,
