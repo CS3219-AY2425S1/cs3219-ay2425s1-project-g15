@@ -152,7 +152,9 @@ const Question = ({
         });
 
         client.subscribe("/user/queue/language", (message) => {
-          const messageReceived: SingleChatLogApiResponse = JSON.parse(message.body);
+          const messageReceived: SingleChatLogApiResponse = JSON.parse(
+            message.body
+          );
           isLanguageChangeActive.current = false;
           setLanguage(messageReceived.message);
           Swal.fire({
@@ -360,7 +362,9 @@ const Question = ({
         </Button>
       </div>
       <span className="row-span-1 text-primary-300 text-md max-h-[100%] h-full overflow-y-auto flex flex-col gap-2 bg-primary-800 p-3  rounded-md">
-        <span className="text-yellow-500 font-bold text-md">Question Description</span>
+        <span className="text-yellow-500 font-bold text-md">
+          Question Description
+        </span>
         <span className="text-white py-2 text-xs">{question?.description}</span>
         <span className="text-yellow-500 font-bold text-md">Examples</span>
         {question?.examples?.map((example, idx) => (
@@ -394,7 +398,7 @@ const Question = ({
           className="mb-3"
         >
           {showAnswer ? "Hide" : "Show"} Answer
-          {showAnswer ? " ▼" : " ▲"}
+          {showAnswer ? " ▲" : " ▼"}
         </Button>
         {showAnswer && question?.solution && (
           <div className="h-[50px] text-sm">
