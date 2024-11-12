@@ -1,14 +1,11 @@
 import express, { Request, Response } from "express";
-import { validationResult } from "express-validator";
-import ChatLog from "../models/ChatLog";
 import Session, { TSession } from "../models/Session";
 import {
-  createChatLogValidators,
   createSessionValidators,
-  getChatLogValidators,
   idValidators,
   updateSessionValidators,
 } from "./validators";
+import { validationResult } from "express-validator";
 
 /**
  * Router for the collaboration service.
@@ -206,70 +203,5 @@ router.delete(
     }
   }
 );
-
-// Create a single chat log
-router.post("/chat/:collabid/create_chatlog", [...createChatLogValidators], async (req: Request, res: Response) => {
-  // TODO: Add validation check to check if a collab ID exists and if the sender and recipient IDs are valid
-
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-  try {
-    const { message, senderId, recipientId, timestampEpoch } = req.body;
-    const { collabid } = req.params;
-    const chatLog = {
-      collabid,
-      message,
-      senderId,
-      recipientId,
-      timestampEpoch
-    };
-    
-    const newChatLog = new ChatLog(chatLog);
-    await newChatLog.save();
-    res.status(200).json({ message: "Chat log created successfully", chatLog: newChatLog });
-  } catch (error) {
-    console.log(error)
-    return res.status(500).send("Internal server error");
-  }
-})
-
-// Fetch chat logs for a specific collabID with pagination
-router.get("/chat/:collabid/get_chatlogs", [...getChatLogValidators], async (req: Request, res: Response) => {
-  try {
-    const { collabid } = req.params;
-    const page = parseInt(req.query.page as string, 10) || 1;
-    const limit = parseInt(req.query.limit as string, 10) || 10;
-
-    const skip = (page - 1) * limit;
-
-    // Fetch chat logs for the specified collabID, with pagination and sorted by timestamp
-    const chatLogs = await ChatLog.find({ collabId: collabid })
-      .sort({ timestamp: -1 }) // Sort by timestamp in descending order (latest first)
-      .skip(skip)
-      .limit(limit);
-
-    chatLogs.reverse();
-
-    // Get total count of chat logs for the given collabID
-    const totalLogs = await ChatLog.countDocuments({ collabid });
-    const totalPages = Math.ceil(totalLogs / limit);
-
-    res.status(200).json({
-      message: "Chat logs fetched successfully",
-      chatLogs: chatLogs,
-      pagination: {
-        page,
-        limit,
-        totalPages,
-        totalLogs,
-      },
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).send("Internal server error");
-  }
-});
 
 export default router;

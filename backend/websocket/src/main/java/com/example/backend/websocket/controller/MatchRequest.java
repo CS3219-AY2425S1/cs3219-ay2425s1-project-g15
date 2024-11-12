@@ -20,7 +20,6 @@ import com.example.backend.websocket.model.VerificationResponse;
 @Data
 public class MatchRequest {
     private String userEmail;
-    private String userId;
     private String[] topics;
     private String[] programmingLanguages;
     private String[] difficulties;

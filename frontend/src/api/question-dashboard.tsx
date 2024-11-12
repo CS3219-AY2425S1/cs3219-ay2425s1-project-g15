@@ -1,6 +1,6 @@
 import { QuestionAll, QuestionFull, NewQuestionData } from "@/types/find-match";
 
-const QUESTION_SERVICE = "http://localhost:3003/api/question";
+const QUESTION_SERVICE = "http://localhost:3002/api/question";
 
 export const createSingleQuestion = async (
   data: NewQuestionData

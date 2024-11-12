@@ -8,19 +8,15 @@ import { WebrtcProvider } from "y-webrtc";
 import { getUser } from "@/api/user";
 import { Cursors } from "./cursors";
 import { Toolbar } from "./toolbar";
-import { updateSession } from "@/api/collaboration";
+import { fetchSession, updateSession } from "@/api/collaboration";
 import VideoCall from "./video";
-import { shikiToMonaco } from "@shikijs/monaco";
-import { createHighlighter } from "shiki";
 
 type Props = {
   room: string;
   language: string;
-  code: string;
-  setLanguage: (lang: string) => void;
 };
 
-function Collaboration({ room, language, code, setLanguage }: Readonly<Props>) {
+function Collaboration({ room, language }: Readonly<Props>) {
   const editorRef = useRef<any>(null); // Ref to store the editor instance
   const docRef = useRef(new Y.Doc()); // Initialize a single YJS document
   const providerRef = useRef<WebrtcProvider | null>(null); // Ref to store the provider instance
@@ -46,11 +42,7 @@ function Collaboration({ room, language, code, setLanguage }: Readonly<Props>) {
   useEffect(() => {
     if (!providerRef.current) {
       //const signalingServer = ["ws://localhost:4444"];
-      // const signalingServer = [
-      //   "wss://signaling-598285527681.us-central1.run.app",
-      // ];
-      const signalingServer = ["ws://34.135.245.0:32624"];
-
+      const signalingServer = ["wss://signaling-598285527681.us-central1.run.app"];
       providerRef.current = new WebrtcProvider(room, docRef.current, {
         signaling: signalingServer,
       });
@@ -76,28 +68,17 @@ function Collaboration({ room, language, code, setLanguage }: Readonly<Props>) {
     }
   }, [room]);
 
-  useEffect(() => {
+  const loadSession = useCallback(async () => {
     try {
-      if (code) {
-        const update = Uint8Array.from(Buffer.from(code, "base64"));
+      const session = await fetchSession(room);
+      if (session.code) {
+        const update = Uint8Array.from(Buffer.from(session.code, "base64"));
         Y.applyUpdate(docRef.current, update);
       }
     } catch (err) {
       console.error(err);
     }
-  }, [code]);
-
-  async function initializeShiki(monaco: any, editor: any) {
-    const highlighter = await createHighlighter({
-      themes: ["dark-plus"],
-      langs: ["javascript", "python"],
-    });
-
-    monaco.languages.register({ id: "python" });
-    monaco.languages.register({ id: "javascript" });
-
-    shikiToMonaco(highlighter, monaco);
-  }
+  }, [room]);
 
   function handleEditorDidMount(
     editor: { onDidChangeCursorPosition: (arg0: (e: any) => void) => void },
@@ -123,8 +104,6 @@ function Collaboration({ room, language, code, setLanguage }: Readonly<Props>) {
         setSelectionRange(selection);
       }
     });
-
-    initializeShiki(monaco, editor);
   }
 
   // Save session before page unload
@@ -154,6 +133,10 @@ function Collaboration({ room, language, code, setLanguage }: Readonly<Props>) {
     };
   }, [saveSession]);
 
+  useEffect(() => {
+    loadSession();
+  }, [loadSession]);
+
   return (
     <div
       style={{
@@ -170,24 +153,16 @@ function Collaboration({ room, language, code, setLanguage }: Readonly<Props>) {
           cursorPosition={selectionRange ?? {}}
         />
       ) : null}
-      <Toolbar
-        editor={editorRef.current}
-        language={language}
-        setLanguage={setLanguage}
-        saving={saving}
-      />
+      <Toolbar editor={editorRef.current} language={language} saving={saving} />
       <div className="w-full h-[1px] bg-primary-1000 mx-auto my-2"></div>
       <Editor
         height="65vh"
         width="full"
         theme="vs-dark"
-        language={language}
+        defaultLanguage={language}
         defaultValue="// start collaborating here!"
         onMount={handleEditorDidMount}
-        options={{
-          wordWrap: "on",
-          minimap: { enabled: false },
-        }}
+        options={{ wordWrap: "on" }}
       />
       <div className="w-full bg-editor">
         {providerRef.current && <VideoCall provider={providerRef.current} />}

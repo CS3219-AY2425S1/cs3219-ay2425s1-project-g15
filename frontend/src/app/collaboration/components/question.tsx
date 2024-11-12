@@ -1,138 +1,55 @@
+import { fetchSingleQuestion } from "@/api/question-dashboard";
 import { NewQuestionData } from "@/types/find-match";
 import {
   KeyboardEvent,
   SetStateAction,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
 import ComplexityPill from "./complexity";
 import Pill from "./pill";
-import { getUser, getUserId, getUsername } from "@/api/user";
+import { fetchSession } from "@/api/collaboration";
+import { getUsername } from "@/api/user";
 import { Button } from "@/components/ui/button";
 import { Client as StompClient } from "@stomp/stompjs";
 import "react-chat-elements/dist/main.css";
 import { Input, MessageList } from "react-chat-elements";
 import SockJS from "sockjs-client";
 import ResizeObserver from "resize-observer-polyfill";
-import Swal from "sweetalert2";
-import { CgProfile } from "react-icons/cg";
-import { getChatlogs } from "@/api/chat";
-import { ChatLog, SingleChatLogApiResponse } from "@/types/chat";
-import MoonLoader from "react-spinners/MoonLoader";
 
 const CHAT_SOCKET_URL = "http://localhost:3007/chat-websocket";
 
-const Question = ({
-  collabid,
-  question,
-  collaborator,
-  collaboratorId,
-  language,
-  setLanguage,
-}: {
-  collabid: string;
-  question: NewQuestionData | null;
-  collaborator: string;
-  collaboratorId: string;
-  language: string;
-  setLanguage: (lang: string) => void;
-}) => {
-  const userID = getUserId() ?? "Anonymous";
-  const username = getUsername() ?? "Anonymous";
+interface Message {
+  position: "left" | "right";
+  type: "text";
+  title: string;
+  text: string;
+}
+
+const Question = ({ collabid }: { collabid: string }) => {
+  const [question, setQuestion] = useState<NewQuestionData | null>(null);
+  const [collaborator, setCollaborator] = useState<string | null>(null);
+  const [userID, setUserID] = useState<string | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState<string>("");
   const stompClientRef = useRef<StompClient | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [visibleCategories, setVisibleCategories] = useState<string[]>([]);
-  const [collaboratorProfilePic, setCollaboratorProfilePic] =
-    useState<string>("");
-  const [chatLogs, setChatLogs] = useState<ChatLog[]>([]);
-  const [chatLogsPage, setChatLogsPage] = useState<number>(1);
-  const [isLoading, setIsLoading] = useState(false);
-  // To determine if a language change is initiated by the user, or received from the collaborator
-  const isLanguageChangeActive = useRef(false);
-  const hasMoreMessages = useRef(true);
-  const chatLogsListRef = useRef<HTMLDivElement | null>(null);
-  const CHAT_CHUNK_SIZE = 10; // Number of chat logs to fetch at a time
 
-  const packageMessage = (message: SingleChatLogApiResponse): ChatLog => {
-    return {
-      text: message.message,
-      title: collaborator,
-      date: new Date(message.timestamp),
-      position: message.senderId === getUserId() ? "right" : "left",
-      type: "text",
-    };
-  };
+  const messageListRef = useRef<HTMLDivElement | null>(null);
 
-  const fetchChatLogs = async () => {
-    if (isLoading || !hasMoreMessages.current) return;
-
-    setIsLoading(true);
-
-    const chatMetaData = {
-      senderId: userID,
-      senderName: username,
-      recipientId: collaboratorId,
-      recipientName: collaborator,
-    };
-
-    const res: ChatLog[] = await getChatlogs(
-      collabid,
-      chatLogsPage,
-      CHAT_CHUNK_SIZE,
-      chatMetaData
-    );
-
-    if (res.length === 0) {
-      hasMoreMessages.current = false;
-    } else {
-      setChatLogs((prev) => [...res, ...prev]);
-      setChatLogsPage((prev) => prev + 1);
-    }
-
-    setIsLoading(false);
-  };
+  // NOTE: We use the username of the collaborator instead of the userID. This is because we cannot retrieve the collaborator's ID.
+  // Thus, the backend identifies pairs of users by their username for now. However, this can introduce bugs as
+  // although usernames are unique, if a user leaves the collaboration, changes their username, and comes back, the backend will not be able to identify them.
+  // This is because the Session will still have the old username. Therefore, we should change this to use the userID instead.
 
   useEffect(() => {
-    if (collaboratorId && collaborator) {
-      fetchChatLogs();
-    }
-  }, [collaboratorId, collaborator]);
+    setUserID(getUsername() ?? "Anonymous"); // Change me later
 
-  useEffect(() => {
-    const getUserProfilePic = async () => {
-      const collaboratorData = await getUser(collaboratorId);
-      const collaborator = collaboratorData.data.profilePictureUrl;
-      setCollaboratorProfilePic(collaborator);
-    };
-    getUserProfilePic();
-  }, [collaboratorId]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (chatLogsListRef.current && chatLogsListRef.current.scrollTop === 0) {
-        fetchChatLogs();
-      }
-    };
-
-    const chatList = chatLogsListRef.current;
-    if (chatList) {
-      chatList.addEventListener("scroll", handleScroll);
-    }
-
-    return () => {
-      if (chatList) {
-        chatList.removeEventListener("scroll", handleScroll);
-      }
-    };
-  }, [chatLogsPage, chatLogs]); // Depend on `chatLogsPage` to update the event when the page changes
-
-  useEffect(() => {
-    const socket = new SockJS(`${CHAT_SOCKET_URL}?senderId=${userID}`);
+    const socket = new SockJS(`${CHAT_SOCKET_URL}?userID=${userID}`); // BUG: This should NOT be username, but userID. Use this for now because we can't retrieve the collaborator's ID.
     const client = new StompClient({
       webSocketFactory: () => socket,
       debug: (str) => console.log(str),
@@ -142,19 +59,14 @@ const Question = ({
         setIsConnected(true);
 
         client.subscribe("/user/queue/chat", (message) => {
-          const newMessage: SingleChatLogApiResponse = JSON.parse(message.body);
-          const packagedMessage = packageMessage(newMessage);
-          setChatLogs((prev: ChatLog[]) => [...prev, packagedMessage]);
-        });
-
-        client.subscribe("/user/queue/language", (message) => {
           const messageReceived = message.body;
-          isLanguageChangeActive.current = false;
-          setLanguage(messageReceived);
-          Swal.fire({
-            title: "Language changed by your collaborator!",
-            icon: "success",
-          });
+          const newMessage: Message = {
+            position: "left",
+            type: "text",
+            title: collaborator!,
+            text: messageReceived,
+          };
+          setMessages((prev) => [...prev, newMessage]);
         });
       },
       onDisconnect: () => {
@@ -172,17 +84,17 @@ const Question = ({
     return () => {
       client.deactivate();
     };
-  }, [userID, collaborator, setLanguage]);
+  }, [userID, collaborator]);
 
   const handleExit = () => {
     window.location.href = "/"; // We cannot use next/router, in order to trigger beforeunload listener
   };
 
   useEffect(() => {
-    if (chatLogsListRef.current) {
-      chatLogsListRef.current.scrollTop = chatLogsListRef.current.scrollHeight;
+    if (messageListRef.current) {
+      messageListRef.current.scrollTop = messageListRef.current.scrollHeight;
     }
-  }, [chatLogs]);
+  }, [messages]);
 
   const handleClick = (
     e: React.MouseEvent<HTMLButtonElement> | KeyboardEvent
@@ -190,12 +102,21 @@ const Question = ({
     e.preventDefault();
     if (!inputMessage) return;
     console.log(inputMessage);
+    setMessages((prev) => [
+      ...prev,
+      {
+        position: "right" as const,
+        title: userID!,
+        text: inputMessage,
+        type: "text",
+      },
+    ]);
 
     if (stompClientRef.current && isConnected) {
       const message = {
         message: inputMessage,
-        collabId: collabid,
-        recipientId: collaboratorId,
+        collabID: collabid,
+        targetID: collaborator, // BUG: Should be the other user's ID, not username. Temporary workaround.
       };
       stompClientRef.current.publish({
         destination: "/app/sendMessage",
@@ -208,39 +129,22 @@ const Question = ({
   };
 
   useEffect(() => {
-    if (
-      stompClientRef.current?.connected &&
-      isConnected &&
-      isLanguageChangeActive.current
-    ) {
-      const message = {
-        message: language,
-        collabID: collabid,
-        targetID: collaboratorId,
-      };
-      stompClientRef.current.publish({
-        destination: "/app/sendLanguageChange",
-        body: JSON.stringify(message),
+    fetchSession(collabid).then(async (data) => {
+      await fetchSingleQuestion(data.question_id.toString()).then((data) => {
+        setQuestion(data);
       });
-      Swal.fire({
-        title: "You have initiated a language change!",
-        icon: "success",
-      });
-    } else {
-      isLanguageChangeActive.current = true;
-    }
-  }, [language]);
 
-  const questionCategories = useMemo(() => {
-    return question?.category || [];
-  }, [question?.category]);
+      setCollaborator(data.users.filter((user) => user !== userID)[0]);
+    });
+  }, [collabid, userID]);
+
+  const questionCategories = question?.category || [];
 
   useEffect(() => {
-    const container = containerRef.current;
-
     const calculateVisibleCategories = () => {
-      if (container) {
-        const containerWidth = container.clientWidth;
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.clientWidth;
+        console.log(containerWidth);
         let totalWidth = 200;
         const visible = [];
 
@@ -269,8 +173,8 @@ const Question = ({
     };
 
     const observer = new ResizeObserver(calculateVisibleCategories);
-    if (container) {
-      observer.observe(container);
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
     }
 
     calculateVisibleCategories();
@@ -279,8 +183,8 @@ const Question = ({
 
     return () => {
       window.removeEventListener("resize", calculateVisibleCategories);
-      if (container) {
-        observer.unobserve(container);
+      if (containerRef.current) {
+        observer.unobserve(containerRef.current);
       }
     };
   }, [questionCategories]);
@@ -290,16 +194,14 @@ const Question = ({
   );
 
   return (
-    <div className="px-12 grid grid-rows-[20%_45%_35%] gap-3 grid-cols-1 h-full items-start max-h-screen">
+    <div className="px-12 grid grid-rows-[20%_45%_35%] gap-4 grid-cols-1 h-full items-start">
       <div className="mt-10 row-span-1 grid grid-rows-1 grid-cols-[75%_25%] w-full">
         <div className="flex flex-col" ref={containerRef}>
-          <h1
-            className="text-yellow-500 text-xl font-bold pb-2 truncate"
-            title={question?.title}
-          >
+          <h1 className="text-yellow-500 text-xl font-bold pb-2">
             {question?.title}
           </h1>
           <span className="flex flex-wrap gap-1.5 my-1 pb-2">
+            
             {visibleCategories.map((category) => (
               <Pill key={category} text={category} />
             ))}
@@ -333,18 +235,8 @@ const Question = ({
             )}
             <ComplexityPill complexity={question?.complexity || ""} />
           </span>
-          <h2 className="text-grey-300 text-s leading-[0] flex flex-row gap-1 items-center">
-            Your collaborator:
-            {collaboratorProfilePic ? (
-              <img
-                src={collaboratorProfilePic}
-                alt="Collaborator profile pic"
-                className="w-6 h-6 rounded-full object-cover"
-              />
-            ) : (
-              <CgProfile size={25} />
-            )}
-            {collaborator}
+          <h2 className="text-grey-300 text-s pt-3 leading-[0]">
+            Your collaborator: {collaborator}
           </h2>
         </div>
         <Button
@@ -355,29 +247,24 @@ const Question = ({
           Exit Room
         </Button>
       </div>
-      <span className="row-span-1 text-primary-300 text-md max-h-[100%] h-full overflow-y-auto flex flex-col gap-2 bg-primary-800 p-3  rounded-md">
+      <span className="row-span-1 text-primary-300 text-md max-h-[100%] h-full overflow-y-auto flex flex-col gap-2 bg-primary-800 p-3 rounded-md">
         <span className="text-yellow-500 font-bold">Question Description</span>
         <span className="text-white py-8 text-md">{question?.description}</span>
       </span>
       <div className="row-span-1 flex flex-col bg-primary-800 rounded-md h-full max-h-[80%] min-h-[80%] overflow-y-auto">
-        {isLoading && (
-          <div className="flex justify-center p-2">
-            <MoonLoader size={20} />
-          </div>
-        )}
-        {chatLogs.length === 0 ? (
+        {messages.length == 0 ? (
           <span className="h-full w-full flex items-center justify-center text-primary-300 italic">
             Say hello to your match!
           </span>
         ) : (
           <MessageList
             referance={(el: HTMLDivElement | null) => {
-              chatLogsListRef.current = el as unknown as HTMLDivElement;
+              messageListRef.current = el as unknown as HTMLDivElement;
             }}
-            className="overflow-y-auto h-full max-h-full pt-3"
+            className="overflow-y-auto h-full pt-3"
             lockable={true}
             // @ts-expect-error: Suppressing type mismatch for MessageList dataSource temporarily
-            dataSource={chatLogs}
+            dataSource={messages}
           />
         )}
         <Input
@@ -389,6 +276,7 @@ const Question = ({
             setInputMessage(e.target.value)
           }
           onKeyDown={(e) => {
+            console.log(e);
             if (e.key === "Enter") {
               handleClick(e);
             }
