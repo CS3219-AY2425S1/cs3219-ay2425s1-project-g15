@@ -56,20 +56,18 @@ public class MatchingVerificationRestController {
     public VerificationResponse verify(@RequestBody VerifyMatchesDTO userMatches) {
         String matchReq1 = userMatches.getUser1();
         String matchReq2 = userMatches.getUser2();
-        String userWsId1 = matchReq1.split("_")[0];
+        String userId1 = matchReq1.split("_")[0];
         String userEmail1 = matchReq1.split("_")[1];
-        String userId1 = matchReq1.split("_")[2];
-        String userWsId2 = matchReq2.split("_")[0];
+        String userId2 = matchReq2.split("_")[0];
         String userEmail2 = matchReq2.split("_")[1];
-        String userId2 = matchReq2.split("_")[2];
         String matchCriteriaTopic = userMatches.getMatchCriteriaTopic();
         String matchCriteriaDifficulty = userMatches.getMatchCriteriaDifficulty();
         String matchCriteriaLanguage = userMatches.getMatchCriteriaLanguage();
 
         System.out.println("Verifying match requests: " + matchReq1 + " and " + matchReq2);
 
-        boolean match1IsInvalid = invalidMatchesHashset.isSeen(userWsId1);
-        boolean match2IsInvalid = invalidMatchesHashset.isSeen(userWsId2);
+        boolean match1IsInvalid = invalidMatchesHashset.isSeen(userId1);
+        boolean match2IsInvalid = invalidMatchesHashset.isSeen(userId2);
         System.out.println("Match1 status: " + !match1IsInvalid + " Match2 status: " + !match2IsInvalid);
 
         List<String> validMatches = new ArrayList<>();
@@ -100,8 +98,8 @@ public class MatchingVerificationRestController {
         } else {
             System.out.println("VALID MATCH");
             message = "Both match requests are new and valid.";
-            invalidMatchesHashset.addToSeenRequests(userWsId1); // Add userWsId1
-            invalidMatchesHashset.addToSeenRequests(userWsId2); // Add userWsId2
+            invalidMatchesHashset.addToSeenRequests(userId1); // Add userId1
+            invalidMatchesHashset.addToSeenRequests(userId2); // Add userId2
 
             int questionId = -1;
 
@@ -140,14 +138,10 @@ public class MatchingVerificationRestController {
                                     + "_" 
                                     + matchCriteriaLanguage
                                     + "_"
-                                    + userWsId1
-                                    + "_"
                                     + userId1 
                                     + "_" 
                                     + userEmail1 
                                     + "_" 
-                                    + userWsId2
-                                    + "_"
                                     + userId2 
                                     + "_" 
                                     + userEmail2;

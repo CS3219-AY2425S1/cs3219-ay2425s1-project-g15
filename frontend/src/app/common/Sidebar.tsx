@@ -38,15 +38,15 @@ const sidebarItems: SidebarMenuItemProps[] = [
     authStatus: AuthStatus.ADMIN
   },
   {
-    menuLabel: "Match",
-    menuIcon: IoMdSearch,
-    linksTo: "/match",
-    authStatus: AuthStatus.AUTHENTICATED
-  },
-  {
     menuLabel: "Account",
     menuIcon: CgProfile,
     linksTo: "/user/me",
+    authStatus: AuthStatus.AUTHENTICATED
+  },
+  {
+    menuLabel: "Match",
+    menuIcon: IoMdSearch,
+    linksTo: "/match",
     authStatus: AuthStatus.AUTHENTICATED
   },
 ];
@@ -57,6 +57,8 @@ const loginSidebarItem: SidebarMenuItemProps = {
   linksTo: "/login",
   authStatus: AuthStatus.UNAUTHENTICATED
 }
+
+
 
 const Sidebar = () => {
   const [authStatus, setAuthStatus] = useState<AuthStatus | null>(null);
@@ -69,20 +71,17 @@ const Sidebar = () => {
     setSidebarItemsToShow(sidebarItemsToShow);
   }, []);
 
-  return <>
-    <nav className="bg-primary-900 w-20 flex flex-col gap-2 py-4 h-screen fixed">
-      {sidebarItemsToShow}
+  return <nav className="bg-primary-900 w-20 flex flex-col gap-2 py-4 h-screen">
+    {sidebarItemsToShow}
 
-      {authStatus === AuthStatus.AUTHENTICATED ?
-        <button className="group grid text-primary-500 p-2 hover:bg-primary-700 w-full mt-auto" onClick={logout}>
-          <IoIosLogOut size={iconSize} className="group-hover:text-secondary mx-auto"/>
-          <p className="text-center text-[12px]">Logout</p>
-        </button> :
-        <SidebarItem item={loginSidebarItem}/>
-      }
-    </nav>
-    <div className="bg-primary-900 w-20 flex flex-col gap-2 py-4 h-screen"></div>
-  </>
+    {authStatus === AuthStatus.AUTHENTICATED ?
+      <button className="group grid text-primary-500 p-2 hover:bg-primary-700 w-full mt-auto" onClick={logout}>
+        <IoIosLogOut size={iconSize} className="group-hover:text-secondary mx-auto"/>
+        <p className="text-center text-[12px]">Logout</p>
+      </button> :
+      <SidebarItem item={loginSidebarItem}/>
+    }
+  </nav>
 };
 
 export default Sidebar;

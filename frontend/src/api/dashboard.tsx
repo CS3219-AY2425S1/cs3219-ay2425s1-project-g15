@@ -2,11 +2,9 @@ import { TCombinedSession, TQuestion, TSession } from "@/types/dashboard";
 
 // retrieve from .env
 const COLLAB_SERVICE = "http://localhost:3001/api/collaboration";
-const QUESTION_SERVICE = "http://localhost:3003/api/question";
+const QUESTION_SERVICE = "http://localhost:3002/api/question";
 
-export const getUserHistoryData = async (
-  username: string
-): Promise<TCombinedSession[]> => {
+export const getUserHistoryData = async (username: string): Promise<TCombinedSession[]> => {
   const collabUrl = `${COLLAB_SERVICE}/sessions/${username}`;
   const response = await fetch(collabUrl, {
     method: "POST",
@@ -15,10 +13,8 @@ export const getUserHistoryData = async (
     },
   });
   const sessionsData = await response.json();
-  const questionIds = sessionsData.map(
-    (session: TSession) => session.question_id
-  );
-
+  const questionIds = sessionsData.map((session: TSession) => session.question_id);
+  
   const questionUrl = `${QUESTION_SERVICE}/all-ids`;
   const questionResponse = await fetch(questionUrl, {
     method: "POST",
@@ -30,16 +26,14 @@ export const getUserHistoryData = async (
   const questionsData = await questionResponse.json();
 
   const combinedData = sessionsData.map((session: TSession) => {
-    const question = questionsData.find(
-      (question: TQuestion) => question.questionid === session.question_id
-    );
+    const question = questionsData.find((question: TQuestion) => question.questionid === session.question_id);
     return {
       // remove self from users
-      peer: session.users.filter((user) => user !== username)[0],
+      peer: session.users.filter(user => user !== username)[0],
       ...session,
       ...question,
     };
   });
 
   return combinedData;
-};
+}

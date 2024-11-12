@@ -1,11 +1,13 @@
 package com.example.backend.websocketchat;
 
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.user.SimpUser;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.stereotype.Service;
 
-import com.example.backend.websocketchat.model.MessageForwarded;
+import com.example.backend.websocketchat.config.ChatUserPrincipal;
+import com.example.backend.websocketchat.model.Message;
 
 @Service
 public class WebSocketChatService {
@@ -18,24 +20,18 @@ public class WebSocketChatService {
         this.userRegistry = userRegistry;
     }
 
-    public void sendToCurrentUser(String topic, MessageForwarded message) {
-        String senderId = message.getSenderId();
-        System.out.println("Sending message " + message.toString() + " to sender " + senderId);
-        messagingTemplate.convertAndSendToUser(senderId, topic, message);
-    }
-
-    public void sendToOtherUser(String topic, MessageForwarded message) {
-        String recipientId = message.getRecipientId();
+    public void sendToOtherUser(String topic, Message message, String senderUserID) {
+        String targetID = message.getTargetID();
         boolean targetUserConnected = userRegistry.getUsers().stream()
                 .map(SimpUser::getName)
-                .anyMatch(senderId -> senderId.equals(recipientId));
+                .anyMatch(userID -> userID.equals(targetID));
 
         if (targetUserConnected) {
-            System.out.println("Sending message " + message.toString() + " to " + recipientId);
+            System.out.println("Sending message " + message.toString() + " to " + targetID);
             System.out.println("Topic is " + topic);
-            messagingTemplate.convertAndSendToUser(recipientId, topic, message);
+            messagingTemplate.convertAndSendToUser(targetID, "/queue/chat", message.getMessage());
         } else {
-            System.out.println("User " + recipientId + " is not connected.");
+            System.out.println("User " + targetID + " is not connected.");
         }
     }
 }

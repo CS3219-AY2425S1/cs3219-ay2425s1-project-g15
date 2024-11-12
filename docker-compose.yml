@@ -27,7 +27,6 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     depends_on:
       - zookeeper
-    restart: always
     networks:
       - peer-prep-network
 
@@ -104,19 +103,6 @@ services:
       - ./backend/websocketchat/.env
     volumes:
       - ./backend/websocketchat/src:/app/src
-    networks:
-      - peer-prep-network
-
-  chatlog:
-    build: ./backend/chatlog
-    container_name: chatlog
-    ports:
-      - "3008:3008"
-    env_file:
-      - ./backend/chatlog/.env
-    volumes:
-      - ./backend/chatlog:/usr/src/app
-      - /usr/src/app/node_modules
     networks:
       - peer-prep-network
 
