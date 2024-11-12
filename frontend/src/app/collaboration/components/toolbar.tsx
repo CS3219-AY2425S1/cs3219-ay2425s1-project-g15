@@ -7,6 +7,7 @@ import MoonLoader from "react-spinners/MoonLoader";
 import React from 'react';
 import Select, { OptionProps } from 'react-select';
 import { CSSObject } from '@emotion/react';
+import { updateSessionLanguage } from "@/api/collaboration";
 
 type Props = {
   editor: editor.IStandaloneCodeEditor;
@@ -15,6 +16,7 @@ type Props = {
   setLanguage: (language: string) => void;
   theme: string;
   setTheme: (theme: string) => void;
+  room: string;
 };
 
 type LanguageOption = {
@@ -27,7 +29,7 @@ type ThemeOption = {
   label: string;
 }
 
-export function Toolbar({ editor, language, saving, setLanguage, theme, setTheme }: Props) {
+export function Toolbar({ editor, language, saving, setLanguage, theme, setTheme, room }: Props) {
   const languages: LanguageOption[] = [
     { value: 'javascript', label: 'JavaScript' },
     { value: 'python', label: 'Python' },
@@ -36,6 +38,7 @@ export function Toolbar({ editor, language, saving, setLanguage, theme, setTheme
   const handleLanguageChange = (selectedOption: LanguageOption | null) => {
     if (selectedOption) {
       setLanguage(selectedOption.value);
+      updateSessionLanguage(room, selectedOption.value);
     }
   };
 

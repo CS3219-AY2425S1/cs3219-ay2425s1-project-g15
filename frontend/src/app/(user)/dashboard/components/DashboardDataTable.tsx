@@ -64,7 +64,7 @@ export const columns: ColumnDef<TCombinedSession>[] = [
   },
   {
     accessorKey: "language",
-    header: () => <Cell>Language</Cell>,
+    header: () => <Cell>Matched Language</Cell>,
     cell: ({ row }) => {
       const language = row.getValue("language") as string;
       return (
