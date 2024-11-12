@@ -152,9 +152,9 @@ const Question = ({
         });
 
         client.subscribe("/user/queue/language", (message) => {
-          const messageReceived = message.body;
+          const messageReceived: SingleChatLogApiResponse = JSON.parse(message.body);
           isLanguageChangeActive.current = false;
-          setLanguage(messageReceived);
+          setLanguage(messageReceived.message);
           Swal.fire({
             title: "Language changed by your collaborator!",
             icon: "success",
@@ -407,7 +407,7 @@ const Question = ({
           </div>
         )}
       </span>
-      <div className="row-span-1 flex flex-col bg-primary-800 rounded-md h-full overflow-y-auto">
+      <div className="row-span-1 flex flex-col bg-primary-800 rounded-md h-full max-h-[90%] overflow-y-auto">
         {isLoading && (
           <div className="flex justify-center p-2">
             <MoonLoader size={20} />
