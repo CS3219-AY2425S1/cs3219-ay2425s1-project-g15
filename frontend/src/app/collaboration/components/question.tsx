@@ -38,6 +38,51 @@ const Question = ({
   language: string;
   setLanguage: (lang: string) => void;
 }) => {
+  const SAMPLECHATS = [
+    {
+      text: "Hello",
+      title: "John Doe",
+      date: new Date(),
+      position: "left",
+      type: "text",
+    },
+    {
+      text: "Hi",
+      title: "Jane Doe",
+      date: new Date(),
+      position: "right",
+      type: "text",
+    },
+    {
+      text: "Hi",
+      title: "Jane Doe",
+      date: new Date(),
+      position: "right",
+      type: "text",
+    },
+    {
+      text: "Hi",
+      title: "Jane Doe",
+      date: new Date(),
+      position: "right",
+      type: "text",
+    },
+    {
+      text: "Hi",
+      title: "Jane Doe",
+      date: new Date(),
+      position: "right",
+      type: "text",
+    },
+    {
+      text: "Hi",
+      title: "Jane Doe",
+      date: new Date(),
+      position: "right",
+      type: "text",
+    },
+  ];
+
   const userID = getUserId() ?? "Anonymous";
   const username = getUsername() ?? "Anonymous";
   const [inputMessage, setInputMessage] = useState<string>("");
@@ -48,7 +93,7 @@ const Question = ({
   const [visibleCategories, setVisibleCategories] = useState<string[]>([]);
   const [collaboratorProfilePic, setCollaboratorProfilePic] =
     useState<string>("");
-  const [chatLogs, setChatLogs] = useState<ChatLog[]>([]);
+  const [chatLogs, setChatLogs] = useState<ChatLog[]>(SAMPLECHATS);
   const [chatLogsPage, setChatLogsPage] = useState<number>(1);
   // To determine if a language change is initiated by the user, or received from the collaborator
   const isLanguageChangeActive = useRef(false);
@@ -250,7 +295,7 @@ const Question = ({
   );
 
   return (
-    <div className="px-12 grid grid-rows-[20%_45%_35%] gap-3 grid-cols-1 h-full items-start">
+    <div className="px-12 grid grid-rows-[20%_45%_35%] gap-3 grid-cols-1 h-full items-start max-h-screen">
       <div className="mt-10 row-span-1 grid grid-rows-1 grid-cols-[75%_25%] w-full">
         <div className="flex flex-col" ref={containerRef}>
           <h1
@@ -329,7 +374,7 @@ const Question = ({
             referance={(el: HTMLDivElement | null) => {
               chatLogsListRef.current = el as unknown as HTMLDivElement;
             }}
-            className="overflow-y-auto h-full pt-3"
+            className="overflow-y-auto h-full max-h-full pt-3"
             lockable={true}
             // @ts-expect-error: Suppressing type mismatch for MessageList dataSource temporarily
             dataSource={chatLogs}
