@@ -252,6 +252,7 @@ router.post(
 
     const questionId = parseInt(req.params.id);
     const updateData: Partial<TQuestion> = {};
+    console.log(req.body)
     if (req.body.title) {
       const existingQuestion = await Question.findOne({
         title: req.body.title.trim(),
@@ -276,7 +277,6 @@ router.post(
     if (req.body.examples) {
       updateData.examples = req.body.examples;
     }
-
     if (req.body.solution) {
       updateData.solution = req.body.solution;
     }
