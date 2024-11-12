@@ -1,5 +1,12 @@
-import mongoose, { Document, Schema, model } from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
 import mongooseAutoIncrement from "mongoose-sequence";
+
+export type TQuestionExample = {
+  example_num: number;
+  expected_input: string;
+  expected_output: string;
+  explanation: string;
+}
 
 /**
  * Model for the Question Schema for TypeScript.
@@ -12,6 +19,9 @@ export type TQuestion = {
   category: [string];
   complexity: string;
   deleted: boolean;
+  examples: [TQuestionExample]
+  solution: string;
+  questionid?: number;
 };
 
 // Document provides an id field
@@ -34,6 +44,21 @@ const questionSchema: Schema = new Schema(
     complexity: {
       type: String,
       required: true,
+    },
+    examples: {
+      type: [
+        {
+          example_num: Number,
+          expected_input: String,
+          expected_output: String,
+          explanation: String,
+        },
+      ],
+      required: false,
+    },
+    solution: {
+      type: String,
+      required: false,
     },
     deleted: {
       type: Boolean,

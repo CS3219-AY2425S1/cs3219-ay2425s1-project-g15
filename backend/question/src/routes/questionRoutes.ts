@@ -30,7 +30,7 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
     try {
-      const { title, description, category, complexity } = req.body;
+      const { title, description, category, complexity, examples, solution } = req.body;
 
       const existingQuestion = await Question.findOne({ title: title.trim() });
       if (existingQuestion) {
@@ -44,6 +44,8 @@ router.post(
         description,
         category,
         complexity,
+        examples,
+        solution,
         deleted: false,
       };
       const newQuestion = new Question(question);
@@ -115,6 +117,8 @@ router.post("/all-ids", async (req: Request, res: Response) => {
         title: 1,
         description: 1,
         complexity: 1,
+        examples: 1,
+        solution: 1,
         category: 1,
       }).lean().exec();
     return res.json(questions);
@@ -140,6 +144,8 @@ router.get("/:id", [...idValidators], async (req: Request, res: Response) => {
         complexity: 1,
         category: 1,
         deleted: 1,
+        examples: 1,
+        solution: 1,
       }
     ).exec();
 
@@ -250,7 +256,7 @@ router.post(
       const existingQuestion = await Question.findOne({
         title: req.body.title.trim(),
       });
-      if (existingQuestion) {
+      if (existingQuestion && existingQuestion.questionid && existingQuestion.questionid !== questionId) {
         return res.status(400).json({
           message: "A question with this title already exists",
         });
@@ -267,6 +273,13 @@ router.post(
     if (req.body.complexity) {
       updateData.complexity = req.body.complexity;
     }
+    if (req.body.examples) {
+      updateData.examples = req.body.examples;
+    }
+
+    if (req.body.solution) {
+      updateData.solution = req.body.solution;
+    }
 
     try {
       const question = await Question.findOne(
@@ -277,6 +290,8 @@ router.post(
           description: 1,
           complexity: 1,
           category: 1,
+          examples: 1,
+          solution: 1,
           deleted: 1,
         }
       ).exec();
