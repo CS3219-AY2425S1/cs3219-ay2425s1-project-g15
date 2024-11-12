@@ -209,7 +209,7 @@ const VideoCall = ({ provider }: VideoCallProps) => {
             setRemoteVideoSourceObject(false);
             iceCandidatesQueue.current = [];
             startPC();
-            startCall();
+            if (videoStart) startCall();
           } else {
             setVideoStart(false);
           }
