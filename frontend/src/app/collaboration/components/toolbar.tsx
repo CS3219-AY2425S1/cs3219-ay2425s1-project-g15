@@ -28,7 +28,7 @@ type ThemeOption = {
   label: string;
 }
 
-export function Toolbar({ editor, language, saving, setLanguage, peerOnline, theme, setTheme }: Props) {
+export function Toolbar({ editor, language, saving, setLanguage, peerOnline, theme, setTheme }: Readonly<Props>) {
   const languages: LanguageOption[] = [
     { value: 'javascript', label: 'JavaScript' },
     { value: 'python', label: 'Python' },
