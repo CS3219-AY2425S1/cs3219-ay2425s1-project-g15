@@ -93,11 +93,20 @@ export interface QuestionMinified {
   complexity: string;
 }
 
+export interface QuestionExample {
+  example_num: number;
+  expected_input: string;
+  expected_output: string;
+  explanation?: string;
+}
+
 export interface NewQuestionData {
   title: string;
   description: string;
   category: string[];
   complexity: string;
+  examples: QuestionExample[];
+  solution: string;
 }
 
 export interface QuestionFull extends NewQuestionData {

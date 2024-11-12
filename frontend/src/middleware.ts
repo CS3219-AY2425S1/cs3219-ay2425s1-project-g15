@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 import { verifyToken } from "@/api/user";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { checkUserInSession } from "./api/collaboration";
 
 export async function middleware(request: NextRequest) {

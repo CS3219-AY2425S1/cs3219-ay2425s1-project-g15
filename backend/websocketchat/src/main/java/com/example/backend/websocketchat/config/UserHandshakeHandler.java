@@ -2,7 +2,6 @@ package com.example.backend.websocketchat.config;
 
 import java.security.Principal;
 import java.util.Map;
-import java.util.UUID;
 
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.web.socket.WebSocketHandler;
@@ -16,13 +15,13 @@ public class UserHandshakeHandler extends DefaultHandshakeHandler{
             Map<String, Object> attributes) {
         
                 String query = request.getURI().getQuery();
-                String userID = UriComponentsBuilder.fromUriString("?" + query)
+                String senderId = UriComponentsBuilder.fromUriString("?" + query)
                                               .build()
                                               .getQueryParams()
-                                              .getFirst("userID");
-                if (userID == null || userID.isEmpty()) {
-                    throw new IllegalArgumentException("userID is required as a query parameter");
+                                              .getFirst("senderId");
+                if (senderId == null || senderId.isEmpty()) {
+                    throw new IllegalArgumentException("senderId is required as a query parameter");
                 }
-        return new ChatUserPrincipal(userID);
+        return new ChatUserPrincipal(senderId);
     }
 }
