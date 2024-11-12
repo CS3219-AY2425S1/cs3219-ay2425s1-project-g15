@@ -73,7 +73,7 @@ const Sidebar = () => {
     <nav className="bg-primary-900 w-20 flex flex-col gap-2 py-4 h-screen fixed">
       {sidebarItemsToShow}
 
-      {authStatus === AuthStatus.AUTHENTICATED ?
+      {authStatus === AuthStatus.AUTHENTICATED || authStatus === AuthStatus.ADMIN ?
         <button className="group grid text-primary-500 p-2 hover:bg-primary-700 w-full mt-auto" onClick={logout}>
           <IoIosLogOut size={iconSize} className="group-hover:text-secondary mx-auto"/>
           <p className="text-center text-[12px]">Logout</p>

@@ -14,6 +14,8 @@ type Props = {
   saving: boolean;
   setLanguage: (language: string) => void;
   peerOnline: boolean;
+  theme: string;
+  setTheme: (theme: string) => void;
 };
 
 type LanguageOption = {
@@ -21,7 +23,12 @@ type LanguageOption = {
   label: string;
 };
 
-export function Toolbar({ editor, language, saving, setLanguage, peerOnline }: Props) {
+type ThemeOption = {
+  value: string;
+  label: string;
+}
+
+export function Toolbar({ editor, language, saving, setLanguage, peerOnline, theme, setTheme }: Props) {
   const languages: LanguageOption[] = [
     { value: 'javascript', label: 'JavaScript' },
     { value: 'python', label: 'Python' },
@@ -32,6 +39,17 @@ export function Toolbar({ editor, language, saving, setLanguage, peerOnline }: P
       setLanguage(selectedOption.value);
     }
   };
+
+  const themes: ThemeOption[] = [ 
+    { value: 'dark-plus', label: 'Dark' },
+    { value: 'light-plus', label: 'Light' },
+  ];
+
+  const handleThemeChange = (selectedOption: ThemeOption | null) => {
+    if (selectedOption) {
+      setTheme(selectedOption.value);
+    }
+  }
 
   const customStyles = {
     option: (provided: CSSObject, state: OptionProps<LanguageOption, false>): CSSObject => ({
@@ -85,6 +103,13 @@ export function Toolbar({ editor, language, saving, setLanguage, peerOnline }: P
           value={languages.find(lang => lang.value === language)}
           onChange={handleLanguageChange}
           options={languages}
+          className="w-32"
+          styles={customStyles}
+        />
+        <Select
+          value={themes.find(themeOption => themeOption.value === theme)}
+          onChange={handleThemeChange}
+          options={themes}
           className="w-32"
           styles={customStyles}
         />

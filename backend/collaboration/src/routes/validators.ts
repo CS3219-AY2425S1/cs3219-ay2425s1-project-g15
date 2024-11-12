@@ -30,3 +30,17 @@ export const updateSessionValidators = [
   check("id").isString().isLength({ min: 1 }),
   check("code").isString(),
 ];
+
+export const createChatLogValidators = [
+  check("collabid").isString().isLength({ min: 1 }),
+  check("message").isString().isLength({ min: 1 }),
+  check("senderId").isString().isLength({ min: 1 }),
+  check("recipientId").isString().isLength({ min: 1 }),
+  check("timestampEpoch").isInt(),
+]
+
+export const getChatLogValidators = [
+  check("collabid").isString().isLength({ min: 1 }),
+  check("page").isInt(),
+  check("limit").isInt(),
+]

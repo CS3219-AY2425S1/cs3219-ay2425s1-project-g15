@@ -30,6 +30,15 @@ public class WebSocketService {
         }    
     }
 
+    public void notifyUserNoQuestionExists(String userId) {
+        if (userRegistry.getUser(userId) != null) {
+            messagingTemplate.convertAndSendToUser(userId, "/queue/noQuestionExists", "No question exists for the match criteria.");
+            System.out.println("Notifying user " + userId + " that no question exists for the match criteria.");
+        } else {
+            System.out.println("User " + userId + " is not connected.");
+        }
+    }
+
     // Reject user from making a match request
     public void rejectUser(String userId, String message) {
         if (userRegistry.getUser(userId) != null) {

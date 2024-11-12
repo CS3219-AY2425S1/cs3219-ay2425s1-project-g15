@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
+import { verifyToken } from "@/api/user";
 import type { NextRequest } from "next/server";
-import { getIsAdmin, verifyToken } from "@/api/user";
+import { NextResponse } from "next/server";
 import { checkUserInSession } from "./api/collaboration";
 
 export async function middleware(request: NextRequest) {
@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  const isAdmin = getIsAdmin();
+  const isAdmin = request.cookies.get("isAdmin")?.value === "Y";
   if (!isAdmin && request.nextUrl.pathname.startsWith('/admin')) {
     return NextResponse.redirect(new URL('/403', request.url));
   }

@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { QuestionDifficulty } from "@/types/find-match";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import Swal from "sweetalert2";
 import { z } from "zod";
 import MoonLoader from "react-spinners/MoonLoader";
@@ -46,6 +46,14 @@ const AddQuestionDialog = ({
     questionDescription: z.string().min(10, {
       message: "Description must be at least 10 characters.",
     }),
+    examples: z.array(
+      z.object({
+        expected_input: z.string().min(1, { message: "Input is required." }),
+        expected_output: z.string().min(1, { message: "Output is required." }),
+        explanation: z.string().optional(),
+      })
+    ),
+    solution: z.string().optional(),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -55,17 +63,30 @@ const AddQuestionDialog = ({
       questionDifficulty: "",
       questionTopics: [],
       questionDescription: "",
+      examples: [{ expected_input: "", expected_output: "", explanation: "" }],
+      solution: "",
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "examples",
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
+
+    const examplesWithQuestionNumber = values.examples.map(
+      (example, index) => ({ example_num: index + 1, ...example })
+    );
 
     createSingleQuestion({
       title: values.questionTitle,
       description: values.questionDescription,
       category: values.questionTopics,
       complexity: values.questionDifficulty,
+      examples: examplesWithQuestionNumber ?? [],
+      solution: values.solution ?? "",
     })
       .then(() => {
         Swal.fire({
@@ -89,7 +110,7 @@ const AddQuestionDialog = ({
   }
 
   return (
-    <div className="bg-primary-700 p-10 w-[60vw] rounded-lg pb-14">
+    <div className="bg-primary-700 p-10 w-[60vw] rounded-lg pb-14 max-h-[90vh] overflow-y-scroll">
       <div className="text-[32px] font-semibold text-yellow-500">
         Add Question
       </div>
@@ -98,6 +119,7 @@ const AddQuestionDialog = ({
           onSubmit={form.handleSubmit(onSubmit)} // Ensure form.handleSubmit is used correctly
           className="flex flex-col gap-4"
         >
+          {/* Question Title */}
           <FormField
             control={form.control}
             name="questionTitle"
@@ -118,6 +140,7 @@ const AddQuestionDialog = ({
             )}
           />
 
+          {/* Difficulty */}
           <FormField
             control={form.control}
             name="questionDifficulty"
@@ -142,6 +165,7 @@ const AddQuestionDialog = ({
             )}
           />
 
+          {/* Topics */}
           <FormField
             control={form.control}
             name="questionTopics"
@@ -163,6 +187,7 @@ const AddQuestionDialog = ({
             )}
           />
 
+          {/* Description */}
           <FormField
             control={form.control}
             name="questionDescription"
@@ -181,6 +206,116 @@ const AddQuestionDialog = ({
               </FormItem>
             )}
           />
+
+          {/* Examples */}
+          <div className="space-y-4">
+            <FormLabel className="text-primary-500 flex flex-col">
+              Examples
+            </FormLabel>
+            {fields.map((example, index) => (
+              <div
+                key={example.id}
+                className="space-y-2 bg-primary-800 p-4 rounded-md"
+              >
+                <FormField
+                  control={form.control}
+                  name={`examples.${index}.expected_input`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-primary-500">Input</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter example input..."
+                          className="text-white bg-primary-800"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name={`examples.${index}.expected_output`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-primary-500">Output</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Enter example output..."
+                          className="text-white bg-primary-800"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name={`examples.${index}.explanation`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-primary-500">
+                        Explanation (optional)
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Optional explanation"
+                          className="text-white bg-primary-800"
+                          rows={2}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={() => remove(index)}
+                >
+                  Remove Example
+                </Button>
+              </div>
+            ))}
+            <Button
+              type="button"
+              onClick={() =>
+                append({
+                  expected_input: "",
+                  expected_output: "",
+                  explanation: "",
+                })
+              }
+            >
+              Add Example
+            </Button>
+          </div>
+
+          {/* JavaScript Code */}
+          <FormField
+            control={form.control}
+            name="solution"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-primary-500">
+                  JavaScript Code
+                </FormLabel>
+                <FormControl>
+                  <Textarea
+                    placeholder="Type your JavaScript code here."
+                    className="text-white bg-primary-800"
+                    rows={10}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <Button type="submit" className="mt-8">
             {isSubmitting ? <MoonLoader size="20" /> : "Submit"}
           </Button>
