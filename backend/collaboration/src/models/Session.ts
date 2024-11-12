@@ -10,6 +10,7 @@ export type TSession = {
   language: [string];
   question_id: number;
   code: string;
+  createdAt: Date;
 };
 
 // Document provides an id field
@@ -37,6 +38,10 @@ const sessionSchema: Schema = new Schema(
       type: String,
       required: false,
     },
+    createdAt: {
+      type: Date,
+      required: false,
+    }
   },
   { collection: "sessions" }
 );

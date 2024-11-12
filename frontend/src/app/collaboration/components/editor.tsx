@@ -103,8 +103,7 @@ function Collaboration({ room, language, code, setLanguage }: Readonly<Props>) {
       });
 
       removed.forEach((clientId) => {
-
-          if (clientId !== providerRef.current?.awareness.clientID) {
+        if (clientId !== providerRef.current?.awareness.clientID) {
             setPeerOnline(false);
           }
         }

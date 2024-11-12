@@ -20,4 +20,5 @@ export type TCombinedSession = {
   title: string;
   complexity: string;
   category: string;
+  createdAt: Date;
 };

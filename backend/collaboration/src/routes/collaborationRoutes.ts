@@ -43,6 +43,7 @@ router.post(
         language,
         question_id,
         code: "",
+        createdAt: new Date(),
       };
 
       const newSession = new Session(session);
