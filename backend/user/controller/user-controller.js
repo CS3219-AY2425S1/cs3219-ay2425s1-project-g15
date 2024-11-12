@@ -306,11 +306,9 @@ export async function requestPasswordReset(req, res) {
       // Send email to user
       await sendPasswordResetEmail(email, user.username, passwordResetCode);
 
-      return res
-        .status(200)
-        .json({
-          message: `Sent password reset email to user ${user.username}`,
-        });
+      return res.status(200).json({
+        message: `Sent password reset email to user ${user.username}`,
+      });
     } else {
       return res.status(400).json({ message: "email is missing!" });
     }
@@ -332,12 +330,10 @@ export async function checkPasswordResetCode(req, res) {
         .json({ message: `User not found with verification code ${code}` });
     }
 
-    return res
-      .status(200)
-      .json({
-        message: `Found user with verification code ${code}`,
-        username: user.username,
-      });
+    return res.status(200).json({
+      message: `Found user with verification code ${code}`,
+      username: user.username,
+    });
   } catch (err) {
     console.error(err);
     return res
@@ -385,7 +381,6 @@ export async function resetPasswordUsingCode(req, res) {
 }
 
 export function formatUserResponse(user) {
-  console.log(user);
   return {
     id: user.id,
     username: user.username,
