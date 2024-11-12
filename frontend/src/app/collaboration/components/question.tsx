@@ -20,6 +20,7 @@ import Swal from "sweetalert2";
 import { CgProfile } from "react-icons/cg";
 import { getChatlogs } from "@/api/chat";
 import { ChatLog, SingleChatLogApiResponse } from "@/types/chat";
+import MoonLoader from "react-spinners/MoonLoader";
 
 const CHAT_SOCKET_URL = "http://localhost:3007/chat-websocket";
 
@@ -50,8 +51,10 @@ const Question = ({
     useState<string>("");
   const [chatLogs, setChatLogs] = useState<ChatLog[]>([]);
   const [chatLogsPage, setChatLogsPage] = useState<number>(1);
+  const [isLoading, setIsLoading] = useState(false);
   // To determine if a language change is initiated by the user, or received from the collaborator
   const isLanguageChangeActive = useRef(false);
+  const hasMoreMessages = useRef(true);
   const chatLogsListRef = useRef<HTMLDivElement | null>(null);
   const CHAT_CHUNK_SIZE = 10; // Number of chat logs to fetch at a time
 
@@ -65,7 +68,11 @@ const Question = ({
     };
   };
 
-  useEffect(() => {
+  const fetchChatLogs = async () => {
+    if (isLoading || !hasMoreMessages.current) return;
+
+    setIsLoading(true);
+
     const chatMetaData = {
       senderId: userID,
       senderName: username,
@@ -73,21 +80,26 @@ const Question = ({
       recipientName: collaborator,
     };
 
-    const fetchChatLogs = async () => {
-      const res: ChatLog[] = await getChatlogs(
-        collabid,
-        chatLogsPage,
-        CHAT_CHUNK_SIZE,
-        chatMetaData
-      );
-      if (res.length === 0) {
-        return;
-      }
-      setChatLogs((prev) => [...prev, ...res]);
-      return res;
-    };
+    const res: ChatLog[] = await getChatlogs(
+      collabid,
+      chatLogsPage,
+      CHAT_CHUNK_SIZE,
+      chatMetaData
+    );
+
+    if (res.length === 0) {
+      hasMoreMessages.current = false;
+    } else {
+      setChatLogs((prev) => [...res, ...prev]);
+      setChatLogsPage((prev) => prev + 1);
+    }
+
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
     fetchChatLogs();
-  }, [chatLogsPage, collabid, collaborator, collaboratorId, userID, username]);
+  }, []);
 
   useEffect(() => {
     const getUserProfilePic = async () => {
@@ -97,6 +109,25 @@ const Question = ({
     };
     getUserProfilePic();
   }, [collaboratorId]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (chatLogsListRef.current && chatLogsListRef.current.scrollTop === 0) {
+        fetchChatLogs();
+      }
+    };
+
+    const chatList = chatLogsListRef.current;
+    if (chatList) {
+      chatList.addEventListener("scroll", handleScroll);
+    }
+
+    return () => {
+      if (chatList) {
+        chatList.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, [chatLogsPage, chatLogs]); // Depend on `chatLogsPage` to update the event when the page changes
 
   useEffect(() => {
     const socket = new SockJS(`${CHAT_SOCKET_URL}?senderId=${userID}`);
@@ -328,7 +359,12 @@ const Question = ({
         <span className="text-white py-8 text-md">{question?.description}</span>
       </span>
       <div className="row-span-1 flex flex-col bg-primary-800 rounded-md h-full max-h-[80%] min-h-[80%] overflow-y-auto">
-        {chatLogs.length == 0 ? (
+        {isLoading && (
+          <div className="flex justify-center p-2">
+            <MoonLoader size={20} />
+          </div>
+        )}
+        {chatLogs.length === 0 ? (
           <span className="h-full w-full flex items-center justify-center text-primary-300 italic">
             Say hello to your match!
           </span>
@@ -352,7 +388,6 @@ const Question = ({
             setInputMessage(e.target.value)
           }
           onKeyDown={(e) => {
-            console.log(e);
             if (e.key === "Enter") {
               handleClick(e);
             }
