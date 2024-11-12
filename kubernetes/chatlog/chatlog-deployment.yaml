@@ -1,0 +1,36 @@
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "chatlog-deployment"
+  namespace: "default"
+  labels:
+    app: "chatlog-deployment"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "chatlog-deployment"
+  template:
+    metadata:
+      labels:
+        app: "chatlog-deployment"
+    spec:
+      containers:
+      - name: "chatlog-service-sha256-1"
+        image: "gcr.io/peerprep-backend/chatlog@sha256:04d4ee37c16d60cc335233fa0edd6548\
+          fe27e539e21bee0edf31ffe9484c1569"
+        imagePullPolicy: "IfNotPresent"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        env:
+        - name: "PORT"
+          value: "3008"
+        - name: "MONGODB_URI"
+          value: "mongodb+srv://cs3219:cs3219@sessions.aeht3.mongodb.net/"
+        ports:
+        - containerPort: 3008

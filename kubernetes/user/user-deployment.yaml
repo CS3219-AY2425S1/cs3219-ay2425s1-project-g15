@@ -17,7 +17,8 @@ spec:
     spec:
       containers:
       - name: "user-service-sha256-1"
-        image: "gcr.io/peerprep-backend/user@sha256:915140d6b0d36b8438b176145a4daf591e7dd13f32253b1b980ff0001f214113"
+        image: "gcr.io/peerprep-backend/user@sha256:4318ec4b222067ae3267212fef9d81a5baa\
+          b26aeb7d83b2ba5d61cebf8a1fec0"
         imagePullPolicy: "IfNotPresent"
         ports:
         - containerPort: 3004
@@ -55,4 +56,64 @@ spec:
           valueFrom:
             configMapKeyRef:
               key: "JWT_SECRET"
+              name: "user-deployment-config-jhye"
+        - name: "EMAIL_PASSWORD"
+          valueFrom:
+            configMapKeyRef:
+              key: "EMAIL_PASSWORD"
+              name: "user-deployment-config-jhye"
+        - name: "FRONTEND_URL"
+          valueFrom:
+            configMapKeyRef:
+              key: "FRONTEND_URL"
+              name: "user-deployment-config-jhye"
+        - name: "credentials_type"
+          valueFrom:
+            configMapKeyRef:
+              key: "credentials_type"
+              name: "user-deployment-config-jhye"
+        - name: "credentials_project_id"
+          valueFrom:
+            configMapKeyRef:
+              key: "credentials_project_id"
+              name: "user-deployment-config-jhye"
+        - name: "credentials_private_key_id"
+          valueFrom:
+            configMapKeyRef:
+              key: "credentials_private_key_id"
+              name: "user-deployment-config-jhye"
+        - name: "credentials_private_key"
+          valueFrom:
+            configMapKeyRef:
+              key: "credentials_private_key"
+              name: "user-deployment-config-jhye"
+        - name: "credentials_client_email"
+          valueFrom:
+            configMapKeyRef:
+              key: "credentials_client_email"
+              name: "user-deployment-config-jhye"
+        - name: "credentials_client_id"
+          valueFrom:
+            configMapKeyRef:
+              key: "credentials_client_id"
+              name: "user-deployment-config-jhye"
+        - name: "credentials_auth_uri"
+          valueFrom:
+            configMapKeyRef:
+              key: "credentials_auth_uri"
+              name: "user-deployment-config-jhye"
+        - name: "credentials_token_uri"
+          valueFrom:
+            configMapKeyRef:
+              key: "credentials_token_uri"
+              name: "user-deployment-config-jhye"
+        - name: "credentials_auth_provider"
+          valueFrom:
+            configMapKeyRef:
+              key: "credentials_auth_provider"
+              name: "user-deployment-config-jhye"
+        - name: "credentials_cert_url"
+          valueFrom:
+            configMapKeyRef:
+              key: "credentials_cert_url"
               name: "user-deployment-config-jhye"

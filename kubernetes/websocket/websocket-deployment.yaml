@@ -17,15 +17,16 @@ spec:
     spec:
       containers:
       - name: "websocket-service-sha256-1"
-        image: "gcr.io/peerprep-backend/websocket@sha256:4d790576682f36172b83852899abd67d094c45774df97779312c11f73a883f87"
+        image: "gcr.io/peerprep-backend/websocket@sha256:4d790576682f36172b83852899abd6\
+          7d094c45774df97779312c11f73a883f87"
         imagePullPolicy: "IfNotPresent"
         resources:
           requests:
             memory: "1Gi"
-            cpu: "500m"
+            cpu: "250m"
           limits:
             memory: "1Gi"
-            cpu: "1000m"
+            cpu: "500m"
         env:
         - name: "FRONTEND_CORS_ALLOWED_ORIGINS"
           valueFrom:
