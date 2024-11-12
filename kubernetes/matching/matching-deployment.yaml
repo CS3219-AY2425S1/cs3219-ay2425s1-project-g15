@@ -36,10 +36,10 @@ spec:
         resources:
           requests:
             memory: "1Gi"
-            cpu: "100m"
+            cpu: "500m"
           limits:
             memory: "1Gi"
-            cpu: "250m"
+            cpu: "1000m"
         env:
         - name: "ENV"
           valueFrom:
