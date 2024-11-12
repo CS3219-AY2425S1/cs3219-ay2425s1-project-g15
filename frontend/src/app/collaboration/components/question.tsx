@@ -359,17 +359,9 @@ const Question = ({
           Exit Room
         </Button>
       </div>
-<<<<<<< HEAD
       <span className="row-span-1 text-primary-300 max-h-[100%] h-full overflow-y-auto flex flex-col bg-primary-800 p-3 rounded-md">
         <span className="text-yellow-500 font-bold text-md">Question Description</span>
         <span className="text-white py-2 text-xs">{question?.description}</span>
-      </span>
-      <div className="row-span-1 flex flex-col bg-primary-800 rounded-md h-full max-h-[90%] min-h-[80%] overflow-y-auto">
-        {messages.length == 0 ? (
-=======
-      <span className="row-span-1 text-primary-300 text-md max-h-[100%] h-full overflow-y-auto flex flex-col gap-2 bg-primary-800 p-3  rounded-md">
-        <span className="text-yellow-500 font-bold">Question Description</span>
-        <span className="text-white text-md py-4">{question?.description}</span>
         <span className="text-yellow-500 font-bold">Examples</span>
         {question?.examples?.map((example, idx) => (
           <div key={idx}>
@@ -415,14 +407,13 @@ const Question = ({
           </div>
         )}
       </span>
-      <div className="row-span-1 flex flex-col bg-primary-800 rounded-md h-full max-h-[80%] min-h-[80%] overflow-y-auto">
+      <div className="row-span-1 flex flex-col bg-primary-800 rounded-md h-full max-h-[90%] min-h-[80%] overflow-y-auto">
         {isLoading && (
           <div className="flex justify-center p-2">
             <MoonLoader size={20} />
           </div>
         )}
         {chatLogs.length === 0 ? (
->>>>>>> 01a3654adb4dcd9a11153237fbd0c990683af6ca
           <span className="h-full w-full flex items-center justify-center text-primary-300 italic">
             Say hello to your match!
           </span>
