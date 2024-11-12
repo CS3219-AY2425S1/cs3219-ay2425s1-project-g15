@@ -107,7 +107,7 @@ services:
     networks:
       - peer-prep-network
 
-  chatlogs:
+  chatlog:
     build: ./backend/chatlog
     container_name: chatlog
     ports:
@@ -115,8 +115,8 @@ services:
     env_file:
       - ./backend/chatlog/.env
     volumes:
-      - ./backend/chatlog:/app
-      - /app/node_modules
+      - ./backend/chatlog:/usr/src/app
+      - /usr/src/app/node_modules
     networks:
       - peer-prep-network
 
