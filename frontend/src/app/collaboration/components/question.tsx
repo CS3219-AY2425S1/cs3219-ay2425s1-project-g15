@@ -1,22 +1,22 @@
-import { fetchSingleQuestion } from "@/api/question-dashboard";
 import { NewQuestionData } from "@/types/find-match";
 import {
   KeyboardEvent,
   SetStateAction,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
 import ComplexityPill from "./complexity";
 import Pill from "./pill";
-import { fetchSession } from "@/api/collaboration";
-import { getUsername } from "@/api/user";
+import { getUserId, getUsername } from "@/api/user";
 import { Button } from "@/components/ui/button";
 import { Client as StompClient } from "@stomp/stompjs";
 import "react-chat-elements/dist/main.css";
 import { Input, MessageList } from "react-chat-elements";
 import SockJS from "sockjs-client";
 import ResizeObserver from "resize-observer-polyfill";
+import Swal from "sweetalert2";
 
 const CHAT_SOCKET_URL = process.env["NEXT_PUBLIC_CHAT_SERVICE_WEBSOCKET"] || "";
 
@@ -27,10 +27,23 @@ interface Message {
   text: string;
 }
 
-const Question = ({ collabid }: { collabid: string }) => {
-  const [question, setQuestion] = useState<NewQuestionData | null>(null);
-  const [collaborator, setCollaborator] = useState<string | null>(null);
-  const [userID, setUserID] = useState<string | null>(null);
+const Question = ({
+  collabid,
+  question,
+  collaborator,
+  collaboratorId,
+  language,
+  setLanguage,
+}: {
+  collabid: string;
+  question: NewQuestionData | null;
+  collaborator: string;
+  collaboratorId: string;
+  language: string;
+  setLanguage: (lang: string) => void;
+}) => {
+  const userID = getUserId() ?? "Anonymous";
+  const username = getUsername() ?? "Anonymous";
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState<string>("");
   const stompClientRef = useRef<StompClient | null>(null);
@@ -38,18 +51,13 @@ const Question = ({ collabid }: { collabid: string }) => {
   const [showTooltip, setShowTooltip] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [visibleCategories, setVisibleCategories] = useState<string[]>([]);
+  // To determine if a language change is initiated by the user, or received from the collaborator
+  const isLanguageChangeActive = useRef(false);
 
   const messageListRef = useRef<HTMLDivElement | null>(null);
 
-  // NOTE: We use the username of the collaborator instead of the userID. This is because we cannot retrieve the collaborator's ID.
-  // Thus, the backend identifies pairs of users by their username for now. However, this can introduce bugs as
-  // although usernames are unique, if a user leaves the collaboration, changes their username, and comes back, the backend will not be able to identify them.
-  // This is because the Session will still have the old username. Therefore, we should change this to use the userID instead.
-
   useEffect(() => {
-    setUserID(getUsername() ?? "Anonymous"); // Change me later
-
-    const socket = new SockJS(`${CHAT_SOCKET_URL}?userID=${userID}`); // BUG: This should NOT be username, but userID. Use this for now because we can't retrieve the collaborator's ID.
+    const socket = new SockJS(`${CHAT_SOCKET_URL}?userID=${userID}`);
     const client = new StompClient({
       webSocketFactory: () => socket,
       debug: (str) => console.log(str),
@@ -63,10 +71,20 @@ const Question = ({ collabid }: { collabid: string }) => {
           const newMessage: Message = {
             position: "left",
             type: "text",
-            title: collaborator!,
+            title: collaborator,
             text: messageReceived,
           };
           setMessages((prev) => [...prev, newMessage]);
+        });
+
+        client.subscribe("/user/queue/language", (message) => {
+          const messageReceived = message.body;
+          isLanguageChangeActive.current = false;
+          setLanguage(messageReceived);
+          Swal.fire({
+            title: "Language changed by your collaborator!",
+            icon: "success",
+          });
         });
       },
       onDisconnect: () => {
@@ -84,7 +102,7 @@ const Question = ({ collabid }: { collabid: string }) => {
     return () => {
       client.deactivate();
     };
-  }, [userID, collaborator]);
+  }, [userID, collaborator, setLanguage]);
 
   const handleExit = () => {
     window.location.href = "/"; // We cannot use next/router, in order to trigger beforeunload listener
@@ -106,7 +124,7 @@ const Question = ({ collabid }: { collabid: string }) => {
       ...prev,
       {
         position: "right" as const,
-        title: userID!,
+        title: username,
         text: inputMessage,
         type: "text",
       },
@@ -116,7 +134,7 @@ const Question = ({ collabid }: { collabid: string }) => {
       const message = {
         message: inputMessage,
         collabID: collabid,
-        targetID: collaborator, // BUG: Should be the other user's ID, not username. Temporary workaround.
+        targetID: collaboratorId,
       };
       stompClientRef.current.publish({
         destination: "/app/sendMessage",
@@ -129,22 +147,39 @@ const Question = ({ collabid }: { collabid: string }) => {
   };
 
   useEffect(() => {
-    fetchSession(collabid).then(async (data) => {
-      await fetchSingleQuestion(data.question_id.toString()).then((data) => {
-        setQuestion(data);
+    if (
+      stompClientRef.current?.connected &&
+      isConnected &&
+      isLanguageChangeActive.current
+    ) {
+      const message = {
+        message: language,
+        collabID: collabid,
+        targetID: collaboratorId,
+      };
+      stompClientRef.current.publish({
+        destination: "/app/sendLanguageChange",
+        body: JSON.stringify(message),
       });
+      Swal.fire({
+        title: "You have initiated a language change!",
+        icon: "success",
+      });
+    } else {
+      isLanguageChangeActive.current = true;
+    }
+  }, [language]);
 
-      setCollaborator(data.users.filter((user) => user !== userID)[0]);
-    });
-  }, [collabid, userID]);
-
-  const questionCategories = question?.category || [];
+  const questionCategories = useMemo(() => {
+    return question?.category || [];
+  }, [question?.category]);
 
   useEffect(() => {
+    const container = containerRef.current;
+
     const calculateVisibleCategories = () => {
-      if (containerRef.current) {
-        const containerWidth = containerRef.current.clientWidth;
-        console.log(containerWidth);
+      if (container) {
+        const containerWidth = container.clientWidth;
         let totalWidth = 200;
         const visible = [];
 
@@ -173,8 +208,8 @@ const Question = ({ collabid }: { collabid: string }) => {
     };
 
     const observer = new ResizeObserver(calculateVisibleCategories);
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
+    if (container) {
+      observer.observe(container);
     }
 
     calculateVisibleCategories();
@@ -183,8 +218,8 @@ const Question = ({ collabid }: { collabid: string }) => {
 
     return () => {
       window.removeEventListener("resize", calculateVisibleCategories);
-      if (containerRef.current) {
-        observer.unobserve(containerRef.current);
+      if (container) {
+        observer.unobserve(container);
       }
     };
   }, [questionCategories]);
@@ -197,7 +232,10 @@ const Question = ({ collabid }: { collabid: string }) => {
     <div className="px-12 grid grid-rows-[20%_45%_35%] gap-4 grid-cols-1 h-full items-start">
       <div className="mt-10 row-span-1 grid grid-rows-1 grid-cols-[75%_25%] w-full">
         <div className="flex flex-col" ref={containerRef}>
-          <h1 className="text-yellow-500 text-xl font-bold pb-2">
+          <h1
+            className="text-yellow-500 text-xl font-bold pb-2 truncate"
+            title={question?.title}
+          >
             {question?.title}
           </h1>
           <span className="flex flex-wrap gap-1.5 my-1 pb-2">
