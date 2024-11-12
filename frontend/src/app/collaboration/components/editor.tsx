@@ -27,6 +27,7 @@ function Collaboration({ room, language, code, setLanguage }: Readonly<Props>) {
   const [username, setUsername] = useState<string | null>(null);
   const [selectionRange, setSelectionRange] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [peerOnline, setPeerOnline] = useState(false);
 
   // Fetch username on component mount
   useEffect(() => {
@@ -86,6 +87,36 @@ function Collaboration({ room, language, code, setLanguage }: Readonly<Props>) {
       console.error(err);
     }
   }, [code]);
+
+  useEffect(() => {
+    const awarenessListener = ({
+      added,
+      removed,
+    }: {
+      added: number[];
+      removed: number[];
+    }) => {
+      added.forEach((clientId) => {
+        if (clientId !== providerRef.current?.awareness.clientID) {
+          setPeerOnline(true);
+        }
+      });
+
+      removed.forEach((clientId) => {
+
+          if (clientId !== providerRef.current?.awareness.clientID) {
+            setPeerOnline(false);
+          }
+        }
+      )
+    };
+
+    providerRef.current?.awareness.on("change", awarenessListener);
+
+    return () => {
+      providerRef.current?.awareness.off("change", awarenessListener);
+    };
+  }, [providerRef.current]);
 
   async function initializeShiki(monaco: any, editor: any) {
     const highlighter = await createHighlighter({
@@ -175,6 +206,7 @@ function Collaboration({ room, language, code, setLanguage }: Readonly<Props>) {
         language={language}
         setLanguage={setLanguage}
         saving={saving}
+        peerOnline={peerOnline}
       />
       <div className="w-full h-[1px] bg-primary-1000 mx-auto my-2"></div>
       <Editor

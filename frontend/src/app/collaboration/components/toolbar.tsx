@@ -13,6 +13,7 @@ type Props = {
   language: string;
   saving: boolean;
   setLanguage: (language: string) => void;
+  peerOnline: boolean;
 };
 
 type LanguageOption = {
@@ -20,7 +21,7 @@ type LanguageOption = {
   label: string;
 };
 
-export function Toolbar({ editor, language, saving, setLanguage }: Props) {
+export function Toolbar({ editor, language, saving, setLanguage, peerOnline }: Props) {
   const languages: LanguageOption[] = [
     { value: 'javascript', label: 'JavaScript' },
     { value: 'python', label: 'Python' },
@@ -64,6 +65,15 @@ export function Toolbar({ editor, language, saving, setLanguage }: Props) {
       >
         <RedoIcon />
       </button>
+      <div className="flex items-center justify-items-center mx-4">
+        <div
+          className={`${
+            peerOnline ? 'bg-green' : 'bg-red'
+          } text-black text-xs font-semibold px-2 py-1 rounded-2xl`}
+        >
+          {peerOnline ? "Peer Online" : "Peer Offline"}
+        </div>
+      </div>
       <div className="text-grey-300 h-6 py-1 px-2 ml-auto mr-2 gap-4 rounded-full text-xs flex items-center justify-center">
         {saving && (
           <div className="flex flex-row gap-1 items-center">
