@@ -221,6 +221,39 @@ const FindPeer = () => {
             }
           });
 
+          client.subscribe("/user/queue/noQuestionExists", (message) => {
+            try {
+              console.log("Received message: ", message.body);
+              setSocketMessages((prevMessages) => [
+                ...prevMessages,
+                message.body,
+              ]);
+              const response: string = message.body;
+              closeLoadingSpinner();
+              clearTimeout(timeout);
+              Swal.fire(
+                `${response}`,
+                "Please try another set of filters, such as Easy-Python-Array",
+                "error"
+              );
+              client.deactivate();
+            } catch (error) {
+              console.error(
+                "Error subscribing to /user/queue/requestRejection: ",
+                error
+              );
+              closeLoadingSpinner();
+              clearTimeout(timeout);
+
+              Swal.fire(
+                "Error",
+                "An error occurred while trying to find a match for you. Please try again later.",
+                "error"
+              );
+              client.deactivate();
+            }
+          });
+
           stompClientRef.current = client;
           resolve();
         },

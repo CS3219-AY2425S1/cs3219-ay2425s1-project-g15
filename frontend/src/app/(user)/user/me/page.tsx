@@ -26,6 +26,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Swal from "sweetalert2";
 import { CgProfile } from "react-icons/cg";
 import MoonLoader from "react-spinners/MoonLoader";
+import { IoCloseCircle } from "react-icons/io5";
 
 const formSchema = z.object({
   username: z
@@ -33,7 +34,12 @@ const formSchema = z.object({
     .min(5, "Username must be at least 5 characters")
     .max(20, "Username must be at most 20 characters")
     .optional(),
-  profilePictureUrl: z.string().url("Invalid URL").optional(),
+  profilePictureUrl: z
+    .string()
+    .optional()
+    .refine((value) => !value || z.string().url().safeParse(value).success, {
+      message: "Invalid URL",
+    }),
   email: z.string().email("Invalid email").optional(),
   password: z
     .string()
@@ -73,8 +79,6 @@ const ProfilePage = () => {
     },
   });
 
-  const { isDirty } = form.formState;
-
   useEffect(() => {
     setToken((_) => !!getToken());
   }, []);
@@ -87,6 +91,7 @@ const ProfilePage = () => {
   }, [form]);
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    console.log(data);
     // remove unnecessary fields
     if (!data.password) delete data.password;
     if (data.password && data.password.length < 8) {
@@ -102,6 +107,7 @@ const ProfilePage = () => {
 
   const triggerFileInput = () => {
     if (fileInputRef.current && !isLoading) {
+      console.log("Click");
       fileInputRef.current.click();
     }
   };
@@ -109,6 +115,7 @@ const ProfilePage = () => {
   const handleProfilePictureUpload = async (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
+    console.log("Uploading profile picture...");
     try {
       if (e.target.files) {
         const imageFile = e.target.files[0];
@@ -127,6 +134,7 @@ const ProfilePage = () => {
     } catch (error) {
       console.log(error);
     } finally {
+      console.log("Done");
       setIsLoading(false);
     }
   };
@@ -167,13 +175,30 @@ const ProfilePage = () => {
                               +
                             </div>
                           )}
+                          <IoCloseCircle
+                            className="absolute top-0 right-0 -mt-2 -mr-2 text-red-500 bg-white rounded-full cursor-pointer"
+                            size={24}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              form.setValue("profilePictureUrl", "");
+                              setUser({ ...user, profilePictureUrl: "" });
+                            }}
+                          />
                         </div>
                       ) : (
-                        <CgProfile
-                          size={150}
-                          className="hover:bg-primary-300 hover:cursor-pointer hover:rounded-full"
-                          onClick={triggerFileInput}
-                        />
+                        <div>
+                          {isLoading ? (
+                            <div className="w-40 h-40 flex items-center justify-center rounded-full bg-primary-300">
+                              <MoonLoader />
+                            </div>
+                          ) : (
+                            <CgProfile
+                              size={150}
+                              className="hover:bg-primary-300 hover:cursor-pointer hover:rounded-full"
+                              onClick={triggerFileInput}
+                            />
+                          )}
+                        </div>
                       )}
                       <input
                         type="file"

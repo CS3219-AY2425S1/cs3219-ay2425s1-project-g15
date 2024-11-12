@@ -27,6 +27,7 @@ function Collaboration({ room, language, code, setLanguage }: Readonly<Props>) {
   const [username, setUsername] = useState<string | null>(null);
   const [selectionRange, setSelectionRange] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [editorTheme, setEditorTheme] = useState("dark-plus");
 
   // Fetch username on component mount
   useEffect(() => {
@@ -102,7 +103,7 @@ function Collaboration({ room, language, code, setLanguage }: Readonly<Props>) {
 
   async function initializeShiki(monaco: any, editor: any) {
     const highlighter = await createHighlighter({
-      themes: ["dark-plus"],
+      themes: ["dark-plus", "light-plus"],
       langs: ["javascript", "python"],
     });
 
@@ -170,7 +171,7 @@ function Collaboration({ room, language, code, setLanguage }: Readonly<Props>) {
   return (
     <div
       style={{
-        backgroundColor: "#1e1e1e",
+        backgroundColor: editorTheme === "dark-plus" ? "#1e1e1e" : "white",
         color: "#d4d4d4",
         height: "100vh",
         width: "full",
@@ -187,14 +188,16 @@ function Collaboration({ room, language, code, setLanguage }: Readonly<Props>) {
         editor={editorRef.current}
         language={language}
         setLanguage={setLanguage}
+        theme={editorTheme}
+        setTheme={setEditorTheme}
         saving={saving}
       />
-      <div className="w-full h-[1px] bg-primary-1000 mx-auto my-2"></div>
+      <div className="w-full h-[1px] mx-auto my-2"></div>
       <Editor
         height="65vh"
         width="full"
-        theme="vs-dark"
         language={language}
+        theme={editorTheme}
         defaultValue="// start collaborating here!"
         onMount={handleEditorDidMount}
         options={{

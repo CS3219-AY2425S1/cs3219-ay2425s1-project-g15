@@ -117,9 +117,22 @@ const Question = ({
   }, [collaboratorId]);
 
   useEffect(() => {
+    const scrollToPercentage = (percentage: number) => {
+      if (chatLogsListRef.current && hasMoreMessages.current) {
+        const chatContainer = chatLogsListRef.current;
+        const targetPosition = chatContainer.scrollHeight * percentage;
+        chatContainer.scrollTop = targetPosition - chatContainer.clientHeight;
+      }
+    };
+
     const handleScroll = () => {
       if (chatLogsListRef.current && chatLogsListRef.current.scrollTop === 0) {
-        fetchChatLogs();
+        fetchChatLogs().then(() => {
+          requestAnimationFrame(() => {
+            const percentage = Math.min(1 - (chatLogsPage - 1) / chatLogsPage);
+            scrollToPercentage(percentage);
+          });
+        });
       }
     };
 
@@ -152,9 +165,11 @@ const Question = ({
         });
 
         client.subscribe("/user/queue/language", (message) => {
-          const messageReceived = message.body;
+          const messageReceived: SingleChatLogApiResponse = JSON.parse(
+            message.body
+          );
           isLanguageChangeActive.current = false;
-          setLanguage(messageReceived);
+          setLanguage(messageReceived.message);
           Swal.fire({
             title: "Language changed by your collaborator!",
             icon: "success",
@@ -179,7 +194,7 @@ const Question = ({
   }, [userID, collaborator, setLanguage]);
 
   const handleExit = () => {
-    window.location.href = "/"; // We cannot use next/router, in order to trigger beforeunload listener
+    window.location.href = "/dashboard"; // We cannot use next/router, in order to trigger beforeunload listener
   };
 
   useEffect(() => {
@@ -294,8 +309,8 @@ const Question = ({
   );
 
   return (
-    <div className="px-12 grid grid-rows-[20%_45%_35%] gap-3 grid-cols-1 h-full items-start max-h-screen">
-      <div className="mt-10 row-span-1 grid grid-rows-1 grid-cols-[75%_25%] w-full">
+    <div className="px-2 grid grid-rows-[20%_45%_35%] gap-2 grid-cols-1 h-full items-start max-h-[100vh]">
+      <div className="mt-4 row-span-1 grid grid-rows-1 grid-cols-[75%_25%] w-full h-full">
         <div className="flex flex-col" ref={containerRef}>
           <h1
             className="text-yellow-500 text-xl font-bold pb-2 truncate"
@@ -360,28 +375,30 @@ const Question = ({
         </Button>
       </div>
       <span className="row-span-1 text-primary-300 text-md max-h-[100%] h-full overflow-y-auto flex flex-col gap-2 bg-primary-800 p-3  rounded-md">
-        <span className="text-yellow-500 font-bold">Question Description</span>
-        <span className="text-white text-md py-4">{question?.description}</span>
-        <span className="text-yellow-500 font-bold">Examples</span>
+        <span className="text-yellow-500 font-bold text-md">
+          Question Description
+        </span>
+        <span className="text-white py-2 text-xs">{question?.description}</span>
+        <span className="text-yellow-500 font-bold text-md">Examples</span>
         {question?.examples?.map((example, idx) => (
           <div key={idx}>
-            <div className="font-bold underline">
+            <div className="font-bold underline text-xs">
               Example {example.example_num}:
             </div>
             <div>
-              <span className="font-bold">Expected Input: </span>
-              <span className="text-primary-400 tracking-wide">
+              <span className="font-bold text-xs">Expected Input: </span>
+              <span className="text-primary-400 tracking-wide text-xs">
                 {example.expected_input}
               </span>
             </div>
             <div>
-              <span className="font-bold">Expected Output: </span>
-              <span className="text-primary-400 tracking-wide">
+              <span className="font-bold text-xs">Expected Output: </span>
+              <span className="text-primary-400 tracking-wide text-xs">
                 {example.expected_output}
               </span>
             </div>
-            <span className="font-bold">Explanation: </span>
-            <span className="text-primary-400 tracking-wide">
+            <span className="font-bold text-xs">Explanation: </span>
+            <span className="text-primary-400 tracking-wide text-xs">
               {example.explanation}
             </span>
             <br />
@@ -394,20 +411,20 @@ const Question = ({
           className="mb-3"
         >
           {showAnswer ? "Hide" : "Show"} Answer
-          {showAnswer ? " ▼" : " ▲"}
+          {showAnswer ? " ▲" : " ▼"}
         </Button>
         {showAnswer && question?.solution && (
           <div className="h-[50px] text-sm">
             <span className="text-xs italic">
               We currently only support JavaScript. Sorry!
             </span>
-            <SyntaxHighlighter language="javascript">
+            <SyntaxHighlighter language="javascript" class="text-xs">
               {question?.solution}
             </SyntaxHighlighter>
           </div>
         )}
       </span>
-      <div className="row-span-1 flex flex-col bg-primary-800 rounded-md h-full max-h-[80%] min-h-[80%] overflow-y-auto">
+      <div className="row-span-1 flex flex-col bg-primary-800 rounded-md h-full max-h-[90%] overflow-y-auto">
         {isLoading && (
           <div className="flex justify-center p-2">
             <MoonLoader size={20} />
