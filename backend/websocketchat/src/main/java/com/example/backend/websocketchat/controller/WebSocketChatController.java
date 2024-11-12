@@ -1,7 +1,8 @@
 package com.example.backend.websocketchat.controller;
 
 import java.security.Principal;
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
@@ -43,7 +44,7 @@ public class WebSocketChatController {
     }
 
     private MessageForwarded createForwardedMessage(MessageConsumed message, String senderId) {
-        LocalDateTime currDateTime = LocalDateTime.now();
+        ZonedDateTime currDateTime = ZonedDateTime.now(ZoneId.of("Asia/Singapore"));
 
         return new MessageForwarded(message.getMessage(), message.getCollabId(), senderId, message.getRecipientId(), currDateTime);
     }
