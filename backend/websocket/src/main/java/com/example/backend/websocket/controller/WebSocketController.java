@@ -1,6 +1,7 @@
 package com.example.backend.websocket.controller;
 
 import java.security.Principal;
+import java.util.List;
 
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
@@ -34,7 +35,12 @@ public class WebSocketController {
 
         myUserPrincipal.setUserEmail(matchRequest.getUserEmail());
         webSocketService.addToActiveUsers(matchRequest.getUserEmail());
-        matchRequest.getValidMatchCriteriaKey().forEach(key -> {
+        List<String> validMatchCriteriaKeys = matchRequest.getValidMatchCriteriaKey();
+        if (validMatchCriteriaKeys.isEmpty()) {
+            webSocketService.notifyUserNoQuestionExists(userId);
+            return;
+        }
+        validMatchCriteriaKeys.forEach(key -> {
             matchRequestProducer.sendMessage("MATCH_REQUESTS", key, userId + "_" + matchRequest.getUserEmail() + "_" + matchRequest.getUserId());
         });
     }
