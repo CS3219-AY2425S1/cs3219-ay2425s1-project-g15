@@ -175,6 +175,7 @@ const VideoCall = ({ provider }: VideoCallProps) => {
   };
 
   const startCall = async () => {
+    console.log("starting call");
     setVideoStart(true);
     console.log(peerConnectionRef.current);
     if (peerConnectionRef.current) {
@@ -202,6 +203,11 @@ const VideoCall = ({ provider }: VideoCallProps) => {
       });
       console.log("Sent offer:", offer);
     }
+  };
+
+  const callButton = async () => {
+    console.log("button pressed");
+    await startCall();
   };
 
   useEffect(() => {
@@ -355,7 +361,7 @@ const VideoCall = ({ provider }: VideoCallProps) => {
         </div>
       </div>
       {!videoStart && (
-        <Button onClick={startCall} className="self-end ml-4">
+        <Button onClick={callButton} className="self-end ml-4">
           Start Video Call
         </Button>
       )}
