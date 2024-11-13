@@ -17,7 +17,8 @@ spec:
     spec:
       containers:
       - name: "collaboration-service-sha256-1"
-        image: "gcr.io/peerprep-backend/collaboration@sha256:b66ba0c831fabc7c9f1d487cbd7567966426d6871eedac2c4e0cc89221566255"
+        image: "gcr.io/peerprep-backend/collaboration@sha256:ed7d4148757c0e03f311314948\
+          0a159ba4261d0358af047d53bf7ad191cc16f4"
         ports:
         - containerPort: 3001
         livenessProbe:

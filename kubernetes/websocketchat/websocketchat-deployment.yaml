@@ -30,4 +30,4 @@ spec:
         env:
         # allow the exposed ingress to access the service
         - name: "FRONTEND_CORS_ALLOWED_ORIGINS"
-          value: "*"
+          value: "http://35.202.162.147/"

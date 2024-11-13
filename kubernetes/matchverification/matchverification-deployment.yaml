@@ -17,7 +17,8 @@ spec:
     spec:
       containers:
       - name: "matchverification-service-sha256-1"
-        image: "gcr.io/peerprep-backend/matchverification@sha256:ccb8fc3bffa7dcbcc8e44cf466563446c514bffcbcec31382971e9ec31f8adc7"
+        image: "gcr.io/peerprep-backend/matchverification@sha256:06177ebefde908a942d168\
+          e4b9c962db83d8760521d2422f182c9612171d2669"
         imagePullPolicy: "IfNotPresent"
         resources:
           requests:
