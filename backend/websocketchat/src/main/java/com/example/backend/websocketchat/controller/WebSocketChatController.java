@@ -25,6 +25,11 @@ public class WebSocketChatController {
         this.chatlogProducer = chatlogProducer;
     }
 
+    @MessageMapping("/ping")
+    public void ping() {
+        System.out.println("Ping received");
+    }
+
     @MessageMapping("/sendMessage")
     public void processSentMessage(MessageConsumed message, Principal principal) {
         ChatUserPrincipal userPrincipal = (ChatUserPrincipal) principal;

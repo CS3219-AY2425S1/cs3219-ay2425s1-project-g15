@@ -150,17 +150,24 @@ const Question = ({
 
   useEffect(() => {
     const socket = new SockJS(`${CHAT_SOCKET_URL}?senderId=${userID}`);
+    const pingInterval = setInterval(() => {
+      if (stompClientRef.current) {
+        stompClientRef.current.publish({
+          destination: '/app/ping',
+          body: JSON.stringify({}),
+        });
+      }
+    }, 10000);
     const client = new StompClient({
       webSocketFactory: () => socket,
       debug: (str) => console.log(str),
       reconnectDelay: 5000,
-      heartbeatIncoming: 10000,
-      heartbeatOutgoing: 10000,
       onConnect: () => {
         console.log("STOMP connection established");
         setIsConnected(true);
 
         client.subscribe("/user/queue/chat", (message) => {
+          pingInterval;
           const newMessage: SingleChatLogApiResponse = JSON.parse(message.body);
           const packagedMessage = packageMessage(newMessage);
           setChatLogs((prev: ChatLog[]) => [...prev, packagedMessage]);
@@ -181,9 +188,11 @@ const Question = ({
       onDisconnect: () => {
         console.log("STOMP connection lost");
         setIsConnected(false);
+        clearInterval(pingInterval);
       },
       onStompError: (error) => {
         console.log("STOMP error", error);
+        clearInterval(pingInterval);
       },
     });
     stompClientRef.current = client;
