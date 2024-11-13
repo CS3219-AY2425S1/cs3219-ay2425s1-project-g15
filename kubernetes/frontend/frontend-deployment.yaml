@@ -18,8 +18,8 @@ spec:
       containers:
       - name: "frontend-service-sha256-1"
         image: "us-central1-docker.pkg.dev/peerprep-backend/cloud-run-source-deploy/cs3\
-          219-ay2425s1-project-g15/frontend-2@sha256:992e61a3ba9317bc7a71c8c832\
-          d46ccc9d0fa09626b714b8aeff73b29a8a3210"
+          219-ay2425s1-project-g15/frontend-2@sha256:5808dd6ff4430c8f99155a1df0\
+          a362692999df6761d6fc680e56c7336073aba5"
         resources:
           requests:
             memory: "500Mi"

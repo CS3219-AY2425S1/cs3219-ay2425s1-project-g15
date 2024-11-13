@@ -37,13 +37,13 @@ const VideoCall = ({ provider }: VideoCallProps) => {
         { urls: "stun:stun.l.google.com:19302" },
         {
           urls: "turn:global.relay.metered.ca:80",
-          username: "2b012e1176eda910d0c8a755",
-          credential: "6KjvgYahJZ21gdAp",
+          username: "9e133ebd03f549700c398cfc",
+          credential: "KhsEy0NGoahbdCG7",
         },
         {
           urls: "turn:global.relay.metered.ca:80?transport=tcp",
-          username: "2b012e1176eda910d0c8a755",
-          credential: "6KjvgYahJZ21gdAp",
+          username: "9e133ebd03f549700c398cfc",
+          credential: "KhsEy0NGoahbdCG7",
         },
         {
           urls: "turn:global.relay.metered.ca:80",
@@ -95,13 +95,13 @@ const VideoCall = ({ provider }: VideoCallProps) => {
         { urls: "stun:stun.l.google.com:19302" },
         {
           urls: "turn:global.relay.metered.ca:80",
-          username: "2b012e1176eda910d0c8a755",
-          credential: "6KjvgYahJZ21gdAp",
+          username: "9e133ebd03f549700c398cfc",
+          credential: "KhsEy0NGoahbdCG7",
         },
         {
           urls: "turn:global.relay.metered.ca:80?transport=tcp",
-          username: "2b012e1176eda910d0c8a755",
-          credential: "6KjvgYahJZ21gdAp",
+          username: "9e133ebd03f549700c398cfc",
+          credential: "KhsEy0NGoahbdCG7",
         },
         {
           urls: "turn:global.relay.metered.ca:80",
