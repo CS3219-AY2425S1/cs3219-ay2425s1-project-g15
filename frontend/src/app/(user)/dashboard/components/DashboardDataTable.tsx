@@ -10,6 +10,8 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
+import { format } from 'date-fns';
+
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -93,6 +95,19 @@ export const columns: ColumnDef<TCombinedSession>[] = [
     },
   },
   {
+    accessorKey: "createdAt",
+    header: () => <Cell>Date</Cell>,
+    cell: ({ row }) => {
+      const date: Date = row.getValue("createdAt");
+
+      return (
+        <Cell>
+          {format(date, 'dd-MM-yyyy HH:mm:ss')}
+        </Cell>
+      );
+    },
+  },
+  {
     accessorKey: "collabid",
     header: () => <Cell>Collab Space</Cell>,
     cell: ({ row }) => {
@@ -133,8 +148,8 @@ export function DashboardDataTable({ data }: { data: TCombinedSession[] }) {
       <div>
         <Table className="font-light">
           <TableHeader className="w-full">
-            <TableRow className="text-white bg-primary-900 font-medium hover:bg-transparent h-[5rem] text-md">
-              <TableCell colSpan={6} className="pl-10">
+            <TableRow className="text-white w-full bg-primary-900 font-medium hover:bg-transparent h-[5rem] text-md">
+              <TableCell colSpan={7} className="pl-10">
                 Past Collaborations
               </TableCell>
             </TableRow>

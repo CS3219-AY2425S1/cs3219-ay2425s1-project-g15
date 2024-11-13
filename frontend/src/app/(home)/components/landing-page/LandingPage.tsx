@@ -27,7 +27,7 @@ const LandingPage = () => {
   return (
     <div className="flex flex-col min-h-full">
       <Navbar />
-      <div className="grid grid-cols-2 gap-10 h-full items-center justify-center pl-10 pr-10">
+      <div className="grid grid-cols-[1.45fr,1.55fr] gap-10 h-full items-center justify-center pl-10 pr-10">
         <div className="">
           <h1 className="text-6xl font-extrabold text-white pb-8">
             Collaborative Coding, <br></br> Competitive Results.
