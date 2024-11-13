@@ -149,7 +149,10 @@ const Question = ({
   }, [chatLogsPage, chatLogs]); // Depend on `chatLogsPage` to update the event when the page changes
 
   useEffect(() => {
-    const socket = new SockJS(`${CHAT_SOCKET_URL}?senderId=${userID}`);
+    // const socket = new SockJS(`${CHAT_SOCKET_URL}?senderId=${userID}`);
+    const socket = new SockJS(`${CHAT_SOCKET_URL}?senderId=${userID}`, null, {
+      transports: ["websocket"],
+    });
     socket.onopen = function() {
       console.log('WebSocket is connected.');
     };
