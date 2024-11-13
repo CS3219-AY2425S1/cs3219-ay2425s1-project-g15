@@ -17,8 +17,8 @@ spec:
     spec:
       containers:
       - name: "chatlog-service-sha256-1"
-        image: "gcr.io/peerprep-backend/chatlog@sha256:04d4ee37c16d60cc335233fa0edd6548\
-          fe27e539e21bee0edf31ffe9484c1569"
+        image: "gcr.io/peerprep-backend/chatlog@sha256:d6fa721fe570eaecda9fb5d36e9817c3\
+          ce14bf18f7ec5202ca64908e99156c03"
         imagePullPolicy: "IfNotPresent"
         resources:
           requests:

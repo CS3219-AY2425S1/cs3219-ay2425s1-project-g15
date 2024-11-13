@@ -17,8 +17,8 @@ spec:
     spec:
       containers:
       - name: "websocketchat-service-sha256-1"
-        image: "gcr.io/peerprep-backend/websocketchat@sha256:24efca5557a2c36949720bf8e9\
-          8f38f854ef02b542a75709620eb49702b68586"
+        image: "gcr.io/peerprep-backend/websocketchat@sha256:7531573d59e53813e027736279\
+          b7e37ad133dd1ebaf944ff01e93776576733cc"
         imagePullPolicy: "IfNotPresent"
         resources:
           requests:

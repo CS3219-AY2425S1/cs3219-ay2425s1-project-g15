@@ -5,7 +5,7 @@ import ChatLog, { IChatLog } from './models/ChatLog';
 // // Kafka Configuration
 const kafka = new Kafka({
   clientId: 'my-id',
-  brokers: ['kafka:9092'] 
+  brokers: ['kafka-service:9092'] 
 });
 
 const consumer = kafka.consumer({ groupId: 'chat-logs-group' });
