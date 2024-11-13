@@ -42,7 +42,7 @@ const VideoCall = ({ provider }: VideoCallProps) => {
           urls: "turn:global.relay.metered.ca:80?transport=tcp",
           username: "2b012e1176eda910d0c8a755",
           credential: "6KjvgYahJZ21gdAp",
-        }
+        },
       ],
     });
 
@@ -90,7 +90,7 @@ const VideoCall = ({ provider }: VideoCallProps) => {
           urls: "turn:global.relay.metered.ca:80?transport=tcp",
           username: "2b012e1176eda910d0c8a755",
           credential: "6KjvgYahJZ21gdAp",
-        }
+        },
       ],
     });
 
@@ -227,13 +227,18 @@ const VideoCall = ({ provider }: VideoCallProps) => {
       removed.forEach((clientId) => {
         console.log("Client disconnected:", clientId);
         if (remoteVideoRef.current) {
+          console.log("remote video exists");
           if (clientId !== provider.awareness.clientID) {
             remoteVideoRef.current.srcObject = null;
             remoteStreamRef.current = null;
             setRemoteVideoSourceObject(false);
             iceCandidatesQueue.current = [];
             startPC();
-            if (videoStart) startCall();
+            console.log(`Video start ${videoStart}`);
+            if (videoStart) {
+              console.log("restarting call");
+              startCall();
+            }
           } else {
             setVideoStart(false);
           }
