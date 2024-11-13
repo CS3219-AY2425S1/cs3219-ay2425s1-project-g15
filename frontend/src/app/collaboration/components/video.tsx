@@ -6,6 +6,8 @@ import {
   CiVideoOn,
   CiVideoOff,
 } from "react-icons/ci";
+import { RxSpeakerLoud, RxSpeakerOff } from "react-icons/rx";
+
 import { Button } from "@/components/ui/button";
 type VideoCallProps = {
   provider: WebrtcProvider;
@@ -175,7 +177,6 @@ const VideoCall = ({ provider }: VideoCallProps) => {
   };
 
   const startCall = async () => {
-    console.log("starting call");
     setVideoStart(true);
     console.log(peerConnectionRef.current);
     if (peerConnectionRef.current) {
@@ -205,11 +206,6 @@ const VideoCall = ({ provider }: VideoCallProps) => {
     }
   };
 
-  const callButton = async () => {
-    console.log("button pressed");
-    await startCall();
-  };
-
   useEffect(() => {
     const awarenessListener = ({
       added,
@@ -223,7 +219,6 @@ const VideoCall = ({ provider }: VideoCallProps) => {
       added.concat(updated).forEach((clientId) => {
         if (clientId !== provider.awareness.clientID) {
           const state = provider.awareness.getStates().get(clientId);
-          console.log(state);
           if (state?.webrtc) {
             handleSignalingMessage(state.webrtc);
           }
@@ -233,16 +228,13 @@ const VideoCall = ({ provider }: VideoCallProps) => {
       removed.forEach((clientId) => {
         console.log("Client disconnected:", clientId);
         if (remoteVideoRef.current) {
-          console.log("remote video exists");
           if (clientId !== provider.awareness.clientID) {
             remoteVideoRef.current.srcObject = null;
             remoteStreamRef.current = null;
             setRemoteVideoSourceObject(false);
             iceCandidatesQueue.current = [];
             startPC();
-            console.log(`Video start ${videoStart}`);
             if (videoStart) {
-              console.log("restarting call");
               startCall();
             }
           } else {
@@ -314,16 +306,16 @@ const VideoCall = ({ provider }: VideoCallProps) => {
             <div className="mt-1">
               <button onClick={toggleLocalMute}>
                 {isLocalMuted ? (
-                  <CiMicrophoneOff className="text-lg" />
+                  <CiMicrophoneOff className="text-2xl text-red" />
                 ) : (
-                  <CiMicrophoneOn className="text-lg" />
+                  <CiMicrophoneOn className="text-2xl" />
                 )}
               </button>
               <button onClick={toggleLocalVideo}>
                 {isLocalVideoOn ? (
-                  <CiVideoOn className="text-lg" />
+                  <CiVideoOn className="text-2xl" />
                 ) : (
-                  <CiVideoOff className="text-lg" />
+                  <CiVideoOff className="text-2xl text-red" />
                 )}
               </button>
             </div>
@@ -344,16 +336,16 @@ const VideoCall = ({ provider }: VideoCallProps) => {
             <div className="mt-1">
               <button onClick={toggleRemoteMute}>
                 {isRemoteMuted ? (
-                  <CiMicrophoneOff className="text-lg" />
+                  <RxSpeakerOff className="text-2xl text-red" />
                 ) : (
-                  <CiMicrophoneOn className="text-lg" />
+                  <RxSpeakerLoud className="text-2xl" />
                 )}
               </button>
               <button onClick={toggleRemoteVideo}>
                 {isRemoteVideoOn ? (
-                  <CiVideoOn className="text-lg" />
+                  <CiVideoOn className="text-2xl" />
                 ) : (
-                  <CiVideoOff className="text-lg" />
+                  <CiVideoOff className="text-2xl text-red" />
                 )}
               </button>
             </div>
@@ -361,7 +353,7 @@ const VideoCall = ({ provider }: VideoCallProps) => {
         </div>
       </div>
       {!videoStart && (
-        <Button onClick={callButton} className="self-end ml-4">
+        <Button onClick={startCall} className="self-end ml-4">
           Start Video Call
         </Button>
       )}
