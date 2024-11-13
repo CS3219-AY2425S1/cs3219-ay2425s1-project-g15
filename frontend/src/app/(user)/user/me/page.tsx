@@ -18,14 +18,13 @@ import {
   getUserId,
   updateUser,
   getFileUrl,
-  ToastComponent,
   resetPasswordFromProfile,
+  setUsername,
 } from "@/api/user";
 import { useEffect, useRef, useState } from "react";
 import { User } from "@/types/user";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Swal from "sweetalert2";
 import { CgProfile } from "react-icons/cg";
 import MoonLoader from "react-spinners/MoonLoader";
 import { IoCloseCircle } from "react-icons/io5";
@@ -122,6 +121,7 @@ const ProfilePage = () => {
   ) => {
     await updateUser(data);
     setUser(data);
+    if (data.username) setUsername(data.username);
   };
 
   const onResetPasswordSubmit = async (

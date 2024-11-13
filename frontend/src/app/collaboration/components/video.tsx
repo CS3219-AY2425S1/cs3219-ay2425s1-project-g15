@@ -45,6 +45,16 @@ const VideoCall = ({ provider }: VideoCallProps) => {
           username: "2b012e1176eda910d0c8a755",
           credential: "6KjvgYahJZ21gdAp",
         },
+        {
+          urls: "turn:global.relay.metered.ca:80",
+          username: "959683d8bdf3e842258fc733",
+          credential: "u6gTAF1k3CDN+CtP",
+        },
+        {
+          urls: "turn:global.relay.metered.ca:80?transport=tcp",
+          username: "959683d8bdf3e842258fc733",
+          credential: "u6gTAF1k3CDN+CtP",
+        },
       ],
     });
 
@@ -92,6 +102,16 @@ const VideoCall = ({ provider }: VideoCallProps) => {
           urls: "turn:global.relay.metered.ca:80?transport=tcp",
           username: "2b012e1176eda910d0c8a755",
           credential: "6KjvgYahJZ21gdAp",
+        },
+        {
+          urls: "turn:global.relay.metered.ca:80",
+          username: "959683d8bdf3e842258fc733",
+          credential: "u6gTAF1k3CDN+CtP",
+        },
+        {
+          urls: "turn:global.relay.metered.ca:80?transport=tcp",
+          username: "959683d8bdf3e842258fc733",
+          credential: "u6gTAF1k3CDN+CtP",
         },
       ],
     });
