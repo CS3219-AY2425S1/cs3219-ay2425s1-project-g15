@@ -18,6 +18,7 @@ import {
   getUserId,
   updateUser,
   getFileUrl,
+  ToastComponent,
 } from "@/api/user";
 import { useEffect, useRef, useState } from "react";
 import { User } from "@/types/user";
@@ -91,7 +92,6 @@ const ProfilePage = () => {
   }, [form]);
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    console.log(data);
     // remove unnecessary fields
     if (!data.password) delete data.password;
     if (data.password && data.password.length < 8) {
@@ -117,7 +117,7 @@ const ProfilePage = () => {
   ) => {
     console.log("Uploading profile picture...");
     try {
-      if (e.target.files) {
+      if (e.target.files && e.target.files.length > 0) {
         const imageFile = e.target.files[0];
         const formData = new FormData();
         formData.append("profilePicture", imageFile);
@@ -134,7 +134,6 @@ const ProfilePage = () => {
     } catch (error) {
       console.log(error);
     } finally {
-      console.log("Done");
       setIsLoading(false);
     }
   };
