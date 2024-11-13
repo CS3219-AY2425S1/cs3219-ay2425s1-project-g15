@@ -147,6 +147,8 @@ function Collaboration({ room, language, code, setLanguage }: Readonly<Props>) {
     editor: { onDidChangeCursorPosition: (arg0: (e: any) => void) => void },
     monaco: any
   ) {
+    monaco.editor.setTheme("vs-dark");
+
     editorRef.current = editor;
 
     if (providerRef.current && docRef.current) {
