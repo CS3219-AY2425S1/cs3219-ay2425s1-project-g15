@@ -19,6 +19,7 @@ import {
   updateUser,
   getFileUrl,
   ToastComponent,
+  resetPasswordFromProfile,
 } from "@/api/user";
 import { useEffect, useRef, useState } from "react";
 import { User } from "@/types/user";
@@ -29,7 +30,7 @@ import { CgProfile } from "react-icons/cg";
 import MoonLoader from "react-spinners/MoonLoader";
 import { IoCloseCircle } from "react-icons/io5";
 
-const formSchema = z.object({
+const profileFormSchema = z.object({
   username: z
     .string()
     .min(5, "Username must be at least 5 characters")
@@ -42,10 +43,6 @@ const formSchema = z.object({
       message: "Invalid URL",
     }),
   email: z.string().email("Invalid email").optional(),
-  password: z
-    .string()
-    .max(100, "Password must be at most 100 characters")
-    .optional(),
   bio: z.string().optional(),
   linkedin: z
     .string()
@@ -61,22 +58,51 @@ const formSchema = z.object({
     .optional(),
 });
 
+const resetPasswordFormSchema = z
+  .object({
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .max(100, "Password must be at most 100 characters")
+      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+      .regex(/\d/, "Password must contain at least one number")
+      .regex(
+        /[@$!%*?&]/,
+        "Password must contain at least one special character (@, $, !, %, *, ?, &)"
+      ),
+    confirmPassword: z
+      .string()
+      .min(8, "Password must be at least 8 characters"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"], // Error message will show up on confirmPassword
+  });
+
 const ProfilePage = () => {
   const [token, setToken] = useState(false);
   const [user, setUser] = useState<User>({});
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const profileForm = useForm<z.infer<typeof profileFormSchema>>({
+    resolver: zodResolver(profileFormSchema),
     defaultValues: {
       username: "",
       profilePictureUrl: "",
       email: "",
-      password: "",
       bio: "",
       linkedin: "",
       github: "",
+    },
+  });
+
+  const resetPasswordForm = useForm<z.infer<typeof resetPasswordFormSchema>>({
+    resolver: zodResolver(resetPasswordFormSchema),
+    defaultValues: {
+      password: "",
+      confirmPassword: "",
     },
   });
 
@@ -87,22 +113,21 @@ const ProfilePage = () => {
   useEffect(() => {
     getUser().then((res) => {
       setUser(res.data);
-      form.reset(res.data);
+      profileForm.reset(res.data);
     });
-  }, [form]);
+  }, [profileForm]);
 
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    // remove unnecessary fields
-    if (!data.password) delete data.password;
-    if (data.password && data.password.length < 8) {
-      Swal.fire({
-        icon: "error",
-        title: "Password must be at least 8 characters",
-      });
-      return;
-    }
+  const onUpdateProfileSubmit = async (
+    data: z.infer<typeof profileFormSchema>
+  ) => {
     await updateUser(data);
     setUser(data);
+  };
+
+  const onResetPasswordSubmit = async (
+    data: z.infer<typeof resetPasswordFormSchema>
+  ) => {
+    await resetPasswordFromProfile(data.password);
   };
 
   const triggerFileInput = () => {
@@ -127,7 +152,7 @@ const ProfilePage = () => {
         const res = await getFileUrl(userId, formData);
 
         if (res.fileUrl) {
-          form.setValue("profilePictureUrl", res.fileUrl);
+          profileForm.setValue("profilePictureUrl", res.fileUrl);
           setUser({ ...user, profilePictureUrl: res.fileUrl });
         }
       }
@@ -144,13 +169,13 @@ const ProfilePage = () => {
         <h1 className="text-white font-extrabold text-h1">
           Welcome, {user?.username}!
         </h1>
-        <Form {...form}>
+        <Form {...profileForm}>
           <form
             className="my-10 grid gap-4"
-            onSubmit={form.handleSubmit(onSubmit)}
+            onSubmit={profileForm.handleSubmit(onUpdateProfileSubmit)}
           >
             <FormField
-              control={form.control}
+              control={profileForm.control}
               name="profilePictureUrl"
               render={({ field }) => (
                 <div>
@@ -179,7 +204,7 @@ const ProfilePage = () => {
                             size={24}
                             onClick={(e) => {
                               e.stopPropagation();
-                              form.setValue("profilePictureUrl", "");
+                              profileForm.setValue("profilePictureUrl", "");
                               setUser({ ...user, profilePictureUrl: "" });
                             }}
                           />
@@ -215,7 +240,7 @@ const ProfilePage = () => {
             />
 
             <FormField
-              control={form.control}
+              control={profileForm.control}
               name="username"
               render={({ field }) => (
                 <FormItem>
@@ -235,7 +260,7 @@ const ProfilePage = () => {
               )}
             />
             <FormField
-              control={form.control}
+              control={profileForm.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
@@ -254,29 +279,9 @@ const ProfilePage = () => {
                 </FormItem>
               )}
             />
+
             <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-yellow-500 text-lg">
-                    NEW PASSWORD
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="password"
-                      {...field}
-                      className="focus:border-yellow-500 text-white"
-                    />
-                  </FormControl>
-                  {/* <FormDescription>This is your public display name.</FormDescription> */}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
+              control={profileForm.control}
               name="bio"
               render={({ field }) => (
                 <FormItem>
@@ -294,7 +299,7 @@ const ProfilePage = () => {
               )}
             />
             <FormField
-              control={form.control}
+              control={profileForm.control}
               name="linkedin"
               render={({ field }) => (
                 <FormItem>
@@ -314,7 +319,7 @@ const ProfilePage = () => {
               )}
             />
             <FormField
-              control={form.control}
+              control={profileForm.control}
               name="github"
               render={({ field }) => (
                 <FormItem>
@@ -336,9 +341,60 @@ const ProfilePage = () => {
             <Button
               type="submit"
               className="bg-yellow-500 hover:bg-yellow-300 px-4 py-2 my-2 rounded-md text-black"
-              disabled={form.formState.isSubmitting || isLoading}
+              disabled={profileForm.formState.isSubmitting || isLoading}
             >
               Save Changes
+            </Button>
+          </form>
+        </Form>
+
+        <Form {...resetPasswordForm}>
+          <form
+            className="flex flex-col gap-4"
+            onSubmit={resetPasswordForm.handleSubmit(onResetPasswordSubmit)}
+          >
+            <FormField
+              control={resetPasswordForm.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-yellow-500 text-lg">
+                    NEW PASSWORD
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="new password"
+                      {...field}
+                      className="focus:border-yellow-500 text-white"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={resetPasswordForm.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-yellow-500 text-lg">
+                    CONFIRM NEW PASSWORD
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="confirm new password"
+                      {...field}
+                      className="focus:border-yellow-500 text-white"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button variant="destructive" type="submit">
+              Reset Password
             </Button>
           </form>
         </Form>

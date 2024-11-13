@@ -185,10 +185,38 @@ export const getUser = async (userId = "") => {
   return data;
 };
 
+export const resetPasswordFromProfile = async (newPassword: string) => {
+  const userId = getUserId();
+  const token = getToken();
+  const url = `${NEXT_PUBLIC_IAM_USER_SERVICE}/${userId}/reset-password-from-profile`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ password: newPassword }),
+  });
+
+  const data = await response.json();
+  if (response.status === 400) {
+    ToastComponent.fire({
+      icon: "error",
+      title: data.message,
+    });
+    return false;
+  } else if (response.status === 200) {
+    ToastComponent.fire({
+      icon: "success",
+      title: data.message,
+    });
+    return true;
+  }
+};
+
 export const updateUser = async (userData: {
   username?: string;
   email?: string;
-  password?: string;
   bio?: string;
   linkedin?: string;
   github?: string;

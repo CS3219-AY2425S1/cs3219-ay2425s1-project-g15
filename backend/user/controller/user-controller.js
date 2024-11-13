@@ -380,6 +380,47 @@ export async function resetPasswordUsingCode(req, res) {
   }
 }
 
+export async function resetPasswordFromProfile(req, res) {
+  try {
+    const { password } = req.body;
+    const userId = req.params.id;
+    console.log(req.body);
+    if (password) {
+      const user = await _findUserById(userId);
+      if (!user) {
+        console.log("ERROR");
+        return res
+          .status(404)
+          .json({ message: `User not found with user ID ${code}` });
+      }
+
+      const salt = bcrypt.genSaltSync(10);
+      const hashedPassword = bcrypt.hashSync(password, salt);
+
+      const updatedUser = await _updateUserById(
+        user.id,
+        user.username,
+        user.email,
+        hashedPassword,
+        user.bio,
+        user.linkedin,
+        user.github
+      );
+      return res.status(200).json({
+        message: `Reset password for user ${user.username}`,
+        data: formatUserResponse(updatedUser),
+      });
+    } else {
+      return res.status(400).json({ message: "password is missing!" });
+    }
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(500)
+      .json({ message: "Unknown error when resetting password!" });
+  }
+}
+
 export function formatUserResponse(user) {
   return {
     id: user.id,
