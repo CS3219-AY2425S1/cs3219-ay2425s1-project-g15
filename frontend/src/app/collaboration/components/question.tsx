@@ -388,20 +388,20 @@ const Question = ({
             </div>
             <div>
               <span className="font-bold text-xs">Expected Input: </span>
-              <span className="text-primary-400 tracking-wide text-xs">
+              <span className="text-primary-400 tracking-wide text-xs text-wrap">
                 {example.expected_input}
               </span>
             </div>
             <div>
               <span className="font-bold text-xs">Expected Output: </span>
-              <span className="text-primary-400 tracking-wide text-xs">
+              <span className="text-primary-400 tracking-wide text-xs text-wrap">
                 {example.expected_output}
               </span>
             </div>
             {example.explanation && (
               <div>
                 <span className="font-bold text-xs">Explanation: </span>
-                <span className="text-primary-400 tracking-wide text-xs">
+                <span className="text-primary-400 tracking-wide text-xs text-wrap">
                   {example.explanation}
                 </span>
               </div>
