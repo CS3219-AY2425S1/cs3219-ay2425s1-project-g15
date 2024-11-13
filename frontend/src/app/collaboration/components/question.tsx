@@ -434,7 +434,7 @@ const Question = ({
       <div className="row-span-1 flex flex-col bg-primary-800 rounded-md h-full max-h-[90%] overflow-y-auto">
         {isLoading && (
           <div className="flex justify-center p-2">
-            <MoonLoader size={20} />
+            <MoonLoader size={20} color="#FFFFFF" />
           </div>
         )}
         {chatLogs.length === 0 ? (
