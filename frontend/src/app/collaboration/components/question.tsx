@@ -407,20 +407,24 @@ const Question = ({
             </div>
             <div>
               <span className="font-bold text-xs">Expected Input: </span>
-              <span className="text-primary-400 tracking-wide text-xs">
+              <span className="text-primary-400 tracking-wide text-xs text-wrap">
                 {example.expected_input}
               </span>
             </div>
             <div>
               <span className="font-bold text-xs">Expected Output: </span>
-              <span className="text-primary-400 tracking-wide text-xs">
+              <span className="text-primary-400 tracking-wide text-xs text-wrap">
                 {example.expected_output}
               </span>
             </div>
-            <span className="font-bold text-xs">Explanation: </span>
-            <span className="text-primary-400 tracking-wide text-xs">
-              {example.explanation}
-            </span>
+            {example.explanation && (
+              <div>
+                <span className="font-bold text-xs">Explanation: </span>
+                <span className="text-primary-400 tracking-wide text-xs text-wrap">
+                  {example.explanation}
+                </span>
+              </div>
+            )}
             <br />
             <br />
           </div>
@@ -449,7 +453,7 @@ const Question = ({
       <div className="row-span-1 flex flex-col bg-primary-800 rounded-md h-full max-h-[90%] overflow-y-auto">
         {isLoading && (
           <div className="flex justify-center p-2">
-            <MoonLoader size={20} />
+            <MoonLoader size={20} color="#FFFFFF" />
           </div>
         )}
         {chatLogs.length === 0 ? (

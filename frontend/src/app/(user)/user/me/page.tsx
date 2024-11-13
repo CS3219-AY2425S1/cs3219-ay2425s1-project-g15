@@ -128,6 +128,7 @@ const ProfilePage = () => {
     data: z.infer<typeof resetPasswordFormSchema>
   ) => {
     await resetPasswordFromProfile(data.password);
+    resetPasswordForm.reset();
   };
 
   const triggerFileInput = () => {
