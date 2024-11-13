@@ -32,7 +32,7 @@ public class WebSocketChatConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
         config.setApplicationDestinationPrefixes("/app");
-        config.enableSimpleBroker("/topic", "/queue");
+        config.enableSimpleBroker("/topic", "/queue").setHeartbeatValue(new long[]{10000, 10000}); //10-second interval heartbeat
         config.setUserDestinationPrefix("/user");
     }
 

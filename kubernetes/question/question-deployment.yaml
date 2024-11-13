@@ -17,7 +17,8 @@ spec:
     spec:
       containers:
       - name: "question-service-sha256-1"
-        image: "gcr.io/peerprep-backend/question@sha256:1bb52ccdbafb4336174a0ec987f805d1ddac9cdc7bc9438578bb1486a29caa4c"
+        image: "gcr.io/peerprep-backend/question@sha256:d5ebc4e4a551689b966488c9b45bfcf\
+          3a86c590399f36a5cd021fca9092d65a9"
         ports:
         - containerPort: 3003
         livenessProbe:
