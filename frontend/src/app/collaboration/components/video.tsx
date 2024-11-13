@@ -42,7 +42,7 @@ const VideoCall = ({ provider }: VideoCallProps) => {
           urls: "turn:global.relay.metered.ca:80?transport=tcp",
           username: "2b012e1176eda910d0c8a755",
           credential: "6KjvgYahJZ21gdAp",
-        }
+        },
       ],
     });
 
@@ -90,7 +90,7 @@ const VideoCall = ({ provider }: VideoCallProps) => {
           urls: "turn:global.relay.metered.ca:80?transport=tcp",
           username: "2b012e1176eda910d0c8a755",
           credential: "6KjvgYahJZ21gdAp",
-        }
+        },
       ],
     });
 
@@ -270,7 +270,9 @@ const VideoCall = ({ provider }: VideoCallProps) => {
             setRemoteVideoSourceObject(false);
             iceCandidatesQueue.current = [];
             startPC();
-            if (videoStart) startCall();
+            if (videoStart) {
+              startCall();
+            }
           } else {
             setVideoStart(false);
           }

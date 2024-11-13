@@ -72,6 +72,28 @@ export const updateSession = async (
   return resp.json();
 };
 
+export const updateSessionLanguage = async (
+  collabid: string,
+  language: string
+): Promise<SessionFull> => {
+  const url = `${COLLABORATION_SERVICE}/${collabid}/updateLanguage`;
+  const resp = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      language: language
+    }),
+  });
+
+  if (!resp.ok) {
+    throw new Error("Failed to update the session");
+  }
+
+  return resp.json();
+};
+
 export const deleteSessionById = async (
   collabid: string
 ): Promise<SessionFull> => {

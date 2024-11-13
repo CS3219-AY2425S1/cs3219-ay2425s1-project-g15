@@ -221,6 +221,7 @@ function Collaboration({ room, language, code, setLanguage }: Readonly<Props>) {
         theme={editorTheme}
         setTheme={setEditorTheme}
         saving={saving}
+        room={room}
         peerOnline={peerOnline}
       />
       <div className="w-full h-[1px] mx-auto my-2"></div>

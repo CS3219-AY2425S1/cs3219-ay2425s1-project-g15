@@ -12,6 +12,7 @@ import {
   updateUserPrivilege,
   getFileUrl,
   verifyUser,
+  resetPasswordFromProfile,
 } from "../controller/user-controller.js";
 import {
   verifyAccessToken,
@@ -31,6 +32,8 @@ router.patch(
 );
 
 router.get("/verify", verifyUser);
+
+router.post("/:id/reset-password-from-profile", resetPasswordFromProfile);
 
 router.post("/request-password-reset", requestPasswordReset);
 

@@ -63,11 +63,12 @@ const Question = ({
   console.log(question);
 
   const packageMessage = (message: SingleChatLogApiResponse): ChatLog => {
+    const userId = getUserId();
     return {
       text: message.message,
-      title: collaborator,
+      title: message.senderId === userId ? username : collaborator,
       date: new Date(message.timestamp),
-      position: message.senderId === getUserId() ? "right" : "left",
+      position: message.senderId === userId ? "right" : "left",
       type: "text",
     };
   };

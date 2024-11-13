@@ -4,7 +4,7 @@ import { AuthStatus, UploadProfilePictureResponse } from "@/types/user";
 import Cookie from "js-cookie";
 import Swal from "sweetalert2";
 
-const toast = Swal.mixin({
+export const ToastComponent = Swal.mixin({
   toast: true,
   position: "top-end",
   showConfirmButton: false,
@@ -90,7 +90,7 @@ export const verifyToken = async (token: string) => {
 };
 
 export const login = async (email: string, password: string) => {
-  toast.fire({
+  ToastComponent.fire({
     icon: "info",
     title: "Logging in...",
   });
@@ -107,7 +107,7 @@ export const login = async (email: string, password: string) => {
   const data = await response.json();
 
   if (response.status !== 200) {
-    toast.fire({
+    ToastComponent.fire({
       icon: "error",
       title: data.message,
     });
@@ -136,7 +136,7 @@ export const register = async (
   password: string,
   username: string
 ) => {
-  toast.fire({
+  ToastComponent.fire({
     icon: "info",
     title: "Registering...",
   });
@@ -154,7 +154,7 @@ export const register = async (
   const data = await response.json();
 
   if (response.status !== 201) {
-    toast.fire({
+    ToastComponent.fire({
       icon: "error",
       title: data.message,
     });
@@ -177,7 +177,7 @@ export const getUser = async (userId = "") => {
   const data = await response.json();
 
   if (response.status !== 200) {
-    toast.fire({
+    ToastComponent.fire({
       icon: "error",
       title: data.message,
     });
@@ -187,10 +187,38 @@ export const getUser = async (userId = "") => {
   return data;
 };
 
+export const resetPasswordFromProfile = async (newPassword: string) => {
+  const userId = getUserId();
+  const token = getToken();
+  const url = `${NEXT_PUBLIC_IAM_USER_SERVICE}/${userId}/reset-password-from-profile`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ password: newPassword }),
+  });
+
+  const data = await response.json();
+  if (response.status === 400) {
+    ToastComponent.fire({
+      icon: "error",
+      title: data.message,
+    });
+    return false;
+  } else if (response.status === 200) {
+    ToastComponent.fire({
+      icon: "success",
+      title: data.message,
+    });
+    return true;
+  }
+};
+
 export const updateUser = async (userData: {
   username?: string;
   email?: string;
-  password?: string;
   bio?: string;
   linkedin?: string;
   github?: string;
@@ -210,14 +238,14 @@ export const updateUser = async (userData: {
   console.log(data);
 
   if (response.status !== 200) {
-    toast.fire({
+    ToastComponent.fire({
       icon: "error",
       title: data.message,
     });
     return false;
   }
 
-  toast.fire({
+  ToastComponent.fire({
     icon: "success",
     title: "Profile updated successfully",
   });
@@ -243,7 +271,7 @@ export const getFileUrl = async (
   const data: UploadProfilePictureResponse = await res.json();
 
   if (res.status !== 200) {
-    toast.fire({
+    ToastComponent.fire({
       icon: "error",
       title: res.statusText,
     });
@@ -253,7 +281,7 @@ export const getFileUrl = async (
 };
 
 export const requestPasswordReset = async (email: string) => {
-  toast.fire({
+  ToastComponent.fire({
     icon: "info",
     title: "Requesting password reset...",
   });
@@ -271,14 +299,14 @@ export const requestPasswordReset = async (email: string) => {
   console.log(data);
 
   if (response.status !== 200) {
-    toast.fire({
+    ToastComponent.fire({
       icon: "error",
       title: data.message,
     });
     return false;
   }
 
-  toast.fire({
+  ToastComponent.fire({
     icon: "success",
     title: "Password reset requested. Please check your email.",
   });
@@ -300,7 +328,7 @@ export const checkPasswordResetCode = async (code: string) => {
   const data = await response.json();
 
   if (response.status !== 200) {
-    toast.fire({
+    ToastComponent.fire({
       icon: "error",
       title: data.message,
     });
@@ -324,7 +352,7 @@ export const resetPasswordWithCode = async (code: string, password: string) => {
   const data = await response.json();
 
   if (response.status !== 200) {
-    toast.fire({
+    ToastComponent.fire({
       icon: "error",
       title: data.message,
     });

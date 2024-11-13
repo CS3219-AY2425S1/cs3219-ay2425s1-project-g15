@@ -182,6 +182,33 @@ router.post(
   }
 );
 
+// Update a session language by ID
+router.post(
+  "/:id/updateLanguage",
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    const updateSession: Partial<TSession> = {};
+
+    updateSession.language = req.body.language;
+
+    try {
+      const session = await Session.findOne({ collabid: id }).exec();
+      if (!session) {
+        return res.status(404).json({ message: "Session not found" });
+      }
+
+      const updatedSession = await Session.findOneAndUpdate(
+        { collabid: id },
+        { $set: updateSession }
+      );
+      res.status(200).json(updatedSession);
+    } catch (error) {
+      return res.status(500).send("Internal server error");
+    }
+  }
+);
+
 // Delete a session by ID
 router.delete(
   "/:id",
