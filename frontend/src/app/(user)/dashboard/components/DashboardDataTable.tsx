@@ -10,7 +10,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-import { format } from 'date-fns';
+import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -31,11 +31,17 @@ import VerificationSymbol from "@/app/common/VerificationSymbol";
 const Cell = ({
   className,
   children,
+  tooltipText,
 }: {
   className?: string;
   children: React.ReactNode;
+  tooltipText?: string;
 }) => {
-  return <div className={cn("text-center", className)}>{children}</div>;
+  return (
+    <div className={cn("text-center", className)} title={tooltipText}>
+      {children}
+    </div>
+  );
 };
 
 export const columns: ColumnDef<TCombinedSession>[] = [
@@ -47,7 +53,7 @@ export const columns: ColumnDef<TCombinedSession>[] = [
       const peerData = await getUser(peer);
 
       return (
-        <Cell className="capitalize">
+        <Cell className="capitalize" tooltipText={peerData.data.username}>
           <Link
             className="group text-center p-2 rounded-xl hover:bg-white hover:text-primary-900 underline"
             href={`/user/${peerData.data.username}`}
@@ -62,23 +68,28 @@ export const columns: ColumnDef<TCombinedSession>[] = [
   {
     accessorKey: "title",
     header: () => <Cell>Question Name</Cell>,
-    cell: ({ row }) => <Cell>{row.getValue("title")}</Cell>,
+    cell: ({ row }) => {
+      const title: string = row.getValue("title");
+
+      return <Cell tooltipText={title}>{title}</Cell>;
+    },
   },
   {
     accessorKey: "language",
     header: () => <Cell>Matched Language</Cell>,
     cell: ({ row }) => {
       const language = row.getValue("language") as string;
-      return (
-        <Cell>{language.charAt(0).toUpperCase() + language.slice(1)}</Cell>
-      );
+      const languageFormatted =
+        language.charAt(0).toUpperCase() + language.slice(1);
+      return <Cell tooltipText={languageFormatted}>{languageFormatted}</Cell>;
     },
   },
   {
     accessorKey: "complexity",
     header: () => <Cell>Complexity</Cell>,
     cell: ({ row }) => {
-      return <Cell>{row.getValue("complexity")}</Cell>;
+      const complexity: string = row.getValue("complexity");
+      return <Cell tooltipText={complexity}>{complexity}</Cell>;
     },
   },
   {
@@ -86,8 +97,9 @@ export const columns: ColumnDef<TCombinedSession>[] = [
     header: () => <Cell>Category</Cell>,
     cell: ({ row }) => {
       const categories: string[] = row.getValue("category");
+      const combinedCategories: string = categories.join(", ");
       return (
-        <Cell>
+        <Cell tooltipText={combinedCategories}>
           {categories.slice(0, 3).join(", ")}
           {categories.length > 3 ? "..." : ""}
         </Cell>
@@ -101,8 +113,8 @@ export const columns: ColumnDef<TCombinedSession>[] = [
       const date: Date = row.getValue("createdAt");
 
       return (
-        <Cell>
-          {format(date, 'dd-MM-yyyy HH:mm:ss')}
+        <Cell tooltipText={format(date, "dd-MM-yyyy HH:mm:ss")}>
+          {format(date, "dd-MM-yyyy HH:mm:ss")}
         </Cell>
       );
     },
@@ -214,9 +226,11 @@ export function DashboardDataTable({ data }: { data: TCombinedSession[] }) {
             Prev
           </Button>
           <div>
-            Page {table.getPageCount() == 0 ? 0 : table.getState().pagination.pageIndex + 1} 
-            /
-            {table.getPageCount()}
+            Page{" "}
+            {table.getPageCount() == 0
+              ? 0
+              : table.getState().pagination.pageIndex + 1}
+            /{table.getPageCount()}
           </div>
           <Button
             variant="outline"
