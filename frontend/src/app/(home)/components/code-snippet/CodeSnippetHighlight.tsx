@@ -6,16 +6,18 @@ import { useEffect, useState, useRef } from "react";
 
 const CodeSnippetHighlight = () => {
   const code = `
-  class Solution:
-    def twoSum(self, nums: List[int], target: int) -> List[int]:
-        idxDict = {}
-        for i, num in enumerate(nums):
-            idxDict[num] = i
-        
-        for i, num in enumerate(nums):
-            diff = target - num
-            if diff in idxDict and i != idxDict[diff]:
-                return [i, idxDict[diff]]`;
+class Solution:
+  def twoSum(self, nums: List[int], target: int) -> List[int]:
+      idxDict = {}
+      for i, num in enumerate(nums):
+          idxDict[num] = i
+      
+      for i, num in enumerate(nums):
+          diff = target - num
+          if diff in idxDict and i != idxDict[diff]:
+              return [i, idxDict[diff]]
+              
+              `;
 
   const [displayedText, setDisplayedText] = useState(""); // Store the currently displayed text
   const currentCharIndexRef = useRef(0); // Track the current character index
@@ -52,7 +54,8 @@ const CodeSnippetHighlight = () => {
         borderRadius: "10px",
       }}
     >
-      {displayedText}
+        {displayedText}
+
     </SyntaxHighlighter>
   );
 };
