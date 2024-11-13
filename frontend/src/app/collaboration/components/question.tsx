@@ -406,14 +406,16 @@ const Question = ({
             <br />
           </div>
         ))}
-        <Button
-          variant="outline"
-          onClick={() => setShowAnswer((prev) => !prev)}
-          className="mb-3"
-        >
-          {showAnswer ? "Hide" : "Show"} Answer
-          {showAnswer ? " ▲" : " ▼"}
-        </Button>
+        {question?.solution && (
+          <Button
+            variant="outline"
+            onClick={() => setShowAnswer((prev) => !prev)}
+            className="mb-3"
+          >
+            {showAnswer ? "Hide" : "Show"} Answer
+            {showAnswer ? " ▲" : " ▼"}
+          </Button>
+        )}
         {showAnswer && question?.solution && (
           <div className="h-[50px] text-sm">
             <span className="text-xs italic">
