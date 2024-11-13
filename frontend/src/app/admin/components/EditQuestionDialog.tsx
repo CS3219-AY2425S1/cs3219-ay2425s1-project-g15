@@ -73,6 +73,7 @@ const EditQuestionDialog = ({
     examples: [],
     solution: "",
   });
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const form = useForm<EditQuestionValues>({
     resolver: zodResolver(formSchema),
@@ -105,6 +106,7 @@ const EditQuestionDialog = ({
       };
       setQuestionData(questionData);
       reset(questionData);
+      setIsLoading(false);
     });
   }, [questionId, reset]);
 
@@ -152,196 +154,205 @@ const EditQuestionDialog = ({
       <div className="text-[32px] font-semibold text-yellow-500">
         Edit Question
       </div>
-      <Form {...form}>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-          <FormField
-            control={form.control}
-            name="questionTitle"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-primary-500">
-                  Question Title
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    className="text-white bg-primary-800"
-                    placeholder="Enter question title..."
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="questionDifficulty"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-primary-500">Difficulty</FormLabel>
-                <FormControl>
-                  <select
-                    className="w-full bg-primary-800 text-white p-2 rounded-md border border-white capitalize"
-                    {...field}
-                  >
-                    <option>Select difficulty</option>
-                    {Object.values(QuestionDifficulty).map((qd) => (
-                      <option value={qd} key={qd}>
-                        {qd}
-                      </option>
-                    ))}
-                  </select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="questionTopics"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-primary-500">Topics</FormLabel>
-                <FormControl>
-                  <MultiSelect
-                    options={topicsList}
-                    defaultValue={field.value}
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    placeholder="Select topics"
-                    variant="inverted"
-                    className="bg-primary-800"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="questionDescription"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-primary-500">Description</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Type your description here."
-                    className="text-white bg-primary-800"
-                    rows={6}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="text-primary-500 font-semibold">Examples</div>
-          {fields.map((example, index) => (
-            <div key={example.id} className="flex flex-col gap-2 mb-4">
-              <FormField
-                control={form.control}
-                name={`examples.${index}.expected_input`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-primary-500">Input</FormLabel>
-                    <FormControl>
-                      <Input
-                        className="text-white bg-primary-800"
-                        placeholder="Enter example input..."
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name={`examples.${index}.expected_output`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-primary-500">Output</FormLabel>
-                    <FormControl>
-                      <Input
-                        className="text-white bg-primary-800"
-                        placeholder="Enter example output..."
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name={`examples.${index}.explanation`}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-primary-500">
-                      Explanation (optional)
-                    </FormLabel>
-                    <FormControl>
-                      <Textarea
-                        className="text-white bg-primary-800"
-                        placeholder="Optional explanation"
-                        {...field}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={() => remove(index)}
-                className="mt-2"
-              >
-                Remove Example
-              </Button>
-            </div>
-          ))}
-          <Button
-            type="button"
-            onClick={() =>
-              append({
-                expected_input: "",
-                expected_output: "",
-                explanation: "",
-              })
-            }
+      {isLoading ? (
+        <MoonLoader color="#FFFFFF" size="30" />
+      ) : (
+        <Form {...form}>
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-4"
           >
-            Add Example
-          </Button>
+            <FormField
+              control={form.control}
+              name="questionTitle"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-primary-500">
+                    Question Title
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      className="text-white bg-primary-800"
+                      placeholder="Enter question title..."
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="solution"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-primary-500">
-                  JavaScript Code
-                </FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Type your JavaScript code here."
-                    className="text-white bg-primary-800"
-                    rows={6}
-                    {...field}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={form.control}
+              name="questionDifficulty"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-primary-500">Difficulty</FormLabel>
+                  <FormControl>
+                    <select
+                      className="w-full bg-primary-800 text-white p-2 rounded-md border border-white capitalize"
+                      {...field}
+                    >
+                      <option>Select difficulty</option>
+                      {Object.values(QuestionDifficulty).map((qd) => (
+                        <option value={qd} key={qd}>
+                          {qd}
+                        </option>
+                      ))}
+                    </select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <Button type="submit" className="mt-8">
-            {isSubmitting ? <MoonLoader size="20" /> : "Submit"}
-          </Button>
-        </form>
-      </Form>
+            <FormField
+              control={form.control}
+              name="questionTopics"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-primary-500">Topics</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      options={topicsList}
+                      defaultValue={questionData.questionTopics}
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      placeholder="Select topics"
+                      variant="inverted"
+                      className="bg-primary-800"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="questionDescription"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-primary-500">
+                    Description
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Type your description here."
+                      className="text-white bg-primary-800"
+                      rows={6}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="text-primary-500 font-semibold">Examples</div>
+            {fields.map((example, index) => (
+              <div key={example.id} className="flex flex-col gap-2 mb-4">
+                <FormField
+                  control={form.control}
+                  name={`examples.${index}.expected_input`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-primary-500">Input</FormLabel>
+                      <FormControl>
+                        <Input
+                          className="text-white bg-primary-800"
+                          placeholder="Enter example input..."
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name={`examples.${index}.expected_output`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-primary-500">Output</FormLabel>
+                      <FormControl>
+                        <Input
+                          className="text-white bg-primary-800"
+                          placeholder="Enter example output..."
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name={`examples.${index}.explanation`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-primary-500">
+                        Explanation (optional)
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          className="text-white bg-primary-800"
+                          placeholder="Optional explanation"
+                          {...field}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={() => remove(index)}
+                  className="mt-2"
+                >
+                  Remove Example
+                </Button>
+              </div>
+            ))}
+            <Button
+              type="button"
+              onClick={() =>
+                append({
+                  expected_input: "",
+                  expected_output: "",
+                  explanation: "",
+                })
+              }
+            >
+              Add Example
+            </Button>
+
+            <FormField
+              control={form.control}
+              name="solution"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-primary-500">
+                    JavaScript Code
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Type your JavaScript code here."
+                      className="text-white bg-primary-800"
+                      rows={6}
+                      {...field}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <Button type="submit" className="mt-8">
+              {isSubmitting ? <MoonLoader size="20" /> : "Submit"}
+            </Button>
+          </form>
+        </Form>
+      )}
     </div>
   );
 };

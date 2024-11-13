@@ -215,7 +215,7 @@ const AddQuestionDialog = ({
             {fields.map((example, index) => (
               <div
                 key={example.id}
-                className="space-y-2 bg-primary-800 p-4 rounded-md"
+                className="space-y-2 bg-primary-800 p-4 rounded-md  border-[1px] border-white"
               >
                 <FormField
                   control={form.control}
