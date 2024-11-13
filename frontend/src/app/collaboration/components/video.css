@@ -1,0 +1,8 @@
+/* Hide the play button on video elements in Safari */
+video::-webkit-media-controls-start-playback-button {
+  display: none !important;
+}
+
+video::-webkit-media-controls {
+  overflow: hidden !important;
+}

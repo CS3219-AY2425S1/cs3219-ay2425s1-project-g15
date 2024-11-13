@@ -1,0 +1,54 @@
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "matchverification-deployment"
+  namespace: "default"
+  labels:
+    app: "matchverification-deployment"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "matchverification-deployment"
+  template:
+    metadata:
+      labels:
+        app: "matchverification-deployment"
+    spec:
+      containers:
+      - name: "matchverification-service-sha256-1"
+        image: "gcr.io/peerprep-backend/matchverification@sha256:ccb8fc3bffa7dcbcc8e44cf466563446c514bffcbcec31382971e9ec31f8adc7"
+        imagePullPolicy: "IfNotPresent"
+        resources:
+          requests:
+            memory: "500Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        env:
+        - name: "ENV"
+          valueFrom:
+            configMapKeyRef:
+              key: "ENV"
+              name: "matchverification-deployment-config-jhye"
+        - name: "DEV_QUESTION_API_URL"
+          valueFrom:
+            configMapKeyRef:
+              key: "DEV_QUESTION_API_URL"
+              name: "matchverification-deployment-config-jhye"
+        - name: "DEV_REDIS_HOST"
+          valueFrom:
+            configMapKeyRef:
+              key: "DEV_REDIS_HOST"
+              name: "matchverification-deployment-config-jhye"
+        - name: "DEV_REDIS_PORT"
+          valueFrom:
+            configMapKeyRef:
+              key: "DEV_REDIS_PORT"
+              name: "matchverification-deployment-config-jhye"
+        - name: "DEV_KAFKA_URL"
+          valueFrom:
+            configMapKeyRef:
+              key: "DEV_KAFKA_URL"
+              name: "matchverification-deployment-config-jhye"

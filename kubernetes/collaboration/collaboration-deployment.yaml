@@ -1,0 +1,52 @@
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "collaboration-deployment"
+  namespace: "default"
+  labels:
+    app: "collaboration-deployment"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "collaboration-deployment"
+  template:
+    metadata:
+      labels:
+        app: "collaboration-deployment"
+    spec:
+      containers:
+      - name: "collaboration-service-sha256-1"
+        image: "gcr.io/peerprep-backend/collaboration@sha256:b66ba0c831fabc7c9f1d487cbd7567966426d6871eedac2c4e0cc89221566255"
+        ports:
+        - containerPort: 3001
+        livenessProbe:
+          httpGet:
+            path: /api/collaboration
+            port: 3001
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/collaboration
+            port: 3001
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        env:
+        - name: "MONGODB_URI"
+          valueFrom:
+            configMapKeyRef:
+              key: "MONGODB_URI"
+              name: "collaboration-deployment-config-jhye"
+        - name: "NODE_ENV"
+          valueFrom:
+            configMapKeyRef:
+              key: "NODE_ENV"
+              name: "collaboration-deployment-config-jhye"

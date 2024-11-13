@@ -1,0 +1,68 @@
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "matching-deployment"
+  namespace: "default"
+  labels:
+    app: "matching-deployment"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "matching-deployment"
+  template:
+    metadata:
+      labels:
+        app: "matching-deployment"
+    spec:
+      containers:
+      - name: "matching-service-sha256-1"
+        image: "gcr.io/peerprep-backend/matching@sha256:e1b856b519b3d6d6828c7a59ea63f357b87b0fce47ea3a4b864de7f7de24c415"
+        ports:
+        - containerPort: 3002
+        livenessProbe:
+          httpGet:
+            path: /api/matching
+            port: 3002
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/matching
+            port: 3002
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        env:
+        - name: "ENV"
+          valueFrom:
+            configMapKeyRef:
+              key: "ENV"
+              name: "matching-deployment-config-jhye"
+        - name: "DEV_REDIS_HOST"
+          valueFrom:
+            configMapKeyRef:
+              key: "DEV_REDIS_HOST"
+              name: "matching-deployment-config-jhye"
+        - name: "DEV_REDIS_PORT"
+          valueFrom:
+            configMapKeyRef:
+              key: "DEV_REDIS_PORT"
+              name: "matching-deployment-config-jhye"
+        - name: "DEV_VERIFY_API_URL"
+          valueFrom:
+            configMapKeyRef:
+              key: "DEV_VERIFY_API_URL"
+              name: "matching-deployment-config-jhye"
+        - name: "DEV_KAFKA_URL"
+          valueFrom:
+            configMapKeyRef:
+              key: "DEV_KAFKA_URL"
+              name: "matching-deployment-config-jhye"
+
