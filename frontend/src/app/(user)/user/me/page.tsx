@@ -18,6 +18,7 @@ import {
   getUserId,
   updateUser,
   getFileUrl,
+  requestVerificationEmail
 } from "@/api/user";
 import { useEffect, useRef, useState } from "react";
 import { User } from "@/types/user";
@@ -139,6 +140,18 @@ const ProfilePage = () => {
     }
   };
 
+  // must not trigger form submission
+  const onVerify = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    const res = await requestVerificationEmail(form.getValues("email") || "");
+    if (res) {
+      Swal.fire({
+        icon: "success",
+        title: "Verification email sent!",
+      });
+    }
+  }
+
   return (
     !!token && (
       <div className="mx-auto max-w-xl my-10 p-4">
@@ -241,7 +254,7 @@ const ProfilePage = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-yellow-500 text-lg">
-                    EMAIL
+                    EMAIL ({user?.isVerified ? "VERIFIED" : <button className="hover:underline" onClick={onVerify}>VERIFY NOW</button>})
                   </FormLabel>
                   <FormControl>
                     <Input

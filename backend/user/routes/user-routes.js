@@ -11,6 +11,7 @@ import {
   updateUser,
   updateUserPrivilege,
   getFileUrl,
+  requestVerificationEmail,
   verifyUser,
 } from "../controller/user-controller.js";
 import {
@@ -29,6 +30,8 @@ router.patch(
   verifyIsAdmin,
   updateUserPrivilege
 );
+
+router.post("/request-verification-email", requestVerificationEmail);
 
 router.get("/verify", verifyUser);
 

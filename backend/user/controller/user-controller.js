@@ -52,11 +52,18 @@ export async function createUser(req, res) {
   try {
     const { username, email, password } = req.body;
     if (username && email && password) {
-      const existingUser = await _findUserByUsernameOrEmail(username, email);
-      if (existingUser) {
+      const existingUsername = await _findUserByUsername(username);
+      if (existingUsername) {
         return res
           .status(409)
-          .json({ message: "username or email already exists" });
+          .json({ message: "username already exists" });
+      }
+
+      const existingEmail = await _findUserByEmail(email);
+      if (existingEmail) {
+        return res
+          .status(409)
+          .json({ message: "email already exists" });
       }
 
       const salt = bcrypt.genSaltSync(10);
@@ -166,6 +173,11 @@ export async function updateUser(req, res) {
         hashedPassword = bcrypt.hashSync(password, salt);
       }
 
+      let isVerified = user.isVerified;
+      if (email && email !== user.email) {
+        isVerified = false;
+      }
+
       const updatedUser = await _updateUserById(
         userId,
         username,
@@ -174,7 +186,9 @@ export async function updateUser(req, res) {
         bio,
         linkedin,
         github,
-        profilePictureUrl
+        profilePictureUrl,
+        isVerified,
+        user.verificationCode,
       );
       return res.status(200).json({
         message: `Updated data for user ${userId}`,
@@ -183,7 +197,7 @@ export async function updateUser(req, res) {
     } else {
       return res.status(400).json({
         message:
-          "No field to update: username and email and password are all missing!",
+          "No field to update!",
       });
     }
   } catch (err) {
@@ -251,7 +265,54 @@ export async function deleteUser(req, res) {
   }
 }
 
-// send email to user
+export async function requestVerificationEmail(req, res) {
+  try {
+    const { email } = req.body;
+    if (email) {
+      const user = await _findUserByEmail(email);
+      if (!user) {
+        return res
+          .status(404)
+          .json({ message: `User not found with email ${email}` });
+      }
+
+      // For email verification, you can generate a random verification code and save it in the database
+      const verificationCode =
+        Math.random().toString(36).substring(2, 15) +
+        Math.random().toString(36).substring(2, 15);
+
+      const updatedUser = await _updateUserById(
+        user.id,
+        user.username,
+        user.email,
+        user.password,
+        user.bio,
+        user.linkedin,
+        user.github,
+        user.profilePictureUrl,
+        user.isVerified,
+        verificationCode
+      );
+
+      // Send email to user
+      await sendVerificationEmail(email, user.username, verificationCode);
+
+      return res
+        .status(200)
+        .json({
+          message: `Sent verification email to user ${user.username}`,
+        });
+    } else {
+      return res.status(400).json({ message: "email is missing!" });
+    }
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(500)
+      .json({ message: "Unknown error when requesting verification email!" });
+  }
+}
+
 export async function verifyUser(req, res) {
   try {
     const { code } = req.query;
@@ -363,7 +424,10 @@ export async function resetPasswordUsingCode(req, res) {
         hashedPassword,
         user.bio,
         user.linkedin,
-        user.github
+        user.github,
+        user.profilePictureUrl,
+        user.isVerified,
+        user.verificationCode
       );
       return res.status(200).json({
         message: `Reset password for user ${user.username}`,
