@@ -17,8 +17,8 @@ spec:
     spec:
       containers:
       - name: "user-service-sha256-1"
-        image: "gcr.io/peerprep-backend/user@sha256:4318ec4b222067ae3267212fef9d81a5baa\
-          b26aeb7d83b2ba5d61cebf8a1fec0"
+        image: "gcr.io/peerprep-backend/user@sha256:ab1bc25c0c8375a9336f58a5eb3d2e10b8c\
+          c682abff8967bf9899bf9ecbe2da7"
         imagePullPolicy: "IfNotPresent"
         ports:
         - containerPort: 3004
