@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Client as StompClient } from "@stomp/stompjs";
 import "react-chat-elements/dist/main.css";
 import { Input, MessageList } from "react-chat-elements";
+import SockJS from "sockjs-client";
 import ResizeObserver from "resize-observer-polyfill";
 import Swal from "sweetalert2";
 import { CgProfile } from "react-icons/cg";
@@ -22,7 +23,7 @@ import { ChatLog, SingleChatLogApiResponse } from "@/types/chat";
 import MoonLoader from "react-spinners/MoonLoader";
 import SyntaxHighlighter from "react-syntax-highlighter";
 
-// const CHAT_SOCKET_URL = "http://34.54.37.142/chat-websocket";
+const CHAT_SOCKET_URL = "http://34.54.37.142/chat-websocket";
 
 const Question = ({
   collabid,
@@ -148,7 +149,7 @@ const Question = ({
   }, [chatLogsPage, chatLogs]); // Depend on `chatLogsPage` to update the event when the page changes
 
   useEffect(() => {
-    const socket = new WebSocket('ws://34.54.37.142/chat-websocket');
+    const socket = new SockJS(`${CHAT_SOCKET_URL}?senderId=${userID}`);
     socket.onopen = function() {
       console.log('WebSocket is connected.');
     };
