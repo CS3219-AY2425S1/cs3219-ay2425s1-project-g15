@@ -398,10 +398,14 @@ const Question = ({
                 {example.expected_output}
               </span>
             </div>
-            <span className="font-bold text-xs">Explanation: </span>
-            <span className="text-primary-400 tracking-wide text-xs">
-              {example.explanation}
-            </span>
+            {example.explanation && (
+              <div>
+                <span className="font-bold text-xs">Explanation: </span>
+                <span className="text-primary-400 tracking-wide text-xs">
+                  {example.explanation}
+                </span>
+              </div>
+            )}
             <br />
             <br />
           </div>
