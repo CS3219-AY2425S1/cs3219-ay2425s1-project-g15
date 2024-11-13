@@ -162,39 +162,39 @@ const Question = ({
       webSocketFactory: () => socket,
       debug: (str) => console.log(str),
       reconnectDelay: 5000,
-      heartbeatIncoming: 4000,
+      heartbeatIncoming: 300000, // 5 minutes in milliseconds
       heartbeatOutgoing: 4000,
       onConnect: () => {
-        console.log("STOMP connection established");
-        setIsConnected(true);
+      console.log("STOMP connection established");
+      setIsConnected(true);
 
-        client.subscribe("/user/queue/chat", (message) => {
-          pingInterval;
-          const newMessage: SingleChatLogApiResponse = JSON.parse(message.body);
-          const packagedMessage = packageMessage(newMessage);
-          setChatLogs((prev: ChatLog[]) => [...prev, packagedMessage]);
-        });
+      client.subscribe("/user/queue/chat", (message) => {
+        pingInterval;
+        const newMessage: SingleChatLogApiResponse = JSON.parse(message.body);
+        const packagedMessage = packageMessage(newMessage);
+        setChatLogs((prev: ChatLog[]) => [...prev, packagedMessage]);
+      });
 
-        client.subscribe("/user/queue/language", (message) => {
-          const messageReceived: SingleChatLogApiResponse = JSON.parse(
-            message.body
-          );
-          isLanguageChangeActive.current = false;
-          setLanguage(messageReceived.message);
-          Swal.fire({
-            title: "Language changed by your collaborator!",
-            icon: "success",
-          });
+      client.subscribe("/user/queue/language", (message) => {
+        const messageReceived: SingleChatLogApiResponse = JSON.parse(
+        message.body
+        );
+        isLanguageChangeActive.current = false;
+        setLanguage(messageReceived.message);
+        Swal.fire({
+        title: "Language changed by your collaborator!",
+        icon: "success",
         });
+      });
       },
       onDisconnect: () => {
-        console.log("STOMP connection lost");
-        setIsConnected(false);
-        clearInterval(pingInterval);
+      console.log("STOMP connection lost");
+      setIsConnected(false);
+      clearInterval(pingInterval);
       },
       onStompError: (error) => {
-        console.log("STOMP error", error);
-        clearInterval(pingInterval);
+      console.log("STOMP error", error);
+      clearInterval(pingInterval);
       },
     });
     stompClientRef.current = client;
