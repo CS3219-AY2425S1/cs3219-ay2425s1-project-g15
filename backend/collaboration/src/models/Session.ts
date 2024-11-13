@@ -7,9 +7,10 @@ import mongoose, { Document, Schema } from "mongoose";
 export type TSession = {
   collabid: string;
   users: [string];
-  language: [string];
+  language: string;
   question_id: number;
   code: string;
+  createdAt: Date;
 };
 
 // Document provides an id field
@@ -37,6 +38,10 @@ const sessionSchema: Schema = new Schema(
       type: String,
       required: false,
     },
+    createdAt: {
+      type: Date,
+      required: false,
+    }
   },
   { collection: "sessions" }
 );

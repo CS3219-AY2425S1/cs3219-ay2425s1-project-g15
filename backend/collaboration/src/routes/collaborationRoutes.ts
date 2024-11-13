@@ -46,6 +46,7 @@ router.post(
         language,
         question_id,
         code: "",
+        createdAt: new Date(),
       };
 
       const newSession = new Session(session);
@@ -75,7 +76,7 @@ router.get("/sessions", async (req: Request, res: Response) => {
 router.post("/sessions/:id", async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const sessions: TSession[] = await Session.find({ users: id }).exec();
+    const sessions: TSession[] = await Session.find({ users: id }).sort({ createdAt: -1 }).exec();
 
     return res.status(200).json(sessions);
   } catch (error) {
