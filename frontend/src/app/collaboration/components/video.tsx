@@ -250,7 +250,7 @@ const VideoCall = ({ provider }: VideoCallProps) => {
     return () => {
       provider.awareness.off("change", awarenessListener);
     };
-  }, [provider, handleSignalingMessage, startCall, startPC]);
+  }, [provider]);
 
   const processIceCandidatesQueue = async () => {
     while (iceCandidatesQueue.current.length > 0) {
