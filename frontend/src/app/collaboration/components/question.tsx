@@ -162,6 +162,8 @@ const Question = ({
       webSocketFactory: () => socket,
       debug: (str) => console.log(str),
       reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
       onConnect: () => {
         console.log("STOMP connection established");
         setIsConnected(true);

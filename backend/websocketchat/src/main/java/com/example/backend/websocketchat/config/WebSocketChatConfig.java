@@ -26,7 +26,8 @@ public class WebSocketChatConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/chat-websocket")
                 .setAllowedOriginPatterns("http://35.202.162.147") 
                 .setHandshakeHandler(new UserHandshakeHandler())
-                .withSockJS();
+                .withSockJS()
+                .setHeartbeatTime(4000);
     }
 
     @Override
