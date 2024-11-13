@@ -47,7 +47,7 @@ const profileFormSchema = z.object({
   linkedin: z
     .string()
     .refine((val) => val.length == 0 || val.includes("linkedin.com/in/"), {
-      message: "Invalid URL, is this a LinekdIn URL?",
+      message: "Invalid URL, is this a LinkedIn URL?",
     })
     .optional(),
   github: z
