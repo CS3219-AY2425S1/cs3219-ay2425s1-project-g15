@@ -264,13 +264,16 @@ const VideoCall = ({ provider }: VideoCallProps) => {
       removed.forEach((clientId) => {
         console.log("Client disconnected:", clientId);
         if (remoteVideoRef.current) {
+          console.log("remote video exists");
           if (clientId !== provider.awareness.clientID) {
             remoteVideoRef.current.srcObject = null;
             remoteStreamRef.current = null;
             setRemoteVideoSourceObject(false);
             iceCandidatesQueue.current = [];
             startPC();
+            console.log(`Video start ${videoStart}`);
             if (videoStart) {
+              console.log("restarting call");
               startCall();
             }
           } else {
