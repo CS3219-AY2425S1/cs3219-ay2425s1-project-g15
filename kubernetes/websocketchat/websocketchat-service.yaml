@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: websocketchat
+  namespace: default
+spec:
+  selector:
+    app: websocketchat-deployment
+  ports:
+  - protocol: TCP
+    port: 3007
+    targetPort: 3007
+  type: ClusterIP

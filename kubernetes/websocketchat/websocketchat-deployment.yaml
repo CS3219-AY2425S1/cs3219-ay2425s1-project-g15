@@ -1,0 +1,32 @@
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "websocketchat-deployment"
+  namespace: "default"
+  labels:
+    app: "websocketchat-deployment"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "websocketchat-deployment"
+  template:
+    metadata:
+      labels:
+        app: "websocketchat-deployment"
+    spec:
+      containers:
+      - name: "websocketchat-service-sha256-1"
+        image: "gcr.io/peerprep-backend/websocketchat@sha256:d1b871047482bbdacb566e434d456e6d7e0ef6a7038d38d446b284fa1bf25d8d"
+        imagePullPolicy: "IfNotPresent"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        env:
+        # allow the exposed ingress to access the service
+        - name: "FRONTEND_CORS_ALLOWED_ORIGINS"
+          value: "*"

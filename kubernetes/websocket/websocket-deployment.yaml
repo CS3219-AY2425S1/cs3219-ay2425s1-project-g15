@@ -1,0 +1,59 @@
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "websocket-deployment"
+  namespace: "default"
+  labels:
+    app: "websocket-deployment"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "websocket-deployment"
+  template:
+    metadata:
+      labels:
+        app: "websocket-deployment"
+    spec:
+      containers:
+      - name: "websocket-service-sha256-1"
+        image: "gcr.io/peerprep-backend/websocket@sha256:4370a0166c1513e99060509b0c64efea790b7833a14b584a09446aa6a787bb1e"
+        imagePullPolicy: "IfNotPresent"
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        env:
+        - name: "FRONTEND_CORS_ALLOWED_ORIGINS"
+          valueFrom:
+            configMapKeyRef:
+              key: "FRONTEND_CORS_ALLOWED_ORIGINS"
+              name: "websocket-deployment-config-jhye"
+        - name: "ENV"
+          valueFrom:
+            configMapKeyRef:
+              key: "ENV"
+              name: "websocket-deployment-config-jhye"
+        - name: "DEV_REDIS_HOST"
+          valueFrom:
+            configMapKeyRef:
+              key: "DEV_REDIS_HOST"
+              name: "websocket-deployment-config-jhye"
+        - name: "DEV_REDIS_PORT"
+          valueFrom:
+            configMapKeyRef:
+              key: "DEV_REDIS_PORT"
+              name: "websocket-deployment-config-jhye"
+        - name: "DEV_KAFKA_URL"
+          valueFrom:
+            configMapKeyRef:
+              key: "DEV_KAFKA_URL"
+              name: "websocket-deployment-config-jhye"
+        - name: "DEV_QUESTION_API_URL"
+          valueFrom:
+            configMapKeyRef:
+              key: "DEV_QUESTION_API_URL"
+              name: "websocket-deployment-config-jhye"
