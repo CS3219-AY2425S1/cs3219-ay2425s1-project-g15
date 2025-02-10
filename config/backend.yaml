@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+  labels:
+    app: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: collaboration
+        image: <DOCKERHUB IMAGE>
+        ports:
+        - containerPort: 3001
+      - name: matching
+        image: <DOCKERHUB IMAGE>
+        ports:
+        - containerPort: 3002
+      - name: question
+        image: <DOCKERHUB IMAGE>
+        ports:
+        - containerPort: 3003
+      - name: user
+        image: <DOCKERHUB IMAGE>
+        ports:
+        - containerPort: 3004
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: backend
+  ports:
+    - name: port-collaboration
+      port: 3001
+      targetPort: 3001
+    - name: port-matching
+      port: 3002
+      targetPort: 3002
+    - name: port-question
+      port: 3003
+      targetPort: 3003
+    - name: port-user
+      port: 3004
+      targetPort: 3004

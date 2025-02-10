@@ -1,0 +1,58 @@
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "user-deployment"
+  namespace: "default"
+  labels:
+    app: "user-deployment"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "user-deployment"
+  template:
+    metadata:
+      labels:
+        app: "user-deployment"
+    spec:
+      containers:
+      - name: "user-service-sha256-1"
+        image: "gcr.io/peerprep-backend/user@sha256:915140d6b0d36b8438b176145a4daf591e7dd13f32253b1b980ff0001f214113"
+        imagePullPolicy: "IfNotPresent"
+        ports:
+        - containerPort: 3004
+        livenessProbe:
+          httpGet:
+            path: /api/iam
+            port: 3004
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/iam
+            port: 3004
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        env:
+        - name: "DB_CLOUD_URI"
+          valueFrom:
+            configMapKeyRef:
+              key: "DB_CLOUD_URI"
+              name: "user-deployment-config-jhye"
+        - name: "ENV"
+          valueFrom:
+            configMapKeyRef:
+              key: "ENV"
+              name: "user-deployment-config-jhye"
+        - name: "JWT_SECRET"
+          valueFrom:
+            configMapKeyRef:
+              key: "JWT_SECRET"
+              name: "user-deployment-config-jhye"

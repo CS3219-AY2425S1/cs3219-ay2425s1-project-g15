@@ -1,0 +1,10 @@
+.env
+node_modules/
+backend/*/dist/
+backend/*/coverage/
+**/.DS_Store
+kubernetes/matching/matching-configmap.yaml
+kubernetes/question/question-configmap.yaml
+kubernetes/user/user-configmap.yaml
+kubernetes/collaboration/collaboration-configmap.yaml
+**/venv/

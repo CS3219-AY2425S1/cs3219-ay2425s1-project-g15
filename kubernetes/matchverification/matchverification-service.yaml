@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: matchverification
+  namespace: default
+spec:
+  selector:
+    app: matchverification-deployment
+  ports:
+  - protocol: TCP
+    port: 3006
+    targetPort: 3006
+  type: ClusterIP
